@@ -38,6 +38,8 @@ for _prs in "${_ps[@]}"; do
     pkill "${_prs}"
   fi
 done
+# reload openrgb
+pkill -f OpenWal.py && python3 $HOME/.config/hypr/Openrgb/OpenWal.py
 
 # added since wallust sometimes not applying
 killall -SIGUSR2 waybar
