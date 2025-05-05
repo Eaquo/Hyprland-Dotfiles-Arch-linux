@@ -1,7 +1,8 @@
 from openrgb import OpenRGBClient
 from openrgb.utils import RGBColor, DeviceType
-import time, math, json, os
-import traceback
+import time, json, os, random, threading
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 WALLUST_PATH = '/home/florian/.config/hypr/Openrgb/wal_rgb.json'
 
@@ -18,36 +19,51 @@ def load_colors():
         wal = json.load(f)
     return [hex_to_rgbcolor(wal['colors'][f'color{i}']) for i in range(16)]
 
+# --- Détection changement WAL ---
+class WalChangeHandler(FileSystemEventHandler):
+    def __init__(self, on_change_callback):
+        self.on_change_callback = on_change_callback
+
+    def on_modified(self, event):
+        if event.src_path == WALLUST_PATH:
+            self.on_change_callback()
+
+def reload_colors():
+    global colors, colorA, colorB, colorC, colorD, colorE, colorF
+    print("🔁 Reload WAL colors")
+    colors = load_colors()
+    colorA = colors[0]
+    colorB = colors[2]
+    colorC = colors[7]
+    colorD = colors[12]
+    colorE = colors[4]
+    colorF = colors[15]
+    colorG = colors[13]
+    colorH = colors[1]
+    colorI = colors[5]
+
 # --- Connexion OpenRGB ---
 client = OpenRGBClient()
 devices = client.devices
 
-# Debug : liste des modes disponibles
-for device in devices:
-    print(f"\n🎛️ {device.name} ({device.type})")
-    print("Modes disponibles :")
-    for mode in device.modes:
-        print(f"  - {mode.name}")
-
-# Identifie les bons périphériques
 ram_devices = [d for d in devices if d.name == "Corsair Vengeance Pro RGB"]
 node_pro = next(d for d in devices if d.name == "Corsair Lighting Node Pro")
 mobo = next(d for d in devices if d.type == DeviceType.MOTHERBOARD)
 
-# Couleurs initiales
 colors = load_colors()
-last_modified_time = os.path.getmtime(WALLUST_PATH)
-colorA = colors[13]  # Couleur statique
-colorB = colors[12]
-colorC = colors[2]
-colorD = colors[11]
-colorE = colors[5]
+colorA = colors[0]
+colorB = colors[2]
+colorC = colors[7]
+colorD = colors[12]
+colorE = colors[4]
+colorF = colors[15]
+colorG = colors[13]
+colorH = colors[1]
+colorI = colors[5]
 
-# --- Mémoire ---
 last_colors = {}
 last_modes = {}
 
-# --- Fonctions Optimisées ---
 def set_mode_safe(device, target_mode_name):
     for mode in device.modes:
         if mode.name.lower() == target_mode_name.lower():
@@ -66,157 +82,120 @@ def set_static(device, color):
     set_mode_safe(device, "Static")
     smart_set_color(device, color)
 
-def set_direct(device, color):
+def pulse_color_loop(device, color1, color2, duration=10, steps=50, speed=0.05):
     set_mode_safe(device, "Direct")
-    smart_set_color(device, color)
+    start_time = time.time()
+    while time.time() - start_time < duration:
+        for i in range(steps):
+            ratio = i / steps
+            blend = RGBColor(
+                int(color1.red * (1 - ratio) + color2.red * ratio),
+                int(color1.green * (1 - ratio) + color2.green * ratio),
+                int(color1.blue * (1 - ratio) + color2.blue * ratio),
+            )
+            device.set_color(blend)
+            time.sleep(speed)
+        color1, color2 = color2, color1
 
-def get_mode_color_limits(device, mode_name):
-    for mode in device.modes:
-        if mode.name.lower() == mode_name.lower():
-            return mode.colors_min, mode.colors_max
-    return 0, 0
+def rain_loop_with_base(ram_devices, base_color, rain_color, duration=10, speed=0.1, trail_length=3):
+    off = RGBColor(0, 0, 0)
+    start_time = time.time()
+    led_count = len(ram_devices[0].leds)
+    active_drops = []
 
-def set_color_shift(device, color1, color2):
-    try:
-        set_mode_safe(device, "Color Shift")
-        time.sleep(0.2)  # 👈 donne le temps de changer de mode
-        min_colors, max_colors = get_mode_color_limits(device, "Color Shift")
-        color_count = min(max(min_colors, 2), max_colors)
-        device.set_colors([color1, color2][:color_count])
-    except Exception as e:
-        print(f"⚠️ Erreur Color Shift sur {device.name}: {e}")
-        traceback.print_exc()
-        set_static(device, color1)
+    while time.time() - start_time < duration:
+        if random.random() < 0.3:
+            for ram in ram_devices:
+                active_drops.append({
+                    "device": ram,
+                    "position": 0,
+                    "color": rain_color
+                })
 
-def set_marquee(device, color1):
-    try:
-        set_mode_safe(device, "Marquee")
-        min_colors, max_colors = get_mode_color_limits(device, "Marquee")
-        color_count = min(max(min_colors, 3), max_colors)
-        colors = [color1 if i % 2 == 0 else color2 for i in range(color_count)]
-        device.set_colors(colors)
-    except Exception as e:
-        print(f"⚠️ Erreur Marquee sur {device.name}: {e}")
-        set_color_shift(device, color1, color2)
+        for drop in active_drops[:]:
+            device = drop["device"]
+            pos = drop["position"]
+            color = drop["color"]
+            leds = [base_color] * led_count
 
-# --- Boucle d'effet ---
-start_time = time.time()
+            for i in range(trail_length):
+                p = pos - i
+                if 0 <= p < led_count:
+                    fade = max(0.1, 1.0 - (i / trail_length))
+                    faded_color = RGBColor(
+                        int(color.red * fade),
+                        int(color.green * fade),
+                        int(color.blue * fade)
+                    )
+                    leds[p] = faded_color
+
+            device.set_colors(leds)
+            drop["position"] += 1
+
+            if drop["position"] - trail_length > led_count:
+                active_drops.remove(drop)
+
+        time.sleep(speed)
+
+# --- Watcher WAL ---
+handler = WalChangeHandler(reload_colors)
+observer = Observer()
+observer.schedule(handler, path=os.path.dirname(WALLUST_PATH), recursive=False)
+observer_thread = threading.Thread(target=observer.start)
+observer_thread.daemon = True
+observer_thread.start()
+
+# --- Boucle principale ---
 try:
     while True:
-        current_modified_time = os.path.getmtime(WALLUST_PATH)
-        if current_modified_time != last_modified_time:
-            print("🔄 wal_rgb.json modifié, on recharge !")
-            colors = load_colors()
-            colorA = colors[0]
-            colorB = colors[14]
-            colorB = colors[2]
-            colorC = colors[7]
-            colorD = colors[12]
-            colorE = colors[4]
-            colorF = colors[15]
-            last_modified_time = current_modified_time
+        print("🌈 Phase 1 - Rain + Pulse")
 
-        # Phase 1 - RAM Rain, Node Static, Mobo Static
-        for ram in ram_devices:
-            set_static(ram, colorA)
-        set_color_shift(node_pro, colorA, colorB)
-        set_static(mobo, colorB)
-        if time.time() - start_time < 4:
-            for ram in ram_devices:
-                set_direct(ram, colorB)
-        if time.time() - start_time < 4:
-            for ram in ram_devices:
-                set_direct(ram, colorC)
+        rain_thread = threading.Thread(
+            target=rain_loop_with_base,
+            args=(ram_devices, colorA, colorI, 10)
+        )
+        rain_thread.start()
 
-        print("🌈 Phase 1 - statique")
-        current_modified_time = os.path.getmtime(WALLUST_PATH)
-        if current_modified_time != last_modified_time:
-            print("🔄 wal_rgb.json modifié, on recharge !")
-            colors = load_colors()
-            colorA = colors[0]
-            colorB = colors[14]
-            colorB = colors[2]
-            colorC = colors[7]
-            colorD = colors[12]
-            colorE = colors[4]
-            colorF = colors[15]
-            last_modified_time = current_modified_time
-        time.sleep(10.0)
-
-        # Phase 2 - RAM Rain, Node Color Shift B-C, Mobo Static D
-        for ram in ram_devices:
-            set_static(ram, colorB)
-        set_color_shift(node_pro, colorB, colorC)
+        pulse_color_loop(node_pro, colorH, colorB, duration=10)
         set_static(mobo, colorC)
-        if time.time() - start_time < 4:
-            for ram in ram_devices:
-                set_direct(ram, colorC)
-        if time.time() - start_time < 4:
-            for ram in ram_devices:
-                set_direct(ram, colorD)
-                
-        print("🌈 Phase 2 - Node Color Shift B-C")
-        current_modified_time = os.path.getmtime(WALLUST_PATH)
-        if current_modified_time != last_modified_time:
-            print("🔄 wal_rgb.json modifié, on recharge !")
-            colors = load_colors()
-            colorA = colors[0]
-            colorB = colors[14]
-            colorB = colors[2]
-            colorC = colors[7]
-            colorD = colors[12]
-            colorE = colors[4]
-            colorF = colors[15]
-            last_modified_time = current_modified_time
-        time.sleep(10.0)
 
-        # Phase 3 - RAM Rain, Node Color Shift D-E, Mobo Static A
-        for ram in ram_devices:
-            set_static(ram, colorC)
-        set_color_shift(node_pro, colorC, colorD)
-        set_static(mobo, colorD)
-        if time.time() - start_time < 4:
-            for ram in ram_devices:
-                set_direct(ram, colorE)
-        if time.time() - start_time < 4:
-            for ram in ram_devices:
-                set_direct(ram, colorF)
+        rain_thread.join()  # attendre que la pluie se termine avant de continuer
 
-        print("🌈 Phase 3 - Node Color Shift D-E")
-        current_modified_time = os.path.getmtime(WALLUST_PATH)
-        if current_modified_time != last_modified_time:
-            print("🔄 wal_rgb.json modifié, on recharge !")
-            colors = load_colors()
-            colorA = colors[0]
-            colorB = colors[14]
-            colorB = colors[2]
-            colorC = colors[7]
-            colorD = colors[12]
-            colorE = colors[4]
-            colorF = colors[15]
-            last_modified_time = current_modified_time
-        time.sleep(10.0)
+        print("🌈 Phase 2 - Rain + Pulse")
+        rain_thread = threading.Thread(
+            target=rain_loop_with_base,
+            args=(ram_devices, colorB, colorC, 10)
+        )
+        rain_thread.start()
 
-        # Phase 4 - RAM Rain, Node Color Shift E-A, Mobo Static A
-        for ram in ram_devices:
-            set_static(ram, colorD)
-        set_color_shift(node_pro, colorD, colorE)
-        set_static(mobo, colorE)
-        print("🌈 Phase 4 - Node Color Shift E-A")
-        current_modified_time = os.path.getmtime(WALLUST_PATH)
-        if current_modified_time != last_modified_time:
-            print("🔄 wal_rgb.json modifié, on recharge !")
-            colors = load_colors()
-            colorA = colors[0]
-            colorB = colors[14]
-            colorB = colors[2]
-            colorC = colors[7]
-            colorD = colors[12]
-            colorE = colors[4]
-            colorF = colors[15]
-            last_modified_time = current_modified_time
-        time.sleep(10.0)
+        pulse_color_loop(node_pro, colorB, colorG, duration=10)
+        set_static(mobo, colorC)
 
+        rain_thread.join()
+
+        print("🌈 Phase 3 - Rain + Pulse")
+        rain_thread = threading.Thread(
+            target=rain_loop_with_base,
+            args=(ram_devices, colorC, colorG, 10)
+        )
+        rain_thread.start()
+
+        pulse_color_loop(node_pro, colorC, colorG, duration=10)
+        set_static(mobo, colorG)
+
+        rain_thread.join()
+
+        print("🌈 Phase 4 - Rain + Pulse")
+        rain_thread = threading.Thread(
+            target=rain_loop_with_base,
+            args=(ram_devices, colorD, colorI, 10)
+        )
+        rain_thread.start()
+
+        pulse_color_loop(node_pro, colorD, colorI, duration=10)
+        set_static(mobo, colorI)
+
+        rain_thread.join()
 
 except KeyboardInterrupt:
     print("🛑 Animation stoppée par l'utilisateur.")
