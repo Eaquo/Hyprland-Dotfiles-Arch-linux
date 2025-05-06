@@ -4,7 +4,7 @@ import time, json, os, threading, random
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-WALLUST_PATH = '/home/florian/.config/hypr/Openrgb/wal_rgb.json'
+WALLUST_PATH = os.path.expanduser('~/.config/hypr/Openrgb/wal_rgb.json')
 
 # --- Utilitaires ---
 def hex_to_rgbcolor(hex_code):
