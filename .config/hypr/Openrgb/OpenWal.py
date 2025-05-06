@@ -1,6 +1,6 @@
 from openrgb import OpenRGBClient
 from openrgb.utils import RGBColor, DeviceType
-import time, json, os, random, threading
+import time, json, os, threading, random
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -19,6 +19,17 @@ def load_colors():
         wal = json.load(f)
     return [hex_to_rgbcolor(wal['colors'][f'color{i}']) for i in range(16)]
 
+# --- Interpolation de couleurs pour transitions douces ---
+def interpolate_color(color1, color2, factor):
+    """
+    Interpoler entre deux couleurs selon un facteur (0.0 à 1.0)
+    0.0 = couleur1, 1.0 = couleur2
+    """
+    r = int(color1.red + (color2.red - color1.red) * factor)
+    g = int(color1.green + (color2.green - color1.green) * factor)
+    b = int(color1.blue + (color2.blue - color1.blue) * factor)
+    return RGBColor(r, g, b)
+
 # --- Détection changement WAL ---
 class WalChangeHandler(FileSystemEventHandler):
     def __init__(self, on_change_callback):
@@ -29,7 +40,7 @@ class WalChangeHandler(FileSystemEventHandler):
             self.on_change_callback()
 
 def reload_colors():
-    global colors, colorA, colorB, colorC, colorD, colorE, colorF
+    global colors, colorA, colorB, colorC, colorD, colorE, colorF, colorG, colorH, colorI
     print("🔁 Reload WAL colors")
     colors = load_colors()
     colorA = colors[0]
@@ -51,18 +62,19 @@ node_pro = next(d for d in devices if d.name == "Corsair Lighting Node Pro")
 mobo = next(d for d in devices if d.type == DeviceType.MOTHERBOARD)
 
 colors = load_colors()
-colorA = colors[0]
-colorB = colors[2]
-colorC = colors[7]
-colorD = colors[12]
-colorE = colors[4]
-colorF = colors[15]
-colorG = colors[13]
-colorH = colors[1]
-colorI = colors[5]
+reload_colors()
 
 last_colors = {}
 last_modes = {}
+
+# Reset composant
+def reset_device(device):
+    try:
+        set_mode_safe(device, "Direct")
+        device.set_color(RGBColor(0, 0, 0))  # noir temporaire
+        time.sleep(0.1)
+    except Exception as e:
+        print(f"⚠️ Erreur reset sur {device.name}: {e}")
 
 def set_mode_safe(device, target_mode_name):
     for mode in device.modes:
@@ -82,60 +94,78 @@ def set_static(device, color):
     set_mode_safe(device, "Static")
     smart_set_color(device, color)
 
-def pulse_color_loop(device, color1, color2, duration=10, steps=50, speed=0.05):
+def smooth_transition(device, start_color, end_color, duration=1.0, steps=20):
+    """
+    Effectue une transition douce entre deux couleurs
+    """
     set_mode_safe(device, "Direct")
+    step_time = duration / steps
+    
+    for step in range(steps + 1):
+        factor = step / steps
+        current_color = interpolate_color(start_color, end_color, factor)
+        device.set_color(current_color)
+        time.sleep(step_time)
+
+def base_with_active_led(device, base_color, active_color, duration=50, speed=0.5, leds_per_fan=8):
+    """
+    Active une LED aléatoire par ventilateur.
+    """
+    set_mode_safe(device, "Direct")
+    led_count = len(device.leds)
     start_time = time.time()
+    
+    # Calculer le nombre de ventilateurs
+    fan_count = led_count // leds_per_fan
+    if fan_count == 0:
+        fan_count = 1  # Au moins un ventilateur même si LEDs insuffisantes
+    
+    print(f"Dispositif: {device.name}, LEDs: {led_count}, Ventilateurs calculés: {fan_count}")
+    
     while time.time() - start_time < duration:
-        for i in range(steps):
-            ratio = i / steps
-            blend = RGBColor(
-                int(color1.red * (1 - ratio) + color2.red * ratio),
-                int(color1.green * (1 - ratio) + color2.green * ratio),
-                int(color1.blue * (1 - ratio) + color2.blue * ratio),
-            )
-            device.set_color(blend)
-            time.sleep(speed)
-        color1, color2 = color2, color1
-
-def rain_loop_with_base(ram_devices, base_color, rain_color, duration=10, speed=0.1, trail_length=3):
-    off = RGBColor(0, 0, 0)
-    start_time = time.time()
-    led_count = len(ram_devices[0].leds)
-    active_drops = []
-
-    while time.time() - start_time < duration:
-        if random.random() < 0.3:
-            for ram in ram_devices:
-                active_drops.append({
-                    "device": ram,
-                    "position": 0,
-                    "color": rain_color
-                })
-
-        for drop in active_drops[:]:
-            device = drop["device"]
-            pos = drop["position"]
-            color = drop["color"]
-            leds = [base_color] * led_count
-
-            for i in range(trail_length):
-                p = pos - i
-                if 0 <= p < led_count:
-                    fade = max(0.1, 1.0 - (i / trail_length))
-                    faded_color = RGBColor(
-                        int(color.red * fade),
-                        int(color.green * fade),
-                        int(color.blue * fade)
-                    )
-                    leds[p] = faded_color
-
-            device.set_colors(leds)
-            drop["position"] += 1
-
-            if drop["position"] - trail_length > led_count:
-                active_drops.remove(drop)
-
+        # Réinitialiser toutes les LEDs à la couleur de base
+        colors = [base_color] * led_count
+        
+        # Pour chaque ventilateur, activer une LED aléatoire
+        for fan_index in range(fan_count):
+            # Calculer la plage d'indices pour ce ventilateur
+            fan_start = fan_index * leds_per_fan
+            fan_end = min(fan_start + leds_per_fan, led_count)
+            
+            if fan_end > fan_start:  # S'assurer qu'il y a des LEDs disponibles pour ce ventilateur
+                # Choisir une LED aléatoire dans la plage de ce ventilateur
+                active_led_index = random.randint(fan_start, fan_end - 1)
+                colors[active_led_index] = active_color
+        
+        # Appliquer les couleurs au dispositif
+        device.set_colors(colors)
         time.sleep(speed)
+
+# --- Gestion des transitions entre phases ---
+def transition_to_phase(ram_devices, node_pro, mobo, 
+                        ram_base_from, ram_base_to, 
+                        ram_active_from, ram_active_to, 
+                        mobo_from, mobo_to, 
+                        transition_duration=0.1):
+    """
+    Effectue une transition douce entre deux phases d'animation
+    """
+    print("🔄 Transition vers nouvelle phase...")
+    
+    # Transition pour la carte mère
+    mobo_thread = threading.Thread(
+        target=smooth_transition, 
+        args=(mobo, mobo_from, mobo_to, transition_duration)
+    )
+    mobo_thread.start()
+    
+    # Pour le moment, les transitions sur les RAM et Node Pro sont simplifiées
+    # car nous utilisons des effets complexes avec plusieurs couleurs
+    # Nous effectuons simplement une brève pause pour synchroniser avec la transition de la carte mère
+    time.sleep(transition_duration)
+    
+    mobo_thread.join()
+    print("✅ Transition terminée")
 
 # --- Watcher WAL ---
 handler = WalChangeHandler(reload_colors)
@@ -147,55 +177,116 @@ observer_thread.start()
 
 # --- Boucle principale ---
 try:
+    # Forcer un reset au début du programme
+    for ram in ram_devices:
+        reset_device(ram)
+    reset_device(node_pro)
+    reset_device(mobo)
+    
+    # Couleur initiale
+    current_mobo_color = colorA
+    set_static(mobo, current_mobo_color)
+    
+    # Pour garder une trace des couleurs actuelles pour les transitions
+    current_ram_base = colorA
+    current_ram_active = colorB
+
     while True:
-        print("🌈 Phase 1 - Rain + Pulse")
+        print("🌈 Phase 1")
+        # Transition vers Phase 1
+        transition_to_phase(ram_devices, node_pro, mobo, 
+                           current_ram_base, colorA, 
+                           current_ram_active, colorB, 
+                           current_mobo_color, colorC)
+        
+        current_ram_base = colorA
+        current_ram_active = colorB
+        current_mobo_color = colorC
+        
+        ram_threads = [
+            threading.Thread(target=base_with_active_led, args=(ram, colorA, colorB, 10, 0.5, 8))
+            for ram in ram_devices
+        ]
+        node_thread = threading.Thread(target=base_with_active_led, args=(node_pro, colorA, colorB, 10, 0.5, 8))
 
-        rain_thread = threading.Thread(
-            target=rain_loop_with_base,
-            args=(ram_devices, colorA, colorI, 10)
-        )
-        rain_thread.start()
+        for t in ram_threads:
+            t.start()
+        node_thread.start()
+        for t in ram_threads:
+            t.join()
+        node_thread.join()
 
-        pulse_color_loop(node_pro, colorH, colorB, duration=10)
-        set_static(mobo, colorC)
+        print("🌈 Phase 2")
+        # Transition vers Phase 2
+        transition_to_phase(ram_devices, node_pro, mobo, 
+                           current_ram_base, colorG, 
+                           current_ram_active, colorC, 
+                           current_mobo_color, colorD)
+        
+        current_ram_base = colorG
+        current_ram_active = colorC
+        current_mobo_color = colorD
+        
+        ram_threads = [
+            threading.Thread(target=base_with_active_led, args=(ram, colorG, colorC, 10, 0.5, 8))
+            for ram in ram_devices
+        ]
+        node_thread = threading.Thread(target=base_with_active_led, args=(node_pro, colorG, colorC, 10, 0.5, 8))
 
-        rain_thread.join()  # attendre que la pluie se termine avant de continuer
+        for t in ram_threads:
+            t.start()
+        node_thread.start()
+        for t in ram_threads:
+            t.join()
+        node_thread.join()
 
-        print("🌈 Phase 2 - Rain + Pulse")
-        rain_thread = threading.Thread(
-            target=rain_loop_with_base,
-            args=(ram_devices, colorB, colorC, 10)
-        )
-        rain_thread.start()
+        print("🌈 Phase 3")
+        # Transition vers Phase 3
+        transition_to_phase(ram_devices, node_pro, mobo, 
+                           current_ram_base, colorC, 
+                           current_ram_active, colorG, 
+                           current_mobo_color, colorE)
+        
+        current_ram_base = colorC
+        current_ram_active = colorG
+        current_mobo_color = colorE
+        
+        ram_threads = [
+            threading.Thread(target=base_with_active_led, args=(ram, colorC, colorG, 10, 0.5, 8))
+            for ram in ram_devices
+        ]
+        node_thread = threading.Thread(target=base_with_active_led, args=(node_pro, colorC, colorG, 10, 0.5, 8))
 
-        pulse_color_loop(node_pro, colorB, colorG, duration=10)
-        set_static(mobo, colorC)
+        for t in ram_threads:
+            t.start()
+        node_thread.start()
+        for t in ram_threads:
+            t.join()
+        node_thread.join()
 
-        rain_thread.join()
+        print("🌈 Phase 4")
+        # Transition vers Phase 4
+        transition_to_phase(ram_devices, node_pro, mobo, 
+                           current_ram_base, colorD, 
+                           current_ram_active, colorI, 
+                           current_mobo_color, colorF)
+        
+        current_ram_base = colorD
+        current_ram_active = colorI
+        current_mobo_color = colorF
+        
+        ram_threads = [
+            threading.Thread(target=base_with_active_led, args=(ram, colorD, colorI, 10, 0.5, 8))
+            for ram in ram_devices
+        ]
+        node_thread = threading.Thread(target=base_with_active_led, args=(node_pro, colorD, colorI, 10, 0.5, 8))
 
-        print("🌈 Phase 3 - Rain + Pulse")
-        rain_thread = threading.Thread(
-            target=rain_loop_with_base,
-            args=(ram_devices, colorC, colorG, 10)
-        )
-        rain_thread.start()
-
-        pulse_color_loop(node_pro, colorC, colorG, duration=10)
-        set_static(mobo, colorG)
-
-        rain_thread.join()
-
-        print("🌈 Phase 4 - Rain + Pulse")
-        rain_thread = threading.Thread(
-            target=rain_loop_with_base,
-            args=(ram_devices, colorD, colorI, 10)
-        )
-        rain_thread.start()
-
-        pulse_color_loop(node_pro, colorD, colorI, duration=10)
-        set_static(mobo, colorI)
-
-        rain_thread.join()
+        for t in ram_threads:
+            t.start()
+        node_thread.start()
+        for t in ram_threads:
+            t.join()
+        node_thread.join()
 
 except KeyboardInterrupt:
     print("🛑 Animation stoppée par l'utilisateur.")
