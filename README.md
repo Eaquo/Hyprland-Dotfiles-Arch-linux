@@ -224,6 +224,12 @@ yay -S wallust spicetify-cli rofi-games-git swaync swappy aylurs-gtk-shell-git
 - [r/unixporn](https://reddit.com/r/unixporn) for inspiration
 - All the developers of the tools used in this configuration
 
+## ☕ Support
+
+If you like this project, consider buying me a coffee!
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/waxdred)
+
 ---
 
 ## 📜 License
