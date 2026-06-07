@@ -3,8 +3,8 @@
 # ║   Réinstallation automatique de la config Hyprland (Arch)     ║
 # ║   Usage :  git clone <repo> && cd <repo> && ./install.sh      ║
 # ╚══════════════════════════════════════════════════════════════╝
-#  Étapes : 1.Vérifs  2.yay  3.Paquets officiels  4.Paquets AUR
-#           5.Dotfiles  6.Shell par défaut  7.Thème SDDM  8.Services
+#  Étapes : 1.Vérifs  2.yay  3.Paquets officiels  4.Paquets AUR  5.Dotfiles
+#           6.Shell  7.Plugins hyprpm  8.Thème SDDM  9.Services
 
 set -uo pipefail
 
@@ -14,11 +14,10 @@ cd "$SCRIPT_DIR" || { echo "Impossible d'accéder à $SCRIPT_DIR"; exit 1; }
 
 SDDM_THEME_DIR="simple-sddm-2"          # dossier du thème dans le dépôt
 SDDM_THEME_NAME="simple-sddm-2"         # nom installé dans /usr/share/sddm/themes
-TS="$(date +%Y%m%d-%H%M%S)"
-BACKUP_DIR="$HOME/.config-backup-$TS"
 FAILED_PKGS=()
-STEP=0; STEPS_TOTAL=8
+STEP=0; STEPS_TOTAL=9
 LOG="$HOME/hypr-install.log"
+DEPLOY_MODE=overwrite   # overwrite | skip | ask  (défini à l'étape dotfiles)
 
 # ─────────────────────────────  UI  ──────────────────────────────
 if [[ -t 1 ]]; then
@@ -121,21 +120,37 @@ install_pkgs(){
 
 # ───────────────────────  5. Dotfiles  ───────────────────────────
 deploy_one(){   # $1 = source (dans dépôt)   $2 = destination
-  local src="$1" dst="$2"
+  local src="$1" dst="$2" short
   [[ -e "$src" ]] || return
+  short="${dst/#$HOME/\~}"
   if [[ -e "$dst" || -L "$dst" ]]; then
-    mkdir -p "$BACKUP_DIR/$(dirname "${dst#"$HOME"/}")"
-    cp -a "$dst" "$BACKUP_DIR/${dst#"$HOME"/}" 2>/dev/null
-    rm -rf "$dst"          # indispensable : sinon cp imbrique (.themes/.themes/…)
+    case "$DEPLOY_MODE" in
+      skip) note "gardé (existe déjà) : $short"; return ;;
+      ask)
+        printf "  ${YEL}?${R} %s existe déjà — écraser ? ${D}(l'ancien → ${short##*/}_backup)${R} ${D}[o/N]${R} " "$short"
+        local r; read -r r
+        [[ "$r" =~ ^[oOyY]$ ]] || { note "gardé : $short"; return; }
+        ;;
+    esac
+    # l'ancien est conservé à côté, renommé <nom>_backup
+    rm -rf "${dst}_backup"
+    mv "$dst" "${dst}_backup"
+    note "ancien conservé → ${short}_backup"
   fi
   mkdir -p "$(dirname "$dst")"
   cp -aT "$src" "$dst"     # -T : dst EST la cible, jamais "copier dedans"
-  ok "${dst/#$HOME/\~}"
+  ok "$short"
 }
 
 step_dotfiles(){
   section "Déploiement des dotfiles"
-  note "Backup de l'existant → ${BACKUP_DIR/#$HOME/\~}"
+  printf "${YEL}❯${R} Si un fichier existe déjà : ${D}[o]=tout écraser / [g]=garder l'existant / [d]=demander à chaque${R} "
+  local m; read -r m
+  case "$m" in
+    g|G) DEPLOY_MODE=skip ;     note "Mode : garder l'existant (ne déploie que ce qui manque)" ;;
+    d|D) DEPLOY_MODE=ask  ;     note "Mode : demander pour chaque fichier" ;;
+    *)   DEPLOY_MODE=overwrite ; note "Mode : tout écraser (l'ancien renommé <nom>_backup)" ;;
+  esac
   if [[ -d .config ]]; then
     for item in .config/*; do
       deploy_one "$item" "$HOME/.config/$(basename "$item")"
@@ -149,8 +164,15 @@ step_dotfiles(){
     shopt -u dotglob
   fi
   [[ -d .themes ]]  && deploy_one ".themes"  "$HOME/.themes"
-  [[ -d Pictures ]] && { mkdir -p "$HOME/Pictures"; for it in Pictures/*; do deploy_one "$it" "$HOME/Pictures/$(basename "$it")"; done; }
   [[ -d .zen ]]     && deploy_one ".zen"     "$HOME/.zen"
+  if [[ -d Pictures ]]; then
+    if ask "Déployer les wallpapers (dossier Pictures) ?"; then
+      mkdir -p "$HOME/Pictures"
+      for it in Pictures/*; do deploy_one "$it" "$HOME/Pictures/$(basename "$it")"; done
+    else
+      note "Wallpapers ignorés"
+    fi
+  fi
   chmod +x "$HOME"/.config/hypr/scripts/*.sh     2>/dev/null
   chmod +x "$HOME"/.config/hypr/UserScripts/*.sh 2>/dev/null
   chmod +x "$HOME"/.config/hypr/*.sh             2>/dev/null
@@ -182,7 +204,41 @@ step_shell(){
   fi
 }
 
-# ──────────────────────  7. Thème SDDM  ──────────────────────────
+# ─────────────────  7. Plugins Hyprland (hyprpm)  ───────────────
+step_hyprpm(){
+  section "Plugins Hyprland (hyprpm)"
+  if ! command -v hyprpm >/dev/null; then
+    warn "hyprpm absent (hyprland installé ?) — étape ignorée"; return
+  fi
+  note "Idéalement à lancer DANS une session Hyprland."
+  note "Sinon, si ça échoue, relance simplement cette commande après le 1er login :"
+  note "  hyprpm update && hyprpm enable hy3 && hyprpm enable hyprbars && hyprpm reload"
+  note "Compilation des headers (peut prendre plusieurs minutes)…"
+  if ! hyprpm update >>"$LOG" 2>&1; then
+    warn "hyprpm update a échoué — à relancer dans Hyprland (voir $LOG)"; return
+  fi
+  ok "headers à jour"
+  # dépôts nécessaires aux plugins activés (hy3, hyprbars)
+  local name url
+  for entry in "hyprland-plugins=https://github.com/hyprwm/hyprland-plugins" \
+               "hy3=https://github.com/outfoxxed/hy3"; do
+    name="${entry%%=*}"; url="${entry#*=}"
+    if hyprpm list 2>/dev/null | grep -q "Repository $name"; then
+      ok "dépôt $name déjà présent"
+    else
+      printf "  ${CYN}…${R} ajout du dépôt %s\n" "$name"
+      if hyprpm add "$url" >>"$LOG" 2>&1; then ok "dépôt $name ajouté"; else warn "dépôt $name : échec (voir $LOG)"; fi
+    fi
+  done
+  # activation des plugins utilisés
+  for plug in hy3 hyprbars; do
+    if hyprpm enable "$plug" >>"$LOG" 2>&1; then ok "plugin $plug activé"; else warn "plugin $plug : échec activation"; fi
+  done
+  hyprpm reload -n >>"$LOG" 2>&1 || true
+  ok "Plugins prêts (rechargés au login via Startup_Apps)"
+}
+
+# ──────────────────────  8. Thème SDDM  ──────────────────────────
 step_sddm(){
   section "Thème SDDM"
   if [[ ! -d "$SDDM_THEME_DIR" ]]; then warn "$SDDM_THEME_DIR absent, étape ignorée"; return; fi
@@ -213,7 +269,7 @@ step_sddm(){
   fi
 }
 
-# ────────────────────────  8. Services  ──────────────────────────
+# ────────────────────────  9. Services  ──────────────────────────
 step_services(){
   section "Services système"
   for svc in NetworkManager bluetooth; do
@@ -229,7 +285,7 @@ summary(){
   printf "\n${GRN}╔══════════════════════════════════════════════════════════╗${R}\n"
   printf "${GRN}║${R}  ${B}Installation terminée${R}                                   ${GRN}║${R}\n"
   printf "${GRN}╚══════════════════════════════════════════════════════════╝${R}\n"
-  ok "Dotfiles déployés  ${D}(backup: ${BACKUP_DIR/#$HOME/\~})${R}"
+  ok "Dotfiles déployés  ${D}(anciens conservés en <nom>_backup)${R}"
   ok "Thème SDDM : $SDDM_THEME_NAME"
   if ((${#FAILED_PKGS[@]})); then
     printf "\n"; warn "Paquets NON installés (${#FAILED_PKGS[@]}) — à vérifier manuellement :"
@@ -237,7 +293,12 @@ summary(){
     note "Détail des erreurs : ${LOG/#$HOME/\~}"
     note "Cherches-y le nom du paquet pour voir la cause exacte."
   fi
-  printf "\n${CYN}❯${R} Redémarre, ou lance :  ${B}sudo systemctl start sddm${R}\n\n"
+  printf "\n"
+  if ask "Redémarrer maintenant ?"; then
+    note "Redémarrage…"; sudo reboot
+  else
+    printf "${CYN}❯${R} Plus tard : ${B}reboot${R}  (ou ${B}sudo systemctl start sddm${R})\n\n"
+  fi
 }
 
 # ─────────────────────────────  main  ────────────────────────────
@@ -262,6 +323,9 @@ main(){
 
   if ask "Définir le shell par défaut (fish / zsh) ?"; then step_shell; else
     STEP=$((STEP+1)); warn "Shell par défaut inchangé"; fi
+
+  if ask "Installer/activer les plugins Hyprland (hyprpm : hy3, hyprbars) ?"; then step_hyprpm; else
+    STEP=$((STEP+1)); warn "Plugins hyprpm ignorés"; fi
 
   if ask "Installer le thème SDDM ?"; then step_sddm; else
     STEP=$((STEP+1)); warn "Thème SDDM ignoré"; fi
