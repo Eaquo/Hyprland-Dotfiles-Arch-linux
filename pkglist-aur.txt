@@ -10,13 +10,13 @@ aylurs-gtk-shell-git
 
 # --- Theming dynamique ---
 wallust
-matugen-bin
+matugen
 
 # --- Spotify ---
-spicetify-cli
+spicetify-cli-git
 
 # --- Pyprland (plugins Hyprland: scratchpads, etc.) ---
-pyprland
+pyprland-git
 
 # --- RGB ---
 openrgb
