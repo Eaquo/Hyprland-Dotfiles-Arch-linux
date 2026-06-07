@@ -17,6 +17,13 @@ qt5-wayland
 qt6-wayland
 polkit-kde-agent
 
+# --- hyprpm : compilation des plugins Hyprland (hyprpm update / add) ---
+cmake
+meson
+cpio
+pkgconf
+gcc
+
 # --- Terminal / shell ---
 kitty
 zsh
