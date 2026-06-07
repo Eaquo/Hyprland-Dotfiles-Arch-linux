@@ -196,6 +196,20 @@ step_sddm(){
   sudo mkdir -p /etc/sddm.conf.d
   printf "[Theme]\nCurrent=%s\n" "$SDDM_THEME_NAME" | sudo tee /etc/sddm.conf.d/theme.conf.user >/dev/null
   ok "/etc/sddm.conf.d/theme.conf.user écrit (Current=$SDDM_THEME_NAME)"
+
+  # Session Hyprland : le paquet n'installe pas toujours de .desktop (ou il est vide)
+  local sess=/usr/share/wayland-sessions/hyprland.desktop
+  if [[ ! -s "$sess" ]] && command -v Hyprland >/dev/null; then
+    sudo mkdir -p /usr/share/wayland-sessions
+    printf '[Desktop Entry]\nName=Hyprland\nComment=An intelligent dynamic tiling Wayland compositor\nExec=Hyprland\nType=Application\n' \
+      | sudo tee "$sess" >/dev/null
+    ok "Session Hyprland créée → $sess"
+    # supprime la coquille uwsm vide si présente
+    [[ -e /usr/share/wayland-sessions/hyprland-uwsm.desktop && ! -s /usr/share/wayland-sessions/hyprland-uwsm.desktop ]] \
+      && sudo rm -f /usr/share/wayland-sessions/hyprland-uwsm.desktop
+  else
+    ok "Session Hyprland déjà présente"
+  fi
 }
 
 # ────────────────────────  8. Services  ──────────────────────────
