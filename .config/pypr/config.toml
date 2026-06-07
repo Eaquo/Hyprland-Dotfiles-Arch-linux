@@ -1,0 +1,39 @@
+[pyprland]
+plugins = ["scratchpads", "magnify", "expose"]
+
+[scratchpads.term]
+animation = "fromTop"
+command = "kitty --class kitty-dropterm"
+class = "kitty-dropterm"
+size = "50% 40%"
+position = "25% 3%"
+unfocus = "hide"
+lazy = true
+
+[scratchpads.clock]
+animation = "fromTop"
+command = "kitty --class kitty-clock -T clock tty-clock -c -s -b -f '%H:%M:%S' -C 3 -B"
+class = "kitty-clock"
+size = "20% 15%"
+position = "40% 3%"
+unfocus = "hide"
+lazy = true
+
+[scratchpads.ranger]
+animation = "fromTop"
+command = "kitty yazi"
+class = "kitty"
+size = "70% 50%"
+unfocus = "hide"
+
+[scratchpads.spot]
+animation = "fromRight"
+command = "spotify --force-device-scale-factor=1"
+class = "Spotify"
+size = "30% 97%"
+position = "70% 3%"
+unfocus = "hide"
+lazy = true
+margin = 1
+
+
