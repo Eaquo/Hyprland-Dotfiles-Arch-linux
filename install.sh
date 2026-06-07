@@ -123,12 +123,13 @@ install_pkgs(){
 deploy_one(){   # $1 = source (dans dépôt)   $2 = destination
   local src="$1" dst="$2"
   [[ -e "$src" ]] || return
-  if [[ -e "$dst" ]]; then
+  if [[ -e "$dst" || -L "$dst" ]]; then
     mkdir -p "$BACKUP_DIR/$(dirname "${dst#"$HOME"/}")"
     cp -a "$dst" "$BACKUP_DIR/${dst#"$HOME"/}" 2>/dev/null
+    rm -rf "$dst"          # indispensable : sinon cp imbrique (.themes/.themes/…)
   fi
   mkdir -p "$(dirname "$dst")"
-  cp -a "$src" "$dst"
+  cp -aT "$src" "$dst"     # -T : dst EST la cible, jamais "copier dedans"
   ok "${dst/#$HOME/\~}"
 }
 
