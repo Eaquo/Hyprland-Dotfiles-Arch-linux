@@ -4,7 +4,7 @@
 # ║   Usage :  git clone <repo> && cd <repo> && ./install.sh      ║
 # ╚══════════════════════════════════════════════════════════════╝
 #  Étapes : 1.Vérifs  2.yay  3.Paquets officiels  4.Paquets AUR
-#           5.Dotfiles  6.Thème SDDM  7.Services
+#           5.Dotfiles  6.Shell par défaut  7.Thème SDDM  8.Services
 
 set -uo pipefail
 
@@ -17,7 +17,8 @@ SDDM_THEME_NAME="simple-sddm-2"         # nom installé dans /usr/share/sddm/the
 TS="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="$HOME/.config-backup-$TS"
 FAILED_PKGS=()
-STEP=0; STEPS_TOTAL=7
+STEP=0; STEPS_TOTAL=8
+LOG="$HOME/hypr-install.log"
 
 # ─────────────────────────────  UI  ──────────────────────────────
 if [[ -t 1 ]]; then
@@ -108,7 +109,8 @@ install_pkgs(){
     [[ -z "$p" ]] && continue
     i=$((i+1))
     printf "  ${CYN}[%2d/%2d]${R} %-28s" "$i" "$total" "$p"
-    if yay -S --needed --noconfirm "$p" >/dev/null 2>&1; then
+    printf '\n========== %s ==========\n' "$p" >>"$LOG"
+    if yay -S --needed --noconfirm "$p" >>"$LOG" 2>&1; then
       printf "${GRN}✔${R}\n"
     else
       printf "${RED}✘${R}\n"
@@ -154,7 +156,32 @@ step_dotfiles(){
   ok "Scripts hypr rendus exécutables"
 }
 
-# ──────────────────────  6. Thème SDDM  ──────────────────────────
+# ───────────────────  6. Shell par défaut  ──────────────────────
+step_shell(){
+  section "Shell par défaut"
+  local current target choice
+  current="$(getent passwd "$USER" | cut -d: -f7)"
+  note "Shell actuel : $current"
+  printf "${YEL}❯${R} Quel shell par défaut ?  ${D}[f]ish / [z]sh / [Entrée]=garder${R} "
+  read -r choice
+  case "$choice" in
+    f|F) target=/usr/bin/fish ;;
+    z|Z) target=/usr/bin/zsh ;;
+    *)   warn "Shell inchangé"; return ;;
+  esac
+  if [[ ! -x "$target" ]]; then
+    err "$target introuvable — le paquet est-il bien installé ?"; return
+  fi
+  # ajoute le shell à /etc/shells si absent (requis par chsh)
+  grep -qx "$target" /etc/shells 2>/dev/null || echo "$target" | sudo tee -a /etc/shells >/dev/null
+  if sudo chsh -s "$target" "$USER"; then
+    ok "Shell par défaut → $target ${D}(effectif à la prochaine connexion)${R}"
+  else
+    err "chsh a échoué"
+  fi
+}
+
+# ──────────────────────  7. Thème SDDM  ──────────────────────────
 step_sddm(){
   section "Thème SDDM"
   if [[ ! -d "$SDDM_THEME_DIR" ]]; then warn "$SDDM_THEME_DIR absent, étape ignorée"; return; fi
@@ -171,7 +198,7 @@ step_sddm(){
   ok "/etc/sddm.conf.d/theme.conf.user écrit (Current=$SDDM_THEME_NAME)"
 }
 
-# ────────────────────────  7. Services  ──────────────────────────
+# ────────────────────────  8. Services  ──────────────────────────
 step_services(){
   section "Services système"
   for svc in NetworkManager bluetooth; do
@@ -192,7 +219,8 @@ summary(){
   if ((${#FAILED_PKGS[@]})); then
     printf "\n"; warn "Paquets NON installés (${#FAILED_PKGS[@]}) — à vérifier manuellement :"
     printf "     ${RED}•${R} %s\n" "${FAILED_PKGS[@]}"
-    note "Vérifie les noms dans pkglist-*.txt"
+    note "Détail des erreurs : ${LOG/#$HOME/\~}"
+    note "Cherches-y le nom du paquet pour voir la cause exacte."
   fi
   printf "\n${CYN}❯${R} Redémarre, ou lance :  ${B}sudo systemctl start sddm${R}\n\n"
 }
@@ -201,6 +229,7 @@ summary(){
 main(){
   clear 2>/dev/null
   banner
+  : > "$LOG"   # réinitialise le log d'installation
   step_checks
 
   if ask "Installer les paquets (officiels + AUR) ?"; then
@@ -215,6 +244,9 @@ main(){
 
   if ask "Déployer les dotfiles dans ton HOME ?"; then step_dotfiles; else
     STEP=$((STEP+1)); warn "Déploiement des dotfiles ignoré"; fi
+
+  if ask "Définir le shell par défaut (fish / zsh) ?"; then step_shell; else
+    STEP=$((STEP+1)); warn "Shell par défaut inchangé"; fi
 
   if ask "Installer le thème SDDM ?"; then step_sddm; else
     STEP=$((STEP+1)); warn "Thème SDDM ignoré"; fi
