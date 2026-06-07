@@ -26,7 +26,7 @@ starship
 # --- Barre / notif / launcher ---
 waybar
 swaync
-rofi-wayland
+rofi          # rofi 2.x mainline (support Wayland intégré ; rofi-wayland est obsolète)
 wlogout
 
 # --- Fond d'écran / theming dynamique ---
