@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+# Génère les classes CSS pour la barre de batterie vader5
+# Lance une seule fois : python3 gen_vader5_css.py >> ~/.config/waybar/style.css
+
+percent_start = 70.6718
+percent_end   = 70.7161
+
+# Couleurs dégradé rose → orange
+def lerp_color(t):
+    # rose #ff0080 → orange #ff8800
+    r = 255
+    g = int(0x00 + (0x88 - 0x00) * t)
+    b = int(0x80 + (0x00 - 0x80) * t)
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+output = """
+/* ── Vader 5 Pro battery bar ─────────────────────────────────────── */
+#custom-vader5 {
+    padding: 0 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    border-bottom: 2px solid transparent;
+}
+#custom-vader5.disconnected {
+    color: #555555;
+}
+"""
+
+for i in range(0, 101, 5):
+    t     = i / 100
+    color = lerp_color(t)
+    pct   = i / 100 * (percent_end - percent_start) + percent_start
+    output += f"""#custom-vader5.perc{i} {{
+    color: {color};
+    background-image: radial-gradient(ellipse at -160000% calc(100% - 1px), {color} {pct:.4f}%, transparent 0);
+}}\n"""
+
+print(output)

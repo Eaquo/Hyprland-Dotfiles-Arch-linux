@@ -1,0 +1,170 @@
+#!/bin/bash
+# ================================================================
+#  Script de lancement — Black Myth: Wukong
+#  Optimisé pour : AMD GPU + Hyprland + Ultrawide 3440x1440@165Hz
+# ================================================================
+
+SCRIPTSDIR="$HOME/.config/hypr/scripts"
+SCRIPT_NAME=$(basename "$0")
+
+# ======= OPTIONS DE CONFIGURATION =======
+GAMESCOPE_OPTIONS="False" # Laisser False : UE5 + Gamescope = crashs fréquents
+GAME_PERF="True"          # ✅ Activé : BMW est très CPU-intensif
+GAME_VRR="True"           # ✅ VRR pour smoother les chutes de FPS
+ANIMATION="True"          # ✅ Désactive animations Hyprland pendant le jeu
+MANGOHUD_OPTION="True"    # ✅ Monitoring FPS/GPU/VRAM
+OPTION_AFTER=""
+LANG_KEY="fr"
+
+# ======= PARAMÈTRES GÉNÉRAUX =======
+MONITOR="DP-2"
+RESOLUTION="3440x1440"
+REFRESH_RATE="165"
+POSITION="0x0"
+SCALE="1"
+RES_WIDTH=3440
+RES_HEIGHT=1440
+FSR="True" # ✅ FSR utile si tu joues sous 3440x1440 natif
+
+# ======= Config Wayland or X11 =======
+X11="True" # ✅ BMW tourne mieux sous XWayland (Proton)
+
+# ======= CONFIGURATION DYNAMIQUE =======
+if [ "$FSR" = "True" ]; then
+  FSR_MODE="-F fsr"
+else
+  FSR_MODE=""
+fi
+
+if [ "$GAMESCOPE_OPTIONS" = "True" ]; then
+  export XKB_DEFAULT_LAYOUT=$LANG_KEY
+  GAMESCOPE_SET="gamescope --backend sdl -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE --force-grab-cursor --"
+else
+  GAMESCOPE_SET=""
+fi
+
+if [ "$GAME_PERF" = "True" ]; then
+  GAME_PERF_SET="game-performance"
+else
+  GAME_PERF_SET=""
+fi
+
+if [ "$MANGOHUD_OPTION" = "True" ]; then
+  export MANGOHUD=1
+else
+  export MANGOHUD=0
+fi
+
+# Fix : espace manquant avant ] dans l'original
+if [ "$X11" = "True" ]; then
+  unset WAYLAND_DISPLAY
+  export GDK_BACKEND=x11
+  export QT_QPA_PLATFORM=xcb
+else
+  export QT_QPA_PLATFORM=wayland
+fi
+
+# ======= GAME MODE HYPRLAND =======
+enable_hyprland_gamemode() {
+  if [ "$ANIMATION" = "True" ]; then
+    hyprctl --batch "\
+      keyword general:no_focus_fallback true;\
+      keyword misc:focus_on_activate false;\
+      keyword misc:layers_hog_keyboard_focus false;\
+      keyword animations:enabled 0;\
+      keyword decoration:shadow:enabled 0;\
+      keyword decoration:blur:enabled 0;\
+      keyword general:gaps_in 0;\
+      keyword general:gaps_out 0;\
+      keyword general:border_size 1;\
+      keyword decoration:rounding 0"
+    hyprctl keyword "windowrule opacity 1 override 1 override 1 override, ^(.*)$"
+    swww kill
+  fi
+}
+
+disable_hyprland_gamemode() {
+  hyprctl keyword general:no_focus_fallback false
+  if [ "$ANIMATION" = "True" ]; then
+    if ! pgrep -x "swww" >/dev/null; then
+      swww-daemon --format xrgb && swww img "$HOME/.config/rofi/.current_wallpaper" &
+      sleep 1
+      hyprctl reload
+    fi
+  fi
+}
+
+# ======= ENVIRONNEMENT AMD — Black Myth: Wukong =======
+
+# -- Compilation shaders (réduit les stutters UE5) --
+export RADV_PERFTEST=gpl                     # ✅ Pipeline GPL : moins de stutters à la compilation
+export mesa_glthread=true                    # ✅ Multi-thread GL côté CPU
+export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1 # ✅ Cache shaders illimité
+
+# -- VKD3D-Proton (DX12 → Vulkan pour BMW) --
+export VKD3D_CONFIG=dxr # ✅ Active le Ray Tracing si ta carte le supporte
+# export VKD3D_CONFIG=dxr,nodxr   # ← Remplace la ligne au-dessus si tu veux désactiver le RT
+
+# -- DXVK --
+export DXVK_ASYNC=1                                        # ✅ Compilation async shaders (moins de micro-freezes)
+export DXVK_STATE_CACHE_PATH="$HOME/.cache/dxvk/blackmyth" # Cache dédié BMW
+
+# -- AMD Radeon spécifique --
+export AMD_VULKAN_ICD=RADV # Force le driver open-source RADV (meilleur que AMDVLK pour BMW)
+export RADV_DEBUG=noamdvrs # Désactive le VRS agressif d'AMD (artefacts visuels)
+
+# -- Proton / Wine --
+export PROTON_ENABLE_NVAPI=0      # Pas besoin sur AMD
+export WINE_LARGE_ADDRESS_AWARE=1 # ✅ BMW utilise beaucoup de VRAM
+export STAGING_SHARED_MEMORY=1    # Meilleure gestion mémoire partagée
+export WINEDLLOVERRIDES="dwmapi.dll=n,b"
+
+# -- Réduction latence audio (évite les craquements) --
+export PULSE_LATENCY_MSEC=60
+
+# -- Disque externe Ext4 : hint au kernel pour les I/O --
+export PROTON_NO_ESYNC=0 # Laisser ESYNC actif
+export PROTON_NO_FSYNC=0 # Laisser FSYNC actif (mieux qu'ESYNC)
+
+# ======= LAUNCH THE GAME =======
+[ "$GAME_VRR" = "True" ] && notify-send -e -u normal "🐉 Enabling VRR — Black Myth: Wukong"
+enable_hyprland_gamemode
+notify-send -e -u normal "🐒 Launching Black Myth: Wukong"
+
+env --unset=SDL_VIDEODRIVER \
+  $GAME_PERF_SET \
+  $GAMESCOPE_SET \
+  "$@" \
+  $OPTION_AFTER &
+
+GAME_PID=$!
+
+for i in {1..15}; do # Augmenté à 15s : UE5 met plus de temps à démarrer
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  [ -n "$GAME_WINDOW_CLASS" ] && break
+  sleep 1
+done
+
+# ======= AUTO FOCUS & VRR =======
+if [ "$GAME_VRR" = "True" ]; then
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  if [ -n "$GAME_WINDOW_CLASS" ]; then
+    hyprctl keyword windowrulev2 "immediate, class:$GAME_WINDOW_CLASS"
+    hyprctl dispatch focuswindow "class:$GAME_WINDOW_CLASS"
+    hyprctl dispatch movetoworkspacesilent 1,class:$GAME_WINDOW_CLASS
+  else
+    echo "⚠️ Impossible de détecter la fenêtre du jeu."
+  fi
+fi
+
+wait $GAME_PID
+GAME_EXIT_CODE=$?
+
+if [ "$GAME_VRR" = "True" ] && [ -n "$GAME_WINDOW_CLASS" ]; then
+  hyprctl keyword windowrulev2 "unset, class:$GAME_WINDOW_CLASS"
+  notify-send -e -u normal "🐉 VRR désactivé — Retour bureau"
+  hyprctl keyword monitor "$MONITOR,${RESOLUTION}@${REFRESH_RATE},${POSITION},${SCALE},vrr,0"
+fi
+
+disable_hyprland_gamemode
+exit $GAME_EXIT_CODE

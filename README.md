@@ -206,15 +206,40 @@ The_Finals %command% # Launches The Finals with optimized settings
 
 ## 💻 Installation
 
-### Prerequisites
+> ⚠️ **Arch Linux** uniquement. Lance le script en utilisateur normal (pas root) —
+> `sudo` est demandé au besoin.
+
+### 🚀 Installation automatique (recommandé)
+
 ```bash
-sudo pacman -S hyprland kitty rofi waybar fish neovim btop cava thunar
+git clone https://github.com/Eaquo/Hyprland-Dotfiles-Arch-linux.git hypr-restore
+cd hypr-restore
+./install.sh
 ```
 
-### Additional dependencies
-```bash
-yay -S wallust spicetify-cli rofi-games-git swaync swappy aylurs-gtk-shell-git
-```
+Le script `install.sh` est **interactif** et coloré : il demande confirmation à
+chaque grande étape.
+
+| Étape | Action |
+|-------|--------|
+| 1 | Vérifications (Arch, sudo, réseau) |
+| 2 | Installe **yay** s'il manque |
+| 3 | Paquets dépôts officiels → `pkglist-pacman.txt` (hyprland, waybar, nwg-displays/look, sddm, qt6…) |
+| 4 | Paquets AUR → `pkglist-aur.txt` (quickshell, pyprland, wallust, ags, spicetify…) |
+| 5 | Déploie les dotfiles dans `~` et `~/.config` (**backup** auto de l'existant dans `~/.config-backup-<date>`) |
+| 6 | Installe le thème **SDDM** dans `/usr/share/sddm/themes/` + écrit `/etc/sddm.conf.d/theme.conf.user` |
+| 7 | Active NetworkManager, bluetooth et (au choix) SDDM |
+
+Chaque paquet est installé individuellement : si l'un échoue, le script
+**continue** et liste les ratés à la fin.
+
+### 🧩 Personnaliser les paquets
+Édite `pkglist-pacman.txt` (dépôts officiels) ou `pkglist-aur.txt` (AUR) —
+`#` = commentaire, une ligne = un paquet — puis relance `./install.sh`.
+
+### 🖥️ Thème SDDM
+Le thème (`simple-sddm-2`) est installé dans `/usr/share/sddm/themes/` par le
+script. Dépendances : `sddm qt6-svg qt6-declarative qt6-5compat`.
 
 ---
 

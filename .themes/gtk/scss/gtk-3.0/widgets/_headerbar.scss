@@ -37,7 +37,7 @@ headerbar {
         }
 
         &.maximize {
-            color: colors.$green-normal;
+            color: transparent;
             &:hover {
                 color: colors.$surface-strongest;
                 background: color.change(

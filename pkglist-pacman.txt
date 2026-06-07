@@ -1,0 +1,91 @@
+# =============================================================
+#  Paquets dépôts officiels (pacman / core,extra,multilib)
+#  Liste DÉDUITE des configs présentes — relis-la avant de lancer.
+#  Une ligne = un paquet. # = commentaire, lignes vides ignorées.
+# =============================================================
+
+# --- Hyprland & Wayland (core) ---
+hyprland
+hyprlock
+hypridle
+hyprpaper
+hyprpicker
+hyprcursor
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+qt5-wayland
+qt6-wayland
+polkit-kde-agent
+
+# --- Terminal / shell ---
+kitty
+zsh
+fish
+starship
+
+# --- Barre / notif / launcher ---
+waybar
+swaync
+rofi-wayland
+wlogout
+
+# --- Fond d'écran / theming dynamique ---
+# awww = fork de swww (Provides/Replaces swww) → NE PAS ajouter swww, conflit.
+awww          # moteur de wallpaper (repo extra) ; remplace swww
+python-pywal
+imagemagick
+
+# --- Outils desktop ---
+cava
+mpv
+neovim
+ranger
+yazi
+fastfetch
+btop
+nwg-look
+nwg-displays
+
+# --- Qt / GTK theming ---
+qt5ct
+qt6ct
+kvantum
+
+# --- Utilitaires Wayland / système ---
+grim
+slurp
+swappy
+cliphist
+wl-clipboard
+jq
+pamixer
+pavucontrol
+brightnessctl
+playerctl
+network-manager-applet
+networkmanager
+bluez
+bluez-utils
+blueman
+easyeffects
+polkit
+
+# --- Gaming ---
+gamescope
+gamemode
+lib32-gamemode
+mangohud
+lib32-mangohud
+
+# --- SDDM + dépendances du thème (astronaut/qt6) ---
+sddm
+qt6-svg
+qt6-declarative
+qt6-5compat
+
+# --- Polices (typiques de ces dotfiles) ---
+ttf-jetbrains-mono-nerd
+ttf-font-awesome
+noto-fonts
+noto-fonts-emoji
+noto-fonts-cjk

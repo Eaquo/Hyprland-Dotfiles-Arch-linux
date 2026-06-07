@@ -1,0 +1,69 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+/* Main Config (OpenRgb) */
+
+@import "~/.config/rofi/config.rasi"  
+
+/* ---- Configuration ---- */ 
+configuration {
+  modi: "drun";
+}
+
+window {
+  width: 15%;
+  height: 28%;
+}
+
+/* ---- Mainbox ---- */
+mainbox {
+  children:
+    [ "inputbar", "listview"];
+}
+
+inputbar {
+  children: [ "prompt", "entry" ];
+}
+
+prompt {
+  enabled: true;
+  content: "🎮";
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+entry {
+  expand: true;
+  placeholder: " 🌈 Choisir mode RGB";
+  horizontal-align: 0.5;
+  vertical-align: 0.5;
+}
+
+/* ---- Listview ---- */
+listview {
+  columns: 2;
+  lines: 3;
+  spacing: 10px;
+  padding: 10px;
+  flow: horizontal;
+  fixed-width: false;
+  fixed-height: true;
+}
+
+/* ---- Element ---- */
+element {
+  orientation: vertical;
+  border-radius: 12px;
+  spacing: 0px;
+  padding: 1px;
+  cursor: pointer;
+}
+
+element-icon {
+ size: 1%;
+}
+
+element-text {
+  vertical-align: 5.0;
+  horizontal-align: 0.5;
+  padding: 0px;
+  margin: 0px;
+}

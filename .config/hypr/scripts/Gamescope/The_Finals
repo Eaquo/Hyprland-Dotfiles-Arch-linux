@@ -5,14 +5,14 @@ SCRIPT_NAME=$(basename "$0")
 
 # ======= OPTIONS DE CONFIGURATION =======
 GAMESCOPE_OPTIONS="False"
-GAME_PERF="False"
+GAME_PERF="True"
 GAME_VRR="True"
 ANIMATION="True"
 MANGOHUD_OPTION="True"
 OPTION_AFTER=""
 LANG_KEY="fr"
 
-# ======= PARAMÈTRES GÉNÉRAUX =======
+# ======= PARAMÈTRES GÉNÉRAUX GAMESCOPE =======
 MONITOR="DP-2"
 RESOLUTION="3440x1440"
 REFRESH_RATE="165"
@@ -22,8 +22,37 @@ SCALE="1"
 RES_WIDTH=3440
 RES_HEIGHT=1440
 FSR="True"
+HDR="False"
+
+# ======= ENVIRONNEMENT AMD =======
+#export RADV_PERFTEST=gpl
+#export mesa_glthread=true
+export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
+#export WLR_NO_HARDWARE_CURSORS=1  # évite bugs curseur sous Wayland
+#export RADV_PERFTEST=aco,sam,nggc # backend optimisé AMD (optionnel)
+#export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json
+#export VK_LAYER_PATH=/usr/share/vulkan/explicit_layer.d
+# Proton/DXVK
+#export PROTON_ENABLE_NVAPI=1 # Accès à certaines APIs
+#export PROTON_NO_ESYNC=0
+#export PROTON_NO_FSYNC=0
+#export PROTON_USE_WINED3D=0 # Assure que DXVK est utilisé
+#export RADV_REQUIRE_ETC2=1
+# Proton/Wayland
+#export PROTON_ENABLE_WAYLAND=1
+#export PROTON_ENABLE_HDR=1
+
+unset SDL_VIDEODRIVER
 
 # ======= CONFIGURATION DYNAMIQUE =======
+if [ "$HDR" = "True" ]; then
+  HDR_MODE="--hdr-enabled"
+  export DXVK_HDR=1
+else
+  HDR_MODE=""
+  exort DXVK_ASYNC=1
+fi
+
 if [ "$FSR" = "True" ]; then
   FSR_MODE="-F fsr"
 else
@@ -32,7 +61,7 @@ fi
 
 if [ "$GAMESCOPE_OPTIONS" = "True" ]; then
   export XKB_DEFAULT_LAYOUT=$LANG_KEY
-  GAMESCOPE_SET="gamescope -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE --force-grab-cursor --"
+  GAMESCOPE_SET="gamescope --backend sdl -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE $HDR_MODE --force-grab-cursor --"
 else
   GAMESCOPE_SET=""
 fi
@@ -53,6 +82,7 @@ fi
 enable_hyprland_gamemode() {
   if [ "$ANIMATION" = "True" ]; then
     hyprctl --batch "\
+      keyword general:no_focus_fallback true;\
       keyword misc:focus_on_activate false;\
       keyword misc:layers_hog_keyboard_focus false;\
       keyword animations:enabled 0;\
@@ -68,6 +98,7 @@ enable_hyprland_gamemode() {
 }
 
 disable_hyprland_gamemode() {
+  hyprctl keyword general:no_focus_fallback false
   if [ "$ANIMATION" = "True" ]; then
     if ! pgrep -x "swww" >/dev/null; then
       swww-daemon --format xrgb && swww img "$HOME/.config/rofi/.current_wallpaper" &
@@ -77,22 +108,22 @@ disable_hyprland_gamemode() {
   fi
 }
 
-# ======= ENVIRONNEMENT AMD =======
-#export RADV_PERFTEST=gpl
-#export mesa_glthread=true
-#export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
-unset SDL_VIDEODRIVER
+
 
 # ======= LAUNCH THE GAME =======
 [ "$GAME_VRR" = "True" ] && notify-send -e -u normal " Enabling VRR Hyprland"
 
 enable_hyprland_gamemode
-notify-send -e -u normal " Launching the game $SCRIPT_NAME"
+notify-send -e -u normal "  Launching the game $SCRIPT_NAME"
 
-env --unset=SDL_VIDEODRIVER $GAME_PERF_SET $GAMESCOPE_SET "$@" $OPTION_AFTER &
+$GAME_PERF_SET $GAMESCOPE_SET "$@" $OPTION_AFTER &
 GAME_PID=$!
 
-sleep 3
+for i in {1..10}; do
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  [ -n "$GAME_WINDOW_CLASS" ] && break
+  sleep 1
+done
 
 # ======= AUTO FOCUS & WARP FIX =======
 if [ "$GAME_VRR" = "True" ]; then

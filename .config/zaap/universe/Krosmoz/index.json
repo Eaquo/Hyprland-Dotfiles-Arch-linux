@@ -1,0 +1,1170 @@
+{
+  "games": {
+    "autoUpgradeEnabled": true,
+    "defaultRelease": {
+      "gameUid": "dofus",
+      "id": "dofusmain",
+      "name": "main"
+    },
+    "cytrusUrl": "https://cytrus.cdn.ankama.com",
+    "crossoverSite": "LAUNCHER",
+    "retryDelay": 1000,
+    "maxRetry": 3,
+    "components": [
+      {
+        "name": "CarouselGame",
+        "component": "carousel"
+      },
+      {
+        "name": "Game Actus",
+        "component": "gallery-game-news"
+      },
+      {
+        "name": "Universe Actus",
+        "component": "gallery-universe-news"
+      }
+    ],
+    "redirects": {
+      "dofus/main": {
+        "gameUid": "dofus",
+        "releaseName": "dofus3"
+      }
+    }
+  },
+  "shop": {
+    "shopKey": "KROSMOZ",
+    "shopCategoryId": "739"
+  },
+  "twitch": {
+    "baseURL": "https://launcher.cdn.ankama.com/twitch"
+  },
+  "stream": {
+    "baseURL": "https://launcher.cdn.ankama.com/twitch"
+  },
+  "video": {
+    "url": "https://vod-api.ankama.com",
+    "analyticsUrl": "https://bradmax.com/static/bradmax-analytics-for-players/latest/bradmax.analytics.js",
+    "analyticsToken": "6Pk6vcxOmjsD44CcOOZ4hsum58BMmcWO_4-smm",
+    "components": [
+      {
+        "name": "CarouselVOD",
+        "component": "carousel",
+        "props": {
+          "site": "KROSMOZ_VOD"
+        }
+      },
+      {
+        "name": "Nouveautés",
+        "component": "gallery-new-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Nouveautés</strong>",
+            "en": "<strong>Latest</strong>",
+            "pt": "<strong>Ultimas</strong>",
+            "es": "<strong>Ultimas</strong>"
+          },
+          "ids": [
+            "4e63d650-edee-4e31-a5fb-cfe6bcbb2b4d",
+            "0ebd7306-93c4-4786-b738-19307e67befd",
+            "7680940b-f93f-4ca3-9718-38f4dda2a66d",
+            "d987c1c2-26b3-46b8-97b9-3509e6e91bc2",
+            "8816cf17-909e-4d8e-8f1f-84890495ca95",
+            "317a78a6-a688-4263-b4c8-8f8021bd1928",
+            "6352b498-5c28-4f9d-968e-ad86dcfd657e",
+            "ae2f2106-32d3-40f5-b1bc-107df4cf89ab",
+            "2dcef325-a2b0-4bf0-924f-0a50f643311f"
+          ]
+        }
+      },
+      {
+        "name": "Historique de Lecture",
+        "component": "gallery-history",
+        "props": {
+          "title": {
+            "fr": "Vous avez commencé...",
+            "en": "You have started...",
+            "es": "Has empezado...",
+            "de": "Sie haben angefangen..."
+          }
+        }
+      },
+      {
+        "name": "Wakfu S4",
+        "component": "gallery-series",
+        "props": {
+          "id": "0ebd7306-93c4-4786-b738-19307e67befd"
+        }
+      },
+      {
+        "name": "Wakfu OAV",
+        "component": "gallery-series",
+        "props": {
+          "id": "ae2f2106-32d3-40f5-b1bc-107df4cf89ab"
+        }
+      },
+      {
+        "name": "Mini wakfu",
+        "component": "gallery-series",
+        "props": {
+          "id": "2dcef325-a2b0-4bf0-924f-0a50f643311f"
+        }
+      },
+      {
+        "name": "Actus VOD",
+        "component": "gallery-news",
+        "props": {
+          "title": {
+            "fr": "<b>Actus</b> Ankama",
+            "en": "Ankama <b>News</b>",
+            "es": "<b>Noticias</b> Ankama",
+            "de": "Ankama-<b>Nachrichten</b>"
+          },
+          "site": "LAUNCHER"
+        }
+      }
+    ]
+  },
+  "webtoon": {
+    "components": [
+      {
+        "name": "CarouselWebtoon",
+        "component": "carousel",
+        "props": {
+          "site": "KROSMOZ_WEBTOONS"
+        }
+      },
+      {
+        "name": "Nouveautés",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Nouveautés</strong> Webtoons",
+            "en": "<strong>Latest</strong> Webtoons",
+            "pt": "<strong>Ultimas</strong> Webtoons",
+            "es": "<strong>Ultimas</strong> Webtoons"
+          },
+          "type": "new_series"
+        }
+      },
+      {
+        "component": "gallery-history",
+        "props": {
+          "filter": "unFinished",
+          "title": {
+            "fr": "<strong>Vous avez commencé...</strong>",
+            "en": "<strong>You started...</strong>",
+            "pt": "<strong>Você começou...</strong>",
+            "es": "<strong>Te inscribiste...</strong>"
+          }
+        }
+      },
+      {
+        "name": "Top 10",
+        "component": "gallery-top-ten-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Top 10</strong> Webtoons",
+            "en": "<strong>Top 10</strong> Webtoons",
+            "pt": "<strong>Top 10</strong> Webtoons",
+            "es": "<strong>Top 10</strong> Webtoons"
+          }
+        }
+      },
+      {
+        "name": "Krosmoz Heroes",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Krosmoz</strong> heroes",
+            "en": "<strong>Krosmoz</strong> heroes",
+            "pt": "<strong>Krosmoz</strong> heroes",
+            "es": "<strong>Krosmoz</strong> heroes"
+          },
+          "type": "krosmoz_heroes"
+        }
+      },
+      {
+        "name": "Dofus monster",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Dofus</strong> Monster",
+            "en": "<strong>Dofus</strong> Monster",
+            "pt": "<strong>Dofus</strong> Monster",
+            "es": "<strong>Dofus</strong> Monster"
+          },
+          "type": "dofus_monster"
+        }
+      },
+      {
+        "name": "Nouveaux épisodes des séries",
+        "component": "galleries-new-episodes-series"
+      },
+      {
+        "name": "Actus Webtoons",
+        "component": "gallery-news",
+        "props": {
+          "title": {
+            "fr": "<b>Actus</b> Webtoons",
+            "en": "Webtoons <b>News</b>",
+            "es": "<b>Noticias</b> Webtoons",
+            "de": "Webtoons-<b>Nachrichten</b>"
+          },
+          "site": "ALLSKREEN"
+        }
+      }
+    ]
+  },
+  "wallpaper": {},
+  "eventsecondary": {
+    "key": "WakfuS5",
+    "background": "https://launcher.cdn.ankama.com/event/backgroundWS5.png",
+    "icon": "https://launcher.cdn.ankama.com/event/iconWS5.png",
+    "logo": "https://launcher.cdn.ankama.com/event/logoWS5.png",
+    "videoTrailer": "https://1750211149.rsc.cdn77.org/TrailersANKAMA/TEASERWakfuFR.mp4",
+    "video": "https://1750211149.rsc.cdn77.org/TrailersANKAMA/TrailerWAKFUS5.mp4",
+    "countdown": 1739368830000,
+    "countdownEventEnd": 1741806000000,
+    "kickstarter": true,
+    "shopItem": 17317,
+    "link": {
+      "fr": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5",
+      "es": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5",
+      "pt": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5",
+      "de": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5",
+      "en": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5"
+    },
+    "linkBeforeCountdown": {
+      "fr": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5",
+      "es": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5",
+      "pt": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5",
+      "de": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5",
+      "en": "https://www.kickstarter.com/projects/ankamaanimations/wakfu-the-animated-series-season-5"
+    },
+    "heading": {
+      "fr": "C'est maintenant !",
+      "es": "¡Es ahora!",
+      "pt": "É agora!",
+      "de": "Es ist jetzt!",
+      "en": "It's now!"
+    },
+    "preTitle": {
+      "fr": "Soutenez la production de",
+      "es": "Apoya la producción de",
+      "pt": "Apoie a produção de",
+      "de": "Unterstützen Sie die Produktion von",
+      "en": "Support the production of"
+    },
+    "title": {
+      "fr": "WAKFU SAISON 5",
+      "es": "WAKFU TEMPORADA 5",
+      "pt": "WAKFU 5ª TEMPORADA",
+      "de": "WAKFU SEASON 5",
+      "en": "WAKFU SEASON 5"
+    },
+    "headerTitle": {
+      "fr": "%day% jours",
+      "es": "%day% días",
+      "pt": "%day% dias",
+      "de": "%day% Tage",
+      "en": "%day% days"
+    },
+    "headerSubtitle": {
+      "fr": "avant la fin",
+      "es": "antes del final",
+      "pt": "antes do fim",
+      "de": "vor dem Ende",
+      "en": "before the end"
+    },
+    "unlockedPreTitle": {
+      "fr": "Soutenez la production de",
+      "es": "Apoya la producción de",
+      "pt": "Apoie a produção de",
+      "de": "Unterstützen Sie die Produktion von",
+      "en": "Support the production of"
+    },
+    "unlockedTitle": {
+      "fr": "WAKFU SAISON 5",
+      "es": "WAKFU TEMPORADA 5",
+      "pt": "WAKFU 5ª TEMPORADA",
+      "de": "WAKFU SEASON 5",
+      "en": "WAKFU SEASON 5"
+    },
+    "CTA": {
+      "fr": "Inscrivez-vous !",
+      "es": "¡Regístrate!",
+      "pt": "Inscreva-se!",
+      "de": "Melden Sie sich an!",
+      "en": "Sign up!"
+    },
+    "unlockedCTA": {
+      "fr": "Je soutiens ce projet !",
+      "es": "¡Apoyo este proyecto!",
+      "pt": "Eu apoio este projeto!",
+      "de": "Unterstütze dieses Projekt!",
+      "en": "I support this project!"
+    },
+    "unlockedExternCTA": {
+      "fr": "Je soutiens Wakfu S5",
+      "es": "Apoyo a Wakfu T5 en",
+      "pt": "Quero apoiar Wakfu T5",
+      "de": "Unterstütze Wakfu S5",
+      "en": "Back Wakfu S5 on"
+    },
+    "tabs" : [
+      {
+        "title": {
+          "fr": "Campagne",
+          "es": "Campaña",
+          "pt": "Campanha",
+          "de": "Campaign",
+          "en": "Campaign"
+        },
+        "components": [
+          {
+            "name": "banner",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/FR_Funded.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/ES_Funded.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/PT_Funded.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/EN_Funded.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/EN_Funded.jpg"
+              }
+            }
+          },
+          {
+            "name": "text1",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<strong>Vous pensiez que la saison 4 de WAKFU serait la dernière ? Nous aussi ! Et pourtant...</strong><br/><br/>Grâce à votre soutien indéfectible, votre passion et votre engagement, l'aventure peut continuer ! Vous nous avez permis d'offrir un nouveau souffle à WAKFU à travers sa saison 4. Avec une saison 5, nous relevons un nouveau défi : <strong>clore la série animée en 26 épisodes, pour un final inoubliable !</strong><br/><br/>Quoiqu'il arrive, nous nous engageons à produire cette ultime saison. Mais que diriez-vous de montrer au monde de quoi une communauté fidèle et engagée est capable ? <strong>Ensemble, clôturons la saga de façon mémorable</strong>, et faisons rayonner WAKFU bien au-delà de nos frontières : <strong>notre campagne Kickstarter démarre le 12 février !</strong>",
+                "es": "¿Te pensabas que la temporada 4 de WAKFU sería la última? Nosotros también.  Pero... <br/><br/>Gracias a tu apoyo inquebrantable, tu pasión y tu compromiso, ¡la aventura puede continuar! Vosotros, la comunidad, nos habéis permitido darle una nueva vida a WAKFU a lo largo de su temporada 4. Con una temporada 5, asumimos un nuevo reto: completar la serie de animación con 26 episodios más, ¡para un final inolvidable!<br/><br/>Pase lo que pase, nos comprometemos a producir esta última temporada. ¿Qué tal si le mostramos al mundo de lo que es capaz una comunidad leal y comprometida?Pongamos el broche de oro a la saga juntos y hagamos que WAKFU brille más allá de nuestras fronteras: ¡la campaña de Kickstarter comienza el 12 de febrero!",
+                "pt": "Acharam que a quarta temporada de WAKFU seria a última? Acharam errado ! Tá, nós também achamos, mas... <br/><br/>Com o apoio inabalável, a paixão e a participação de todos, a aventura pode continuar! Vocês permitiram que WAKFU tivesse um novo sopro de vida com a quarta temporada. Para a quinta temporada, nós temos um novo desafio: encerrar a série animada com 26 episódios e um final inesquecível!<br/><br/>Não importa o que aconteça, nós nos comprometemos a produzir essa última temporada. Mas o que acham de mostrar para o mundo do que uma comunidade fiel e comprometida é capaz?Juntos, vamos fechar a saga de forma memorável e fazer com que WAKFU brilhe muito além das nossas fronteiras: nossa campanha Kickstarter começa no dia 12 de fevereiro!",
+                "de": "<strong>Did you think season 4 of WAKFU would be the last? So did we! And yet…</strong> <br/><br/>Thanks to your passion, dedication and unwavering support, the adventure can continue! You helped us to breathe new life into WAKFU with its fourth season. Now, with a fifth season, we're taking on a new challenge: <strong>to bring the animated series to a close in 26 episodes with an unforgettable finale!</strong><br/><br/>Whatever happens, we're committed to producing this final season. But how would you like to show the world what a loyal and dedicated community can do? <strong>Together, let's bring the saga to a memorable close,</strong> and share the wonders of WAKFU far beyond our own borders. <strong>Our Kickstarter campaign starts on February 12!</strong>",
+                "en": "<strong>Did you think season 4 of WAKFU would be the last? So did we! And yet…</strong> <br/><br/>Thanks to your passion, dedication and unwavering support, the adventure can continue! You helped us to breathe new life into WAKFU with its fourth season. Now, with a fifth season, we're taking on a new challenge: <strong>to bring the animated series to a close in 26 episodes with an unforgettable finale!</strong><br/><br/>Whatever happens, we're committed to producing this final season. But how would you like to show the world what a loyal and dedicated community can do? <strong>Together, let's bring the saga to a memorable close,</strong> and share the wonders of WAKFU far beyond our own borders. <strong>Our Kickstarter campaign starts on February 12!</strong>"
+              }
+            }
+          },
+          {
+            "name": "wakfu",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/Titre_HistoireBas.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/Titre_HistoireBas.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/Titre_HistoireBas.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/Titre_HistoireBas.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/Titre_HistoireBas.jpg"
+              }
+            }
+          },
+          {
+            "name": "wakfu",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/fr/wakfu.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/es/wakfu.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/pt/wakfu.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/en/wakfu.png",
+                "en": "https://launcher.cdn.ankama.com/event/en/wakfu.png"
+              }
+            }
+          },
+          {
+            "name": "text2",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "WAKFU est une <strong>série d'animation française</strong> qui a marqué toute une génération grâce à son <strong>univers épique</strong>, son <strong>humour</strong> caractéristique et son côté profondément émouvant.<br/><br/>Elle suit les aventures de la <strong>Confrérie du Tofu</strong>, menée par <strong>Yugo</strong>, jeune Eliatrope aux pouvoirs extraordinaires.<br/><br/>Ce qui distingue WAKFU, c'est la <strong>richesse de son monde</strong> : aucun héros n'est parfait, aucun adversaire n'est totalement mauvais, et cette profondeur narrative a su conquérir un large public au niveau mondial.",
+                "es": "WAKFU es una serie de animación francesa que ha marcado a toda una generación gracias a su universo épico, su humor característico y su lado conmovedor.<br/><br/>Sigue las aventuras de la Hermandad del Tofu, liderada por Yugo, un joven selatrop con poderes extraordinarios.<br/><br/>Lo que hace especial a WAKFU es la riqueza de su universo: ningún héroe es perfecto y ningún adversario es del todo malvado, y esta profundidad narrativa ha conquistado a una enorme audiencia en todo el mundo.",
+                "pt": "WAKFU é uma série de animação francesa que marcou uma geração inteira com seu universo épico, seu humor característico e um lado profundamente emocionante.<br/><br/>Ela acompanha as aventuras da Confraria do Tofu, liderada por Yugo, um jovem Eliatrope com poderes extraordinários.<br/><br/>O que torna WAKFU especial é a riqueza de seu mundo: nenhum herói é perfeito, nenhum adversário é completamente mau, e essa profundidade narrativa conseguiu conquistar um público enorme no mundo todo.",
+                "de": "WAKFU is a <strong>French animated series</strong> that captured the imagination of an entire generation with its <strong>epic world</strong>, its signature <strong>humor</strong>, and its <strong>profoundly moving</strong> story.<br/><br/>It follows the adventures of the <strong>Brotherhood of the Tofu</strong>, led by <strong>Yugo</strong>, a young Eliatrope with extraordinary powers.<br/><br/>What's unique about WAKFU is the <strong>richness of its world</strong>: no hero is perfect and no antagonist is completely bad – and that narrative depth has won over a large audience all around the world.",
+                "en": "WAKFU is a <strong>French animated series</strong> that captured the imagination of an entire generation with its <strong>epic world</strong>, its signature <strong>humor</strong>, and its <strong>profoundly moving</strong> story.<br/><br/>It follows the adventures of the <strong>Brotherhood of the Tofu</strong>, led by <strong>Yugo</strong>, a young Eliatrope with extraordinary powers.<br/><br/>What's unique about WAKFU is the <strong>richness of its world</strong>: no hero is perfect and no antagonist is completely bad – and that narrative depth has won over a large audience all around the world."
+              }
+            }
+          },
+          {
+            "name": "wakfu-illu",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/shared/wakfu-illu.png",
+                "es": "https://launcher.cdn.ankama.com/event/shared/wakfu-illu.png",
+                "pt": "https://launcher.cdn.ankama.com/event/shared/wakfu-illu.png",
+                "de": "https://launcher.cdn.ankama.com/event/shared/wakfu-illu.png",
+                "en": "https://launcher.cdn.ankama.com/event/shared/wakfu-illu.png"
+              }
+            }
+          },
+          {
+            "name": "what-await",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/Titres/Titre_CeQuiNousAttend.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/Titres/Ce Qui vous attend.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/Titres/Ce Qui vous attend_PT.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Ce-Qui-vous-attend_EN.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Ce-Qui-vous-attend_EN.png"
+              }
+            }
+          },
+          {
+            "name": "textAwait1",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<strong>Fin de WAKFU Saison 3.</strong> La tour d'Oropo a explosé, emportant dans son sillage le Comte Harebourg, Oropo, Echo et l'Eliacube. <strong>Était-ce vraiment la fin ?</strong>",
+                "es": "<strong>Final de la temporada 3 de WAKFU.</strong> La torre Oropo explotó, llevándose consigo al conde Kontatrás, a Oropo, a Eco y al selacubo. <strong>¿Y ya está?</strong>",
+                "pt": "<strong>Fim de WAKFU 3ª Temporada.</strong> A torre de Oropo explodiu, levando junto com ela o Conde Traspafrent, Oropo, Eco e o Eliacubo. <strong>Era mesmo o fim?</strong>",
+                "de": "<strong>End of WAKFU Season 3.</strong> Oropo's tower explodes, taking Count Harebourg, Oropo, Echo and the Eliacube down with it. <strong>Was that really the end?</strong>",
+                "en": "<strong>End of WAKFU Season 3.</strong> Oropo's tower explodes, taking Count Harebourg, Oropo, Echo and the Eliacube down with it. <strong>Was that really the end?</strong>"
+              }
+            }
+          },
+          {
+            "name": "await1",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 3.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 3.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 3.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 3.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 3.jpg"
+              }
+            }
+          },
+          {
+            "name": "textAwait2",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<strong>WAKFU Saison 4.</strong> Une nouvelle menace plane sur le Monde des Douze ; tandis que nos héros doivent faire face aux Nécromes, le Comte Harebourg, transfiguré par l'Eliacube, revient sur Frigost.",
+                "es": "<strong>Temporada 4 de WAKFU.</strong> Una nueva amenaza se cierne sobre el Mundo de los Doce; mientras nuestros héroes tienen que enfrentarse a los nécromos, el conde Kontatrás, transfigurado por el selacubo, regresa a Frigost.",
+                "pt": "<strong>WAKFU 4ª Temporada.</strong> Uma nova ameaça paira sobre o Mundo dos Doze; enquanto nossos heróis enfrentam os Necromos, o Conde Traspafrent, transfigurado pelo Eliacubo, volta para Frigost.",
+                "de": "<strong>WAKFU Season 4.</strong> A new threat looms over the World of Twelve. As our heroes are forced to confront the Necros, Count Harebourg, transformed by the Eliacube, returns to Frigost.",
+                "en": "<strong>WAKFU Season 4.</strong> A new threat looms over the World of Twelve. As our heroes are forced to confront the Necros, Count Harebourg, transformed by the Eliacube, returns to Frigost."
+              }
+            }
+          },
+          {
+            "name": "await2",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 4.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 4.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 4.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 4.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/Season 4.jpg"
+              }
+            }
+          },
+          {
+            "name": "textAwait3",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<strong>WAKFU Saison 5</strong>. Harebourg n'a toujours eu qu'un seul but : protéger Frigost et lui rendre ses lettres de noblesse. Désormais, avec l'immense pouvoir de l'Eliacube à sa disposition, quelles seront ses nouvelles intentions ? <strong>Préparez-vous à découvrir un Harebourg plus déterminé et sans doute plus dangereux que jamais !</strong>",
+                "es": "<strong>Temporada 5 de WAKFU.</strong> Kontatrás siempre ha tenido un único objetivo: proteger Frigost y devolverle su antigua gloria. Ahora, con el inmenso poder del selacubo a su disposición, ¿cuáles serán sus nuevas intenciones? <strong>¡Prepárate para descubrir a un Kontatrás más decidido y, sin duda, más peligroso que nunca!</strong>",
+                "pt": "<strong>WAKFU 5ª Temporada.</strong> Traspafrent só tinha um objetivo: proteger Frigost e trazer sua notoriedade de volta. Agora, com o imenso poder do Eliacubo à sua disposição, quais serão suas novas intenções? <strong>Preparem-se para descobrir um Traspafrent mais determinado e ainda mais perigoso do que nunca!</strong>",
+                "de": "<strong>WAKFU Season 5.</strong> Harebourg has always had only one goal: protecting Frigost and restoring it to its former glory. Now, with the immense power of the Eliacube at his disposal, what will his intentions be? Prepare to encounter a <strong>Count Harebourg who's more determined and more dangerous than ever!</strong>",
+                "en": "<strong>WAKFU Season 5.</strong> Harebourg has always had only one goal: protecting Frigost and restoring it to its former glory. Now, with the immense power of the Eliacube at his disposal, what will his intentions be? Prepare to encounter a <strong>Count Harebourg who's more determined and more dangerous than ever!</strong>"
+              }
+            }
+          },
+          {
+            "name": "await3",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/bottom_whatliesahead_V2.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/bottom_whatliesahead_V2.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/bottom_whatliesahead_V2.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/bottom_whatliesahead_V2.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/bottom_whatliesahead_V2.jpg"
+              }
+            }
+          },
+          {
+            "name": "why",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/fr/why.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/es/why.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/pt/why.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/en/why.png",
+                "en": "https://launcher.cdn.ankama.com/event/en/why.png"
+              }
+            }
+          },
+          {
+            "name": "text3",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "En 2020, nous avons lancé un Kickstarter pour auto-produire la saison 4 de WAKFU car nous n'avions plus de diffuseur prêt à nous accompagner ; avec l'évolution plus mature de la série, il devenait difficile pour nos partenaires historiques de continuer à nous suivre.<br/><br/>En 2025, la donne a changé : vous avez prouvé que <strong>la communauté de WAKFU est fidèle et engagée</strong>, nous offrant l'opportunité d'une saison 5 avec, cette fois, le soutien d'un diffuseur.<br/><br/>Pour marquer le coup de cette ultime saison, nous voulons aller encore plus loin, et vous proposer <strong>26 épisodes inédits</strong>. Nous avons atteint, au fil des ans, un niveau de qualité dont nous sommes fiers et sur lequel nous ne transigerons pas. Mais cette qualité a un coût : environ 500.000€ par épisode, soit 13 millions € pour la saison complète. Grâce à nos partenaires et aux aides régionales, nous pouvons en couvrir 50 à 60%, tandis qu'Ankama finance le reste. <strong>Votre soutien demeure donc essentiel</strong> pour nous aider à produire la série, tout en préservant la créativité et l'indépendance de l'équipe Ankama Animations.<br/><br/>En finançant ce projet, vous devenez <strong>coproducteurs de WAKFU Saison 5</strong>. C'est l'occasion de montrer, une nouvelle fois, <strong>la force de la communauté WAKFU au monde entier !</strong>",
+                "es": "En 2020, lanzamos un Kickstarter para autoproducir la temporada 4 de WAKFU porque ya no teníamos un distribuidor dispuesto a apoyarnos; con la evolución mucho más madura de la serie, se volvió difícil para nuestros socios históricos continuar acompañándonos.<br/><br/>Las cosas han cambiado en 2025: nos habéis demostrado que la comunidad de WAKFU es leal y comprometida, dándonos así la oportunidad de hacer una temporada 5. Pero, esta vez, con el apoyo de una distribuidora.<br/><br/>Esta última temporada queremos ir un paso más allá y ofrecerte 26 nuevos episodios. A lo largo de los años, hemos alcanzado un nivel de calidad del que estamos orgullosos y que no vamos a comprometer. Pero esta calidad tiene un costo: aproximadamente 500.000 € por episodio, es decir, 13 millones € para la temporada completa. Gracias a nuestros socios y a las ayudas regionales, podemos cubrir entre el 50% y el 60%, mientras que Ankama financia el resto. Su apoyo sigue siendo esencial para ayudarnos a producir la serie, preservando al mismo tiempo la creatividad y la independencia del equipo de Ankama Animations.<br/><br/><br/>Al financiar este proyecto, te conviertes en coproductor de la temporada 5 de WAKFU. ¡Es la oportunidad de demostrar, una vez más, la fuerza de la comunidad WAKFU al mundo entero!",
+                "pt": "Em 2020, nós lançamos um Kickstarter para uma produção própria da quarta temporada de WAKFU, pois não tínhamos mais uma emissora disposta a apoiar o projeto. Com a evolução mais madura da série, ficou mais difícil para nossos parceiros históricos continuarem nos acompanhando.<br/><br/>Em 2025, a conversa é outra: vocês provaram que a comunidade de WAKFU é fiel e comprometida, oferecendo-nos a oportunidade de trazer uma quinta temporada com o apoio de um canal.<br/><br/>Para fazer bonito nesta última temporada, nós queremos ir ainda mais longe com 26 episódios inéditos. Nós alcançamos, ao longo dos anos, um nível de qualidade do qual podemos nos orgulhar e não queremos abrir mão. Mas essa qualidade tem um custo: cerca de 500 mil euros por episódio, ou seja, 13 milhões de euros para a temporada completa. Graças aos nossos parceiros e aos subsídios regionais, conseguimos cobrir de 50 a 60%, enquanto a Ankama financia o restante. Seu apoio continua sendo essencial para nos ajudar a produzir a série, preservando a criatividade e a independência da equipe Ankama Animations.<br/><br/>Financiando este projeto, vocês se tornam coprodutores de WAKFU 5ª Temporada. É a hora de mostrar, mais uma vez, a força da comunidade de WAKFU para o mundo inteiro!",
+                "de": "In 2020, we launched a Kickstarter campaign to self-produce WAKFU’s fourth season because we no longer had a broadcaster willing to come on board. With the series evolving in a more mature direction, it became increasingly difficult for our longtime partners to keep supporting us.<br/><br/>In 2025, things have changed. You've proven that <strong>the WAKFU community is loyal and dedicated</strong>, giving us the opportunity to make a fifth season, this time with broadcaster support.<br/><br/>For this final season, we want to go even further and give you <strong>26 all-new episodes</strong>. Over the years, we've reached a level of quality that we're proud of, and we have no intention of compromising on it now. But that quality comes at a cost – about €500,000 per episode, or €13 million for the entire season. With the help from our partners and regional funding, we can cover 50% to 60% of the production costs, while Ankama covers the remainder. <strong>Your support is crucial</strong> to bring the series to life and preserve the creativity and independence of the Ankama Animations team.<br/><br/>By financing this project, you'll become <strong>co-producers of WAKFU Season 5</strong>. It's a perfect opportunity to once again <strong>show off the strength of the WAKFU community to the whole world!</strong>",
+                "en": "In 2020, we launched a Kickstarter campaign to self-produce WAKFU’s fourth season because we no longer had a broadcaster willing to come on board. With the series evolving in a more mature direction, it became increasingly difficult for our longtime partners to keep supporting us.<br/><br/>In 2025, things have changed. You've proven that <strong>the WAKFU community is loyal and dedicated</strong>, giving us the opportunity to make a fifth season, this time with broadcaster support.<br/><br/>For this final season, we want to go even further and give you <strong>26 all-new episodes</strong>. Over the years, we've reached a level of quality that we're proud of, and we have no intention of compromising on it now. But that quality comes at a cost – about €500,000 per episode, or €13 million for the entire season. With the help from our partners and regional funding, we can cover 50% to 60% of the production costs, while Ankama covers the remainder. <strong>Your support is crucial</strong> to bring the series to life and preserve the creativity and independence of the Ankama Animations team.<br/><br/>By financing this project, you'll become <strong>co-producers of WAKFU Season 5</strong>. It's a perfect opportunity to once again <strong>show off the strength of the WAKFU community to the whole world!</strong>"
+              }
+            }
+          },
+          {
+            "name": "bottom-why",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/shared/bottom-why.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/shared/bottom-why.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/shared/bottom-why.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/shared/bottom-why.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/shared/bottom-why.jpg"
+              }
+            }
+          },
+          {
+            "name": "how-support",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/fr/how-support.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/es/how-support.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/pt/how-support.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/en/how-support.png",
+                "en": "https://launcher.cdn.ankama.com/event/en/how-support.png"
+              }
+            }
+          },
+          {
+            "name": "text4",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<strong>Participez au financement</strong>, si vous en avez les moyens ! En remerciement de votre engagement financier, vous recevrez des récompenses uniques et exclusives, et serez tenus informés des avancées de la production.<br/><br/><strong>Parlez-en autour de vous !</strong> Même si vos amis et vos proches ne connaissent pas encore l'univers de WAKFU, cette nouvelle aventure est l'occasion idéale de découvrir la Confrérie du Tofu et le Monde des douze. Relayer la campagne sur vos réseaux sociaux, vos groupes de discussion ou lors de vos soirées entre amis est un moyen formidable de nous aider à rassembler tous les fans et futurs fans de WAKFU !",
+                "es": "Participando en la financiación, ¡si puedes permitírtelo! A cambio de tu compromiso financiero, recibirás recompensas únicas y exclusivas, además te mantendremos al tanto del avance de la producción.<br/><br/>¡Corre la voz! Aunque tus amigos y familiares aún no conozcan el universo de WAKFU, esta nueva aventura es la oportunidad perfecta para que descubran la Hermandad del Tofu y el Mundo de los Doce. ¡Compartir la campaña en tus redes sociales, en tus grupos de noticias o en fiestas con amigos es una forma estupenda de ayudarnos a reunir a todos los fans y futuros fans de WAKFU!",
+                "pt": "Participem do financiamento, se possível! Em agradecimento ao seu apoio financeiro, vocês receberão recompensas únicas e exclusivas, e também serão informados sobre o andamento da produção.<br/><br/>Falem para todo mundo! Mesmo que seus amigos e seus familiares ainda não conheçam o universo de WAKFU, esta nova aventura é a ocasião ideal para conhecer a Confraria do Tofu e o Mundo dos Doze. Divulgar a campanha nas suas redes sociais, nos seus grupos de discussão ou nos rolês com seus amigos é uma excelente maneira de nos ajudar a reunir todos os fãs e os futuros fãs de WAKFU!",
+                "de": "<strong>Help to fund it</strong>, if you're able to! As thanks for your financial commitment, you'll receive unique and exclusive rewards, and we'll keep you informed of how the production is coming along.<br/><br/><strong>Tell people about it!</strong> Even if your friends and family aren't yet familiar with the WAKFU universe, this new adventure is the perfect opportunity to discover the Brotherhood of the Tofu and the World of Twelve. Talking about the campaign on social media, in chat groups or on your nights out with friends is a great way to help us bring current and future WAKFU fans together!",
+                "en": "<strong>Help to fund it</strong>, if you're able to! As thanks for your financial commitment, you'll receive unique and exclusive rewards, and we'll keep you informed of how the production is coming along.<br/><br/><strong>Tell people about it!</strong> Even if your friends and family aren't yet familiar with the WAKFU universe, this new adventure is the perfect opportunity to discover the Brotherhood of the Tofu and the World of Twelve. Talking about the campaign on social media, in chat groups or on your nights out with friends is a great way to help us bring current and future WAKFU fans together!"
+              }
+            }
+          },
+          {
+            "name": "bottom-support",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/shared/bottom-support.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/shared/bottom-support.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/shared/bottom-support.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/shared/bottom-support.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/shared/bottom-support.jpg"
+              }
+            }
+          },
+          {
+            "name": "rewards",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/fr/rewards.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/es/rewards.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/pt/rewards.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/en/rewards.png",
+                "en": "https://launcher.cdn.ankama.com/event/en/rewards.png"
+              }
+            }
+          },
+          {
+            "name": "text5",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Nous avons imaginé des contreparties qui sauront combler les fans de la série, à travers des paliers tous plus intéressants les uns que les autres !",
+                "es": "Hemos pensado en una serie de recompensas que creemos que les encantarán a los fans de la serie, ¡y cada nuevo nivel es más interesante que el anterior!",
+                "pt": "Nós pensamos em contrapartidas para a alegria dos fãs da série, divididas em patamares muito interessantes!",
+                "de": "We've come up with some rewards that will thrill fans of the series, with each level more exciting than the last!",
+                "en": "We've come up with some rewards that will thrill fans of the series, with each level more exciting than the last!"
+              }
+            }
+          },
+          {
+            "name": "pledge",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/fr/pledges.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/es/pledges.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/pt/pledges.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/en/pledges.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/en/pledges.jpg"
+              }
+            }
+          },
+          {
+            "name": "strech",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/Titres/Titre_StretchGoals.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/Titres/Stretch goals.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/Titres/Stretch-goals_PT.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Stretch goals_EN.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Stretch goals_EN.jpg"
+              }
+            }
+          },
+          {
+            "name": "stretchText",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Quoiqu'il arrive, nous nous engageons à produire la saison 5 de WAKFU et ses 26 épisodes. Mais pourquoi s'arrêter là ?<br/><br/>Ensemble, visons les sommets : à chaque palier symbolique débloqué, nous ajouterons du <strong>contenu bonus</strong> pour enrichir encore plus votre expérience !",
+                "es": "Pase lo que pase, nos comprometemos a producir la temporada 5 de WAKFU con sus 26 episodios. ¿Pero por qué habríamos de detenernos ahí?<br/><br/>Apuntemos juntos a las estrellas: ¡con cada hito simbólico que alcancemos, añadiremos <strong>contenido extra</strong> para que tu experiencia sea aún más enriquecedora!",
+                "pt": "Não importa o que aconteça, nós nos comprometemos a produzir a quinta temporada de WAKFU e seus 26 episódios. Mas por que parar por aqui?<br/><br/>Juntos, podemos voar alto: a cada patamar simbólico desbloqueado, nós vamos adicionar <strong>conteúdo extra</strong> para enriquecer ainda mais sua experiência!",
+                "de": "No matter what happens, we're committed to producing all 26 episodes of WAKFU Season 5. But why stop there?<br/><br/>Together, let's shoot for the sky: for every symbolic threshold that's unlocked, we'll add <strong>bonus content</strong> to make the experience even more incredible!",
+                "en": "No matter what happens, we're committed to producing all 26 episodes of WAKFU Season 5. But why stop there?<br/><br/>Together, let's shoot for the sky: for every symbolic threshold that's unlocked, we'll add <strong>bonus content</strong> to make the experience even more incredible!"
+              }
+            }
+          },
+          {
+            "name": "rewards-ks",
+            "component": "event-changing-image",
+            "props": {
+              "anchor": 1,
+              "images": [
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/FR_StretchGoal_PageKS_Day1.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/web-images/ES/ES_StretchGoal_PageKS_Day1.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/PT_StretchGoal_PageKS_Day1.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/web-images/EN/EN_StretchGoal_PageKS_Day1.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/web-images/EN/EN_StretchGoal_PageKS_Day1.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/SGoals/FR_StretchGoal_PageKS_Stretch500K_Unlocked.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/web-images/ES/SGoals/ES_StretchGoal_PageKS_Stretch500K_Unlocked.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/SGoals/PT_StretchGoal_PageKS_Stretch500K_Unlocked.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch500K_Unlocked.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch500K_Unlocked.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/SGoals/FR_StretchGoal_PageKS_Stretch1M_Unlocked.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/web-images/ES/SGoals/ES_StretchGoal_PageKS_Stretch1M_Unlocked.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/SGoals/PT_StretchGoal_PageKS_Stretch1M_Unlocked.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch1M_Unlocked.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch1M_Unlocked.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/SGoals/FR_StretchGoal_PageKS_Stretch1.5M_Unlocked.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/web-images/ES/SGoals/ES_StretchGoal_PageKS_Stretch1.5M_Unlocked.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/SGoals/PT_StretchGoal_PageKS_Stretch1.5M_Unlocked.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch1.5M_Unlocked.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch1.5M_Unlocked.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/SGoals/FR_StretchGoal_PageKS_Stretch2M_Unlocked.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/web-images/ES/SGoals/ES_StretchGoal_PageKS_Stretch2M_Unlocked.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/SGoals/PT_StretchGoal_PageKS_Stretch2M_Unlocked.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch2M_Unlocked.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch2M_Unlocked.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/SGoals/FR_StretchGoal_PageKS_Stretch3M_Unlocked.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/web-images/ES/SGoals/ES_StretchGoal_PageKS_Stretch3M_Unlocked.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/SGoals/PT_StretchGoal_PageKS_Stretch3M_Unlocked.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch3M_Unlocked.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch3M_Unlocked.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/SGoals/FR_StretchGoal_PageKS_Stretch4M_Unlocked.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/web-images/ES/SGoals/ES_StretchGoal_PageKS_Stretch4M_Unlocked.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/SGoals/PT_StretchGoal_PageKS_Stretch4M_Unlocked.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch4M_Unlocked.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/web-images/EN/SGoals/EN_StretchGoal_PageKS_Stretch4M_Unlocked.jpg"
+                }
+              ]
+            }
+          },
+          {
+            "name": "more-rewards",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/Titres/Titre_EncorePlus2Recompense.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/Titres/Plus de récompenses.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/Titres/more rewards_PT.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Stretch goals_EN.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Stretch goals_EN.png"
+              }
+            }
+          },
+          {
+            "name": "text6",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Complétez vos contreparties avec des récompenses inédites supplémentaires, directement disponibles en add-ons !",
+                "es": "Y aún hay más: recompensas inéditas adicionales, ¡disponibles directamente como extras!",
+                "pt": "Complete suas contrapartidas com recompensas inéditas adicionais, disponíveis diretamente como add-ons!",
+                "de": "Round out your rewards with all-new additional items, available directly as add-ons!",
+                "en": "Round out your rewards with all-new additional items, available directly as add-ons!"
+              }
+            }
+          },
+          {
+            "name": "add-on",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/Add-ons_sans_Qilby_FR_V3.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/Add-ons_sans_Qilby_ES_V3.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/Add-ons_sans_Qilby_PT_V3.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/Add-ons_sans_Qilby_EN_V3.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/Add-ons_sans_Qilby_EN_V3.jpg"
+              }
+            }
+          },
+          {
+            "name": "what-next",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/Titres/Titre_A_Venir_dans_le_PM.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/Titres/Coming_in_the_PM_ES.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/Titres/Coming_in_the_PM_PT.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Coming_in_the_PM_EN.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Coming_in_the_PM_EN.png"
+              }
+            }
+          },
+          {
+            "name": "textNext1",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Ces récompenses supplémentaires seront réservées aux backers ayant choisi un pledge lvl 1 ou plus.",
+                "es": "Estas recompensas adicionales están reservadas a los patrocinadores que hayan elegido una contribución de nivel 1 o superior.",
+                "pt": "As recompensas adicionais serão reservadas aos apoiadores que tenham escolhido um pledge nível 1 ou maior.",
+                "de": "These extra rewards will be reserved for backers who chose pledge lvl 1 or above.",
+                "en": "These extra rewards will be reserved for backers who chose pledge lvl 1 or above."
+              }
+            }
+          },
+          {
+            "name": "next1",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL1.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL1.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL1.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL1.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL1.jpg"
+              }
+            }
+          },
+          {
+            "name": "textNext2",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Ces récompenses supplémentaires seront réservées aux backers ayant choisi un pledge lvl 4 ou plus.",
+                "es": "Estas recompensas adicionales están reservadas a los patrocinadores que hayan elegido una contribución de nivel 4 o superior.",
+                "pt": "As recompensas adicionais serão reservadas aos apoiadores que tenham escolhido um pledge nível 4 ou maior.",
+                "de": "These extra rewards will be reserved for backers who chose pledge lvl 4 or above.",
+                "en": "These extra rewards will be reserved for backers who chose pledge lvl 4 or above."
+              }
+            }
+          },
+          {
+            "name": "next2",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL4.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL4.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL4.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL4.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/DISPO LVL4.jpg"
+              }
+            }
+          },
+          {
+            "name": "story",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/Titres/Titre_Histoire2Wakfu.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/Titres/Story of wakfu.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/Titres/We are Ankama Animations!_PT.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/We-are-Ankama-Animations!_EN.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/We-are-Ankama-Animations!_EN.png"
+              }
+            }
+          },
+          {
+            "name": "textStory1",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Depuis ses débuts en 2008, WAKFU a passionné le public grâce à ses héros inoubliables ; Yugo, Tristepin, Evangelyne, Amalia, Ruel, Adamai, ... mais également grâce à des antagonistes aussi fascinants que redoutables.",
+                "es": "Desde su debut en 2008, WAKFU ha cautivado al público con sus héroes inolvidables: Yugo, Tristepin, Evangelyne, Amalia, Ruel, Adamai... pero también con antagonistas tan temibles como fascinantes.",
+                "pt": "Desde o início em 2008, WAKFU encantou o público com seus heróis inesquecíveis: Yugo, Tristepan, Evangelyne, Amália, Ruel, Adamai... mas também com seus antagonistas tão fascinantes quanto assustadores.",
+                "de": "Since its beginnings in 2008, WAKFU has thrilled audiences thanks to its unforgettable heroes: Yugo, Percedal, Evangelyne, Amalia, Ruel and Adamai… not to mention its fearsome, yet fascinating antagonists.",
+                "en": "Since its beginnings in 2008, WAKFU has thrilled audiences thanks to its unforgettable heroes: Yugo, Percedal, Evangelyne, Amalia, Ruel and Adamai… not to mention its fearsome, yet fascinating antagonists."
+              }
+            }
+          },
+          {
+            "name": "story1",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/Nox.png",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/Nox.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/Nox.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/Nox.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/Nox.png"
+              }
+            }
+          },
+          {
+            "name": "textStory2",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<strong>Nox</strong>, le manipulateur du temps en quête de Wakfu pour sauver sa famille, a marqué la saison 1 par sa folie tragique.",
+                "es": "<strong>Nox</strong>, el manipulador del tiempo en busca del Wakfu para salvar a su familia, marcó la temporada 1 con su trágica locura.",
+                "pt": "<strong>Nox</strong>, o manipulador do tempo em busca de Wakfu para salvar sua família, marcou a primeira temporada com sua loucura trágica.",
+                "de": "<strong>Nox</strong>, the time manipulator in search of Wakfu to save his family, set the tone for season 1 with his tragic madness.",
+                "en": "<strong>Nox</strong>, the time manipulator in search of Wakfu to save his family, set the tone for season 1 with his tragic madness."
+              }
+            }
+          },
+          {
+            "name": "story2",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/Qilby.png",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/Qilby.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/Qilby.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/Qilby.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/Qilby.png"
+              }
+            }
+          },
+          {
+            "name": "textStory3",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<strong>Qilby</strong>, l'Eliatrope déchu de la saison 2, a révélé la complexité de l'héritage Eliatrope et testé la loyauté de Yugo.",
+                "es": "<strong>Qilby</strong>, el selatrop caído de la temporada 2, reveló la complejidad del linaje selatrop y puso a prueba la lealtad de Yugo.",
+                "pt": "<strong>Qilby</strong>, o Eliatrope caído da segunda temporada, revelou a complexidade do legado eliatrope e testou a lealdade de Yugo.",
+                "de": "<strong>Qilby</strong>, the fallen Eliatrope from season 2, revealed the complexity of the Eliatrope legacy and tested Yugo's loyalty.",
+                "en": "<strong>Qilby</strong>, the fallen Eliatrope from season 2, revealed the complexity of the Eliatrope legacy and tested Yugo's loyalty."
+              }
+            }
+          },
+          {
+            "name": "story3",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/oropo.png",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/oropo.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/oropo.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/oropo.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/oropo.png"
+              }
+            }
+          },
+          {
+            "name": "textStory4",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<strong>Oropo</strong>, quant à lui, a bousculé la saison 3 en s'érigeant contre l'ordre divin et en construisant une tour aux desseins mystérieux.",
+                "es": "<strong>Oropo</strong>, por su parte, sacudió la temporada 3 al alzarse contra el orden divino y construir una torre de misteriosos diseños.",
+                "pt": "<strong>Oropo</strong>, por sua vez, abalou a terceira temporada ao se levantar contra a ordem divina e ao construir uma torre com desígnios misteriosos.",
+                "de": "<strong>Oropo</strong> rocked season 3 by rising up against the divine order and building a tower as part of a mysterious plan.",
+                "en": "<strong>Oropo</strong> rocked season 3 by rising up against the divine order and building a tower as part of a mysterious plan."
+              }
+            }
+          },
+          {
+            "name": "story4",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/Toross.png",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/Toross.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/Toross.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/Toross.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/Toross.png"
+              }
+            }
+          },
+          {
+            "name": "textStory5",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Enfin, <strong>Toross</strong>, a marqué la saison 4 par sa sombre existence, entre idéal louable et méthodes contestables, incarnant à son tour la part d'ombre et d'ambiguïté qui fait la force de l'univers de WAKFU.",
+                "es": "Por último, <strong>Toross</strong>, dejó la huella de su oscura existencia en la temporada 4, mezcla de ideales loables y métodos cuestionables, encarnando a su vez la oscuridad y la ambigüedad que son la fuerza del universo WAKFU.",
+                "pt": "Por fim, <strong>Toross</strong> marcou a quarta temporada com sua sombria existência, entre ideal louvável e meios contestáveis, encarnando a parte de escuridão e ambiguidade que faz a força do universo de WAKFU.",
+                "de": "Finally, <strong>Toross</strong> shaped the events of season 4 with his dark existence in the gray area between commendable ideals and questionable methods, reflecting the shadowy and ambiguous side that makes the WAKFU universe so unique.",
+                "en": "Finally, <strong>Toross</strong> shaped the events of season 4 with his dark existence in the gray area between commendable ideals and questionable methods, reflecting the shadowy and ambiguous side that makes the WAKFU universe so unique."
+              }
+            }
+          },
+          {
+            "name": "story5",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/Harebourg_Cul.png",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/Harebourg_Cul.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/Harebourg_Cul.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/Harebourg_Cul.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/Harebourg_Cul.png"
+              }
+            }
+          },
+          {
+            "name": "textStory6",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Face au <strong>Comte Harebourg</strong>, la saison 5 promet une conclusion épique de la saga animée, avec une ultime confrontation entre la Confrérie du Tofu, et ce nouvel adversaire aussi glacial qu'impitoyable.",
+                "es": "En cuanto al <strong>conde Kontatrás</strong>, la temporada 5 promete una conclusión épica de la saga animada, con un enfrentamiento final entre la Hermandad del Tofu y este nuevo adversario tan gélido como despiadado.",
+                "pt": "Diante do <strong>Conde Traspafrent</strong>, a quinta temporada promete uma conclusão épica da saga animada, com o confronto derradeiro entre a Confraria do Tofu e esse novo adversário frio e implacável.",
+                "de": "Now, with <strong>Count Harebourg</strong>, season 5 promises an epic conclusion to the animated saga, with a final confrontation between the Brotherhood of the Tofu and this new adversary who's as ruthless as he is ice-cold.",
+                "en": "Now, with <strong>Count Harebourg</strong>, season 5 promises an epic conclusion to the animated saga, with a final confrontation between the Brotherhood of the Tofu and this new adversary who's as ruthless as he is ice-cold."
+              }
+            }
+          },
+          {
+            "name": "anims",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/fr/anims.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/es/anims.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/pt/anims.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/en/anims.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/en/anims.jpg"
+              }
+            }
+          },
+          {
+            "name": "text6",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Derrière la magie de Wakfu, il y a un studio : <strong>Ankama Animations</strong>. Basé à Roubaix, en France, Ankama est un pionnier du transmédia, et a à cœur de créer des univers riches (DOFUS, WAKFU, Princesse Dragon, Lance Dur, Bestiale, etc.).<br/><br/>L'équipe de WAKFU Saison 5 est un savant mélange de <strong>passion</strong>, de <strong>talent</strong> et de <strong>créativité</strong>, animée par la volonté de se dépasser en permanence afin de proposer un projet de qualité.",
+                "es": "Tras la magia de WAKFU, hay un estudio: Ankama Animations. Con sede en Roubaix (Francia), Ankama es pionero en transmedia y se dedica a crear universos ricos (DOFUS, WAKFU, Princesa Dragón, Lance Dur, Bestiale, etc.).<br/><br/>El equipo de la temporada 5 de WAKFU es una hábil mezcla de pasión, talento y creatividad, impulsado por el deseo de superarse constantemente para ofrecer un proyecto de calidad.",
+                "pt": "Por trás da magia de Wakfu, há um estúdio: Ankama Animations. Sediada em Roubaix, na França, a Ankama é pioneira em transmídia e se dedica a criar universos ricos (DOFUS, WAKFU, Princesa Dragão, Lance Dur, Bestial, etc.).<br/><br/>A equipe de WAKFU 5ª Temporada é uma rica mistura de paixão, talento e criatividade, impulsionada pela vontade de sempre fazer melhor para propor um projeto de qualidade.",
+                "de": "Behind the magic of WAKFU is a studio: <strong>Ankama Animations</strong>. Based in Roubaix, France, Ankama is a transmedia pioneer with a passion for creating rich, complex worlds (DOFUS, WAKFU, Princess Dragon, Lance Dur, Bestiale, etc.).<br/><br/>The WAKFU Season 5 team is a perfect blend of <strong>passion</strong>, <strong>talent</strong> and <strong>creativity</strong>, driven by a shared desire to keep surpassing their own limits to bring you a high-quality product.",
+                "en": "Behind the magic of WAKFU is a studio: <strong>Ankama Animations</strong>. Based in Roubaix, France, Ankama is a transmedia pioneer with a passion for creating rich, complex worlds (DOFUS, WAKFU, Princess Dragon, Lance Dur, Bestiale, etc.).<br/><br/>The WAKFU Season 5 team is a perfect blend of <strong>passion</strong>, <strong>talent</strong> and <strong>creativity</strong>, driven by a shared desire to keep surpassing their own limits to bring you a high-quality product."
+              }
+            }
+          },
+          {
+            "name": "ankamaImg",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/mul/photo-de-groupe_weareankama.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/mul/photo-de-groupe_weareankama.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/mul/photo-de-groupe_weareankama.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/mul/photo-de-groupe_weareankama.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/mul/photo-de-groupe_weareankama.jpg"
+              }
+            }
+          },
+          {
+            "name": "text7",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Aux commandes, nous retrouverons <strong>Anthony Roux</strong>, alias <strong>Tot</strong>, créateur de l'univers du Krosmoz, scénariste de la série, et coréalisateur de la saison 5, accompagné d'<strong>Alexandre Ulmann</strong>, alias <strong>Malec</strong>, storyboarder hors pair et second coréalisateur.<br/>D'autres noms emblématiques issus des saisons précédentes viendront également compléter l'équipe au fil de la production.<br/><br/>Et bien sûr, il y a <strong>vous</strong>, fans de la première heure ou nouveaux passionnés de WAKFU la Série. Vous tous qui, grâce à votre soutien, votre fidélité et votre engagement, rendez tout cela possible.<br/><strong>Merci</strong> de nous accompagner depuis tant d'années. Et merci de nous rejoindre, encore une fois, dans cette fantastique aventure !",
+                "es": "Al frente está Anthony Roux, conocido como Tot, creador del universo del Krosmoz, guionista de la serie y codirector de la temporada 5; acompañado por Alexandre Ulmann, conocido como Malec, destacado guionista gráfico y segundo codirector.<br/>Otros nombres emblemáticos de temporadas anteriores también se unirán al equipo a medida que avance la producción.<br/><br/>Y, por supuesto, estáis vosotros, tanto los fans desde el inicio como los nuevos fans de WAKFU, la serie. Todos vosotros que, gracias a vuestro apoyo, lealtad y compromiso, hacéis que todo esto sea posible.<br/>Gracias por acompañarnos durante tantos años. ¡Y gracias por estar con nosotros, una vez más, en esta fantástica aventura!",
+                "pt": "No comando, teremos Anthony Roux, ou Tot, criador do universo do Krosmoz, roteirista da série e codiretor da quinta temporada, acompanhado de Alexandre Ulmann, ou Malec, storyboarder sem igual e segundo codiretor.<br/>Outros nomes emblemáticos das temporadas anteriores também estarão lá, completando a equipe durante a produção.<br/><br/>E, claro, tem vocês, fãs das antigas e novos apaixonados pela série de WAKFU. Vocês todos que, graças ao seu apoio, à sua fidelidade e ao seu engajamento, possibilitam tudo isso.<br/>Obrigado por nos acompanharem há tantos anos. E obrigado por se juntarem a nós, mais uma vez, nessa fantástica aventura!",
+                "de": "At the helm once again is <strong>Anthony Roux</strong>, a.k.a. <strong>Tot</strong>, creator of the Krosmoz universe, scriptwriter for the series, and co-director of season 5, accompanied by <strong>Alexandre Ulmann</strong>, a.k.a. <strong>Malec</strong>, an extraordinary storyboarder and the second co-director.<br/><br/>Other iconic names from past seasons will also be joining the team over the course of the production.<br/><br/>And then, of course, there's <strong>you</strong>, fans from day one or passionate newcomers to the WAKFU animated series. The support, loyalty and dedication we've received from all of you is what makes it all possible.<br/><br/><strong>Thank you</strong> for sticking with us for so many years. And thanks for joining us once again on this fantastic adventure!",
+                "en": "At the helm once again is <strong>Anthony Roux</strong>, a.k.a. <strong>Tot</strong>, creator of the Krosmoz universe, scriptwriter for the series, and co-director of season 5, accompanied by <strong>Alexandre Ulmann</strong>, a.k.a. <strong>Malec</strong>, an extraordinary storyboarder and the second co-director.<br/><br/>Other iconic names from past seasons will also be joining the team over the course of the production.<br/><br/>And then, of course, there's <strong>you</strong>, fans from day one or passionate newcomers to the WAKFU animated series. The support, loyalty and dedication we've received from all of you is what makes it all possible.<br/><br/><strong>Thank you</strong> for sticking with us for so many years. And thanks for joining us once again on this fantastic adventure!"
+              }
+            }
+          },
+          {
+            "name": "frais",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/Titres/Titres_FDP.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/Titres/Shipping_Fees_ES.png",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/Titres/Shipping_Fees_PT.png",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Shipping_Fees_EN.png",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/Titres/Shipping_Fees_EN.png"
+              }
+            }
+          },
+          {
+            "name": "textFrais1",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Les récompenses physiques seront expédiées depuis nos locaux de Roubaix, en France, en deux phases : la première au premier semestre 2027 et la seconde au second semestre 2028. Les frais de port seront calculés et facturés lors de la phase de gestion des engagements via notre pledge manager. Conformément à la législation en vigueur dans votre pays, des frais de douane ou des taxes d'importation pourront s'appliquer et resteront à la charge du contributeur. Le tableau ci-dessous détaille les frais de port associés à chaque niveau de pledge.",
+                "es": "Las recompensas físicas se enviarán desde nuestras instalaciones de Roubaix, en Francia, en dos fases: la primera durante el primer semestre de 2027 y la segunda durante el segundo semestre de 2028. Los gastos de envío se calcularán y facturarán durante la fase de gestión de los compromisos a través de nuestro Administrador de contribuciones. Conforme a la legislación en vigor en tu país, podrán aplicarse gastos de aduana o impuestos de importación y estarán a cargo del contribuidor. La siguiente tabla detalla los gastos de envío asociados con cada nivel de contribución.",
+                "pt": "As recompensas físicas serão enviadas a partir das nossas instalações em Roubaix, França, em duas remessas: a primeira no primeiro semestre de 2027 e a segunda no segundo semestre de 2028. A taxa de envio será calculada e cobrada durante a fase de gerenciamento dos apoiadores através do nosso Pledge Manager. De acordo com a legislação em vigor no seu país, taxas aduaneiras ou taxas de importação poderão ser aplicadas e serão de responsabilidade do apoiador. A tabela abaixo detalha as taxas de envio correspondentes a cada nível de pledge.",
+                "de": "The physical rewards will ship from our premises in Roubaix, France, in two phases: the first in the first half of 2027, and the second in the second half of 2028. Shipping fees will be calculated and billed during the pledge management phase via our pledge manager. In compliance with the applicable laws in your country, customs duties or import taxes may apply and are the backer's responsibility. The table below gives the shipping fees associated with each pledge level.",
+                "en": "The physical rewards will ship from our premises in Roubaix, France, in two phases: the first in the first half of 2027, and the second in the second half of 2028. Shipping fees will be calculated and billed during the pledge management phase via our pledge manager. In compliance with the applicable laws in your country, customs duties or import taxes may apply and are the backer's responsibility. The table below gives the shipping fees associated with each pledge level."
+              }
+            }
+          },
+          {
+            "name": "frais1",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/web-images/FR/Shipping_FR.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/web-images/ES/Shipping_ES.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/web-images/PT/Shipping_PT.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/web-images/EN/Shipping_EN.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/web-images/EN/Shipping_EN.jpg"
+              }
+            }
+          },
+          {
+            "name": "titleFrais2",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "<h2>Risques et défis</h2>",
+                "es": "<h2>Riesgos y desafíos</h2>",
+                "pt": "<h2>Riscos e desafios</h2>",
+                "de": "<h2>Risks and Challenges</h2>",
+                "en": "<h2>Risks and Challenges</h2>"
+              }
+            }
+          },
+          {
+            "name": "textFrais2",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "Chez Ankama, nous avons plus de 20 ans d'expérience dans la création de divertissements transmédia, et WAKFU la Série existe depuis 2008 : avec 4 saisons, 6 OAV et plusieurs projets déjà menés à terme grâce à votre soutien, nous avons une solide expertise pour mener à bien ce nouveau chapitre à vos côtés.<br/><br/>Cependant, comme dans tout projet d'envergure, des aléas peuvent survenir lors de la fabrication et de la logistique. Nous mettons tout en œuvre pour tenir les délais, mais de possibles retards de fabrication, de transport ou d'approvisionnement pourraient affecter la date de livraison des contreparties. Par ailleurs, les délais de livraison peuvent varier selon les pays, en raison de formalités douanières ou de situations locales plus complexes. Enfin, selon la législation de votre pays, des taxes d'importation ou des frais de douane peuvent également s'appliquer pour l'envoi des contreparties à l'international.<br/><br/>Nous vous tiendrons informés au fur et à mesure du processus, et <strong>restons engagés à vous offrir la meilleure expérience possible.</strong> Un grand merci pour votre confiance !",
+                "es": "En Ankama, tenemos más de 20 años de experiencia en la creación de entretenimiento transmedia, y WAKFU, la serie, existe desde 2008: con 4 temporadas, 6 OVA y varios proyectos ya completados gracias a tu apoyo, tenemos la sólida experiencia necesaria para llevar a buen puerto este nuevo capítulo.<br/><br/>Ahora bien, como en cualquier proyecto a gran escala, pueden surgir problemas durante la producción y la logística. Hacemos todo lo posible por cumplir los plazos, pero los posibles retrasos en la fabricación, el transporte o el suministro podrían afectar a la fecha de entrega de las contrapartes. Además, los plazos de entrega podrían variar de un país a otro, debido a las formalidades aduaneras o a situaciones locales más complejas. Por último, dependiendo de la legislación de tu país, también podrían aplicarse impuestos de importación o gastos de aduana a los envíos internacionales de las contrapartes.<br/><br/>Te mantendremos al día a medida que se desarrolle el proceso, y seguimos comprometidos para proporcionarte la mejor experiencia posible. ¡Muchas gracias por tu confianza!",
+                "pt": "Na Ankama, nós temos mais de 20 anos de experiência na criação de entretenimento transmídia, e a série de WAKFU existe desde 2008: com 4 temporadas, 6 OVAs e vários projetos finalizados com seu apoio, nós temos uma experiência sólida para produzir este novo capítulo ao lado de vocês.<br/><br/>Porém, como acontece em todo projeto deste porte, há alguns riscos envolvendo a fabricação e a logística. Nós fazemos todo o possível para respeitar os prazos, mas podemos ter atrasos na fabricação, no transporte e no abastecimento, e isso pode afetar a data de entrega das contrapartidas. Aliás, os prazos de entrega podem mudar de país para país em razão das formalidades alfandegárias ou por causa de situações locais mais complexas. Por fim, segundo a legislação do seu país, é possível que haja taxas de importação ou impostos devidos para as contrapartidas em decorrência do envio internacional.<br/><br/>Manteremos vocês informados ao longo do processo e continuaremos comprometidos a entregar a melhor experiência possível. Muitíssimo obrigado por sua confiança!",
+                "de": "At Ankama, we have over 20 years of experience in creating transmedia entertainment, and the WAKFU animated series has existed since 2008. With four seasons, six OVAs and multiple projects already completed with your support, we have the solid expertise it'll take to write this new chapter with you.<br/><br/>As with any major project, however, various contingencies may arise in manufacturing and logistics. We will make every effort to meet our deadlines, but potential manufacturing, shipping or supply-chain delays may affect the delivery date for rewards. In addition, delivery times may differ from one country to the next, due to customs requirements or more complicated local situations. Finally, depending on the laws in your country, import duties and taxes may also apply for rewards shipped internationally.<br/><br/>We will keep you posted throughout the process, and we remain committed to providing you with the best possible experience. Thank you so much for your trust in us!",
+                "en": "At Ankama, we have over 20 years of experience in creating transmedia entertainment, and the WAKFU animated series has existed since 2008. With four seasons, six OVAs and multiple projects already completed with your support, we have the solid expertise it'll take to write this new chapter with you.<br/><br/>As with any major project, however, various contingencies may arise in manufacturing and logistics. We will make every effort to meet our deadlines, but potential manufacturing, shipping or supply-chain delays may affect the delivery date for rewards. In addition, delivery times may differ from one country to the next, due to customs requirements or more complicated local situations. Finally, depending on the laws in your country, import duties and taxes may also apply for rewards shipped internationally.<br/><br/>We will keep you posted throughout the process, and we remain committed to providing you with the best possible experience. Thank you so much for your trust in us!"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "title": {
+          "fr": "Récompenses",
+          "es": "Recompensas",
+          "pt": "Recompensas",
+          "de": "Rewards",
+          "en": "Rewards"
+        },
+        "components": [
+          {
+            "name": "title",
+            "component": "event-image",
+            "props": {
+              "image": {
+                "fr": "https://launcher.cdn.ankama.com/event/fr/goal_title.jpg",
+                "es": "https://launcher.cdn.ankama.com/event/es/goal_title.jpg",
+                "pt": "https://launcher.cdn.ankama.com/event/pt/goal_title.jpg",
+                "de": "https://launcher.cdn.ankama.com/event/en/goal_title.jpg",
+                "en": "https://launcher.cdn.ankama.com/event/en/goal_title.jpg"
+              }
+            }
+          },
+          {
+            "name": "text1",
+            "component": "event-text",
+            "props": {
+              "text": {
+                "fr": "En parallèle des objectifs additionnels du Kickstarter, Ankama offrira à tous ses joueurs des bonus gratuits. Si ces paliers sont atteints pendant la campagne, ces récompenses exclusives seront bientôt disponibles dans DOFUS, DOFUS Touch et WAKFU. Chaque jeu bénéficiera de cadeaux adaptés à son univers, avec des surprises particulièrement épiques pour les derniers paliers.",
+                "es": "En paralelo a los objetivos adicionales del Kickstarter, Ankama regalará a todos sus jugadores bonus gratuitos. Si se alcanzan estos niveles durante la campaña, las recompensas exclusivas estarán pronto disponibles en DOFUS, DOFUS Touch y WAKFU. Cada juego tendrá regalos adaptados a su universo, con sorpresas particularmente épicas para los últimos niveles.",
+                "pt": "Além dos objetivos adicionais do Kickstarter, a Ankama também oferecerá bônus gratuitos a todos os seus jogadores. Se os patamares forem alcançados durante a campanha, recompensas exclusivas serão disponibilizadas no DOFUS, DOFUS Touch e WAKFU. Cada jogo será beneficiado com presentes adaptados ao seu universo, com surpresas especialmente épicas nos últimos patamares.",
+                "de": "With the Kickstarter stretch goals, Ankama will give all its players free bonuses. If these levels are reached during the campaign, these exclusive rewards will soon be available in DOFUS, DOFUS Touch and WAKFU. Each game will get gifts suited to its universe, with especially epic surprises for the highest levels.",
+                "en": "With the Kickstarter stretch goals, Ankama will give all its players free bonuses. If these levels are reached during the campaign, these exclusive rewards will soon be available in DOFUS, DOFUS Touch and WAKFU. Each game will get gifts suited to its universe, with especially epic surprises for the highest levels."
+              }
+            }
+          },
+          {
+            "name": "rewards",
+            "component": "event-changing-image",
+            "props": {
+              "anchor": 1,
+              "images": [
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/fr/goal_1.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/es/goal_1.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/pt/goal_1.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/en/goal_1.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/en/goal_1.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/fr/goal_2.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/es/goal_2.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/pt/goal_2.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/en/goal_2.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/en/goal_2.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/fr/goal_3.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/es/goal_3.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/pt/goal_3.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/en/goal_3.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/en/goal_3.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/fr/goal_4.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/es/goal_4.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/pt/goal_4.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/en/goal_4.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/en/goal_4.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/fr/goal_5.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/es/goal_5.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/pt/goal_5.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/en/goal_5.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/en/goal_5.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/fr/goal_6.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/es/goal_6.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/pt/goal_6.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/en/goal_6.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/en/goal_6.jpg"
+                },
+                {
+                  "fr": "https://launcher.cdn.ankama.com/event/fr/goal_7.jpg",
+                  "es": "https://launcher.cdn.ankama.com/event/es/goal_7.jpg",
+                  "pt": "https://launcher.cdn.ankama.com/event/pt/goal_7.jpg",
+                  "de": "https://launcher.cdn.ankama.com/event/en/goal_7.jpg",
+                  "en": "https://launcher.cdn.ankama.com/event/en/goal_7.jpg"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -6,7 +6,7 @@ font-family: "JetBrainsMono Nerd Font";
 font-weight: bold;
 min-height: 0;
 /* set font-size to 100% if font scaling is set to 1.00 using nwg-look */
-font-size: 97%;
+font-size: 100%;
 font-feature-settings: '"zero", "ss01", "ss02", "ss03", "ss04", "ss05", "cv31"';
 }
 
@@ -29,6 +29,7 @@ tooltip {
 	background: @color11;
 	opacity: 1.0;
 	border-radius: 10px;
+	box-shadow: 0 2px 12px #0008;
 }
 
 /*-----module groups----*/
@@ -36,7 +37,7 @@ tooltip {
 .modules-center,
 .modules-right {
 	background-color: @color0;
-	border: 0.5px solid @color15;
+	border: 0.8px solid @color15;
 	border-radius: 10px;
 	padding-top: 2px;
 	padding-bottom: 2px;
@@ -47,7 +48,7 @@ tooltip {
 
 #taskbar button,
 #workspaces button {
-    color: @color2;
+    color: @color15;
     box-shadow: none;
 	text-shadow: none;
     padding: 0px;
@@ -61,7 +62,7 @@ tooltip {
 #taskbar button.active,
 #workspaces button.active {
     color: @foreground;
-    background-color: @color2;
+    background-color: @color11;
     padding-left: 8px;
     padding-right: 8px;
     animation: gradient_f 20s ease-in infinite;
@@ -69,7 +70,7 @@ tooltip {
 }
 
 #workspaces button.focused {
-    color: @color4;
+    color: @color7;
 }
 
 #workspaces button.urgent {
@@ -79,7 +80,7 @@ tooltip {
 
 #taskbar button:hover,
 #workspaces button:hover {
-    color: @color4;
+    color: @color14;
     padding-left: 2px;
     padding-right: 2px;
     animation: gradient_f 20s ease-in infinite;
@@ -111,7 +112,9 @@ tooltip {
 #workspaces,
 #custom-backlight,
 #custom-browser,
-#custom-cava_mviz,
+#custom-cava_mviz {
+	color: @color10;
+}
 #custom-cycle_wall,
 #custom-dot_update,
 #custom-file_manager,
@@ -218,3 +221,156 @@ tooltip {
 #custom-niflveil.empty {
     color: @color14;
 }
+/* Module gestionnaire de fenêtres */
+#custom-window-manager {
+	font-family: "JetBrainsMono Nerd Font", "Material Design Icons", sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	padding: 4px 6px;
+	margin: 0 2px;
+	border-radius: 6px;
+	transition: all 0.3s cubic-bezier(.55,-0.68,.48,1.682);
+	color: @color11;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	padding-right: 6px;
+	padding-left: 6px;
+}
+
+/* État inactif (dwindle classique) */
+#custom-window-manager.dwindle {
+	color: @color8;
+	background-color: rgba(0, 0, 0, 0.1);
+	opacity: 0.7;
+}
+
+#custom-window-manager.dwindle:hover {
+	color: @color14;
+	background-color: rgba(0, 0, 0, 0.15);
+	opacity: 1.0;
+	/*transform: scale(1.05); */
+}
+
+/* État normal (4+ fenêtres, dwindle reprend le contrôle) */
+#custom-window-manager.managed-normal {
+	color: @color13;
+	background-color: rgba(0, 0, 0, 0.1);
+	opacity: 0.7;
+}
+
+#custom-window-manager.managed-normal:hover {
+	color: @color8;
+	background-color: rgba(0, 0, 0, 0.15);
+	opacity: 1.0;
+}
+
+#custom-lmstudio.active {
+    color: @color14;  /* Vert quand actif */
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+#custom-lmstudio.inactive {
+    color: @color5;  /* Rouge quand inactif */
+    background-color: rgba(0, 0, 0, 0.1);;
+}
+
+#custom-lmstudio {
+    padding: 0 10px;
+    border-radius: 8px;
+}
+
+/* ── Vader 5 Pro battery bar ─────────────────────────────────────── */
+#custom-vader5 {
+    padding: 0 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    border-bottom: 2px solid transparent;
+}
+#custom-vader5.disconnected {
+    color: #555555;
+}
+#custom-vader5.perc0 {
+    color: #ff0080;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff0080 70.6718%, transparent 0);
+}
+#custom-vader5.perc5 {
+    color: #ff0679;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff0679 70.6740%, transparent 0);
+}
+#custom-vader5.perc10 {
+    color: #ff0d73;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff0d73 70.6762%, transparent 0);
+}
+#custom-vader5.perc15 {
+    color: #ff146c;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff146c 70.6784%, transparent 0);
+}
+#custom-vader5.perc20 {
+    color: #ff1b66;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff1b66 70.6807%, transparent 0);
+}
+#custom-vader5.perc25 {
+    color: #ff2260;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff2260 70.6829%, transparent 0);
+}
+#custom-vader5.perc30 {
+    color: #ff2859;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff2859 70.6851%, transparent 0);
+}
+#custom-vader5.perc35 {
+    color: #ff2f53;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff2f53 70.6873%, transparent 0);
+}
+#custom-vader5.perc40 {
+    color: #ff364c;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff364c 70.6895%, transparent 0);
+}
+#custom-vader5.perc45 {
+    color: #ff3d46;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff3d46 70.6917%, transparent 0);
+}
+#custom-vader5.perc50 {
+    color: #ff4440;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff4440 70.6940%, transparent 0);
+}
+#custom-vader5.perc55 {
+    color: #ff4a39;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff4a39 70.6962%, transparent 0);
+}
+#custom-vader5.perc60 {
+    color: #ff5133;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff5133 70.6984%, transparent 0);
+}
+#custom-vader5.perc65 {
+    color: #ff582c;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff582c 70.7006%, transparent 0);
+}
+#custom-vader5.perc70 {
+    color: #ff5f26;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff5f26 70.7028%, transparent 0);
+}
+#custom-vader5.perc75 {
+    color: #ff6620;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff6620 70.7050%, transparent 0);
+}
+#custom-vader5.perc80 {
+    color: #ff6c19;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff6c19 70.7072%, transparent 0);
+}
+#custom-vader5.perc85 {
+    color: #ff7313;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff7313 70.7095%, transparent 0);
+}
+#custom-vader5.perc90 {
+    color: #ff7a0c;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff7a0c 70.7117%, transparent 0);
+}
+#custom-vader5.perc95 {
+    color: #ff8106;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff8106 70.7139%, transparent 0);
+}
+#custom-vader5.perc100 {
+    color: #ff8800;
+    background-image: radial-gradient(ellipse at -160000% calc(100% + 1px), #ff8800 70.7161%, transparent 0);
+}
+

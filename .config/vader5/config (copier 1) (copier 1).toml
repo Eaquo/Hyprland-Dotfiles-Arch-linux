@@ -1,0 +1,39 @@
+emulate_elite = false
+
+[gyro]
+mode = "off"
+
+[stick.left]
+deadzone = 128
+
+[stick.right]
+deadzone = 128
+
+[dpad]
+mode = "gamepad"
+
+
+[remap]
+M1 = "KEY_R"
+M2 = "KEY_G"
+M3 = "X"
+M4 = "mouse_side"
+LM = "KEY_E"
+RM = "KEY_F"
+
+# C = ouvre/ferme Quickshell (tap rapide sur hold)
+[layer.quickshell]
+trigger = "Z"
+activation = "hold"
+hold_timeout = 900
+tap = "KEY_F9"
+
+# Z = toggle navigation dans le launcher
+[layer.launcher]
+trigger = "C"
+activation = "toggle"
+dpad = { mode = "arrows" }
+stick_left = { mode = "mouse", sensitivity = 1.5 }
+remap = { A = "KEY_ENTER", B = "KEY_ESC", X = "KEY_F5", Y = "KEY_BACKSPACE" }
+
+

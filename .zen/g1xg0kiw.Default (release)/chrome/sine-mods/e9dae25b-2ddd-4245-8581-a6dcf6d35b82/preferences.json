@@ -1,0 +1,50 @@
+[
+  {
+    "property": "mod.zencustomurlbar.useanimation",
+    "label": "Enable/Disable Feature",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "mod.zencustomurlbar.scale",
+    "label": "Scale animation (put 1 to disable scaling, recommended: 0.98)",
+    "type": "string",
+    "defaultValue": "1"
+  },
+  {
+    "property": "mod.zencustomurlbar.blur",
+    "label": "Custom Background Blur (put 0px to disable blur)",
+    "type": "string",
+    "defaultValue": "5px"
+  },
+  {
+    "property": "mod.zencustomurlbar.brightness",
+    "label": "Custom Background Brightness (put 1 to disable brightness)",
+    "type": "string",
+    "defaultValue": "0.7"
+  },
+  {
+    "property": "mod.zencustomurlbar.borderradius",
+    "label": "Custom Border Radius",
+    "type": "string",
+    "defaultValue": "12px"
+  },
+  {
+    "property": "mod.zencustomurlbar.usefromzen",
+    "label": "Use default Zen Browser Color (Will override the custom color below)",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "mod.zencustomurlbar.customcolor",
+    "label": "Custom color for the component (should be on srgb format)",
+    "type": "string",
+    "defaultValue": "rgba(23, 23, 26, 1)"
+  },
+  {
+    "property": "mod.zencustomurlbar.transparentvalue",
+    "label": "Custom transparent percentage",
+    "type": "string",
+    "defaultValue": "15%"
+  }
+]

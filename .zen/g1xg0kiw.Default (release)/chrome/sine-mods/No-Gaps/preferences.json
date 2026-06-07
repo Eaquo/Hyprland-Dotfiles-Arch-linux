@@ -1,0 +1,31 @@
+[
+    {
+        "type": "dropdown",
+        "value": "number",
+        "label": "Choose mode for No Gaps mode",
+        "property": "no-gap.mode-select",
+        "default": 1,
+        "options": [
+            {
+                "label": "Only Compact Mode",
+                "value": 0
+            },
+            {
+                "label": "Both non compact and compact mode",
+                "value": 1
+            }
+        ]
+    },
+    {
+        "type": "checkbox",
+        "default": false,
+        "label": "Remove highlight on tab when in split mode",
+        "property": "no-gaps.remove-split-highlight"
+    },
+    {
+        "type": "checkbox",
+        "default": false,
+        "label": "Remove shadow emited by the website",
+        "property": "no-gaps.remove-box-shadow"
+    }
+]

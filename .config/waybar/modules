@@ -205,7 +205,7 @@
 		"on-click-right": "~/.config/hypr/scripts/Wlogout.sh",
 	},
 	"bluetooth": {
-		"format": "",
+		"format": "  ",
 		"format-disabled": "󰂳",
 		"format-connected": "󰂱 {num_connections}",
 		"tooltip-format": " {device_alias}",
@@ -213,6 +213,12 @@
 		"tooltip-format-enumerate-connected": " {device_alias} 󰂄{device_battery_percentage}%",
 		"tooltip": true,
 		"on-click": "blueman-manager",
+	},
+	"custom/vader5": {
+		"exec": "python3 ~/.config/waybar/scripts/vader.py",
+		"return-type": "json",
+		"interval": 60,
+		"format": "{}"
 	},
 	"clock": {
 		"interval": 1,
@@ -256,7 +262,7 @@
 		//"format": "󰋊",
 		"path": "/",
 		//"format-alt-click": "click",
-		"format": "{percentage_used}% 󰋊",
+		"format": "{percentage_used}% 󰋊 ",
 		//"tooltip": true,
 		"tooltip-format": "{used} used out of {total} on {path} ({percentage_used}%)",
 	},
@@ -305,7 +311,7 @@
 	},
 	"memory": {
 		"interval": 10,
-		"format": "{used:0.1f}G 󰾆",
+		"format": " {used:0.1f}G 󰾆",
 		"format-alt": "{percentage}% 󰾆",
 		"format-alt-click": "click",
 		"tooltip": true,
@@ -373,7 +379,7 @@
 		]
 	},
 	"pulseaudio": {
-		"format": "{icon} {volume}%",
+		"format": "{icon} {volume}% ",
 		"format-bluetooth": "{icon} 󰂰 {volume}%",
 		"format-muted": "󰖁",
 		"format-icons": {
@@ -400,7 +406,7 @@
 	},
 	"pulseaudio#microphone": {
 		"format": "{format_source}",
-		"format-source": " {volume}%",
+		"format-source": " {volume}% ",
 		"format-source-muted": "",
 		"on-click": "~/.config/hypr/scripts/Volume.sh --toggle-mic",
 		"on-click-right": "pavucontrol -t 4",
@@ -421,7 +427,7 @@
 		"format-critical": "{temperatureC}°C {icon}",
 		"format": "{temperatureC}°C {icon}",
 		"format-icons": [
-			"󰈸"
+			" 󰈸 "
 		],
 		"on-click-right": "kitty --title nvtop sh -c 'nvtop'"
 	},
@@ -615,7 +621,7 @@
 		"tooltip-format": "{percent}%",
 	},
 	"clock#vertical": {
-		"format": "\n{:%H\n%M\n%S\n\n \n%d\n%m\n%y}",
+		"format": "\n{:%H\n%M\n%S\n\n \n%d\n%m\n%y} ",
 		"interval": 1,
 		//"format": "\n{:%I\n%M\n%p\n\n \n%d\n%m\n%y}",
 		"tooltip": true,
@@ -690,8 +696,8 @@
 		],
 		//"thermal-zone": 0,
 		"critical-threshold": 80,
-		"format-critical": "{icon}\n{temperatureC}°C",
-		"format": " {icon}",
+		"format-critical": "{icon}\n {temperatureC}°C",
+		"format": " {icon} ",
 		"format-icons": [
 			"󰈸"
 		],
@@ -747,4 +753,20 @@
         "interval": "once",
         "signal": 8
     },
+	"custom/window-manager": {
+		"format": "{}",
+		"exec": "~/.config/hypr/UserScripts/Monitor/waybar_window_manager.sh status",
+		"on-click": "~/.config/hypr/UserScripts/Monitor/waybar_window_manager.sh toggle",
+		"on-click-right": "/bin/bash -c '~/.config/hypr/UserScripts/Monitor/manual_reorganize.sh'",
+		"interval": 2,
+		"return-type": "json",
+		"escape": true,
+		"tooltip": true
+	},
+	"custom/lmstudio": {
+		"exec": "~/.config/hypr/Llmstudio/lmstudio-status.sh",
+		"return-type": "json",
+		"interval": 5,
+		"on-click": "~/.config/hypr/Llmstudio/lmstudio-toggle.sh"
+	},
 	}

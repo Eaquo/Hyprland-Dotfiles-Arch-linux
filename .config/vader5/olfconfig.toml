@@ -1,0 +1,16 @@
+emulate_elite = true
+
+[gyro]
+mode = "off"
+
+[stick.left]
+deadzone = 128
+
+[stick.right]
+deadzone = 128
+
+[dpad]
+mode = "gamepad"
+
+
+

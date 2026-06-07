@@ -35,8 +35,14 @@ cava.target = '~/.config/cava/config'
 hypr.template = 'templates/colors-hyprland.conf'
 hypr.target = '~/.config/hypr/wallust/wallust-hyprland.conf'
 
+steam.template = "templates/steam-millennium.css"
+steam.target   = "~/.config/millennium/quickcss.css"
+
 starship.template = 'templates/starship.toml'
 starship.target = '~/.config/starship.toml'
+
+hypr_lua.template = "templates/hyprland-colors.lua"
+hypr_lua.target   = "~/.config/hypr/wallust/colors.lua"
 
 ranger.template = 'templates/colors-ranger.py'
 ranger.target = '~/.config/ranger/colorschemes/rangercolors.py'
@@ -53,26 +59,14 @@ rofigame.target = '~/.config/rofi/themes/colors.rasi'
 waybar.template = 'templates/colors-waybar.css'
 waybar.target = '~/.config/waybar/wallust/colors-waybar.css'
 
-floorp.template = 'templates/colors-floorp.css'
-floorp.target = '~/.floorp/19co9e4b.default-release/chrome/CSS/colors.css'
-
 kitty.template = 'templates/colors-kitty.conf'
 kitty.target = '~/.config/kitty/kitty.conf'
 
 claude.template = 'templates/claude.json'
 claude.target = '~/.cache/wal/wal.json'
 
-zed.template = 'templates/Pywall_zed.json'
-zed.target = '~/.config/zed/themes/Pywall_zed.json'
-
-#yazi.template = 'templates/flavor.toml'
-#yazi.target = '~/.config/yazi/flavors/tokyo-night.yazi/flavor.toml'
-
-#swaync.template = 'templates/colors-swaync.css'
-#swaync.target = '~/.config/swaync/wallust/colors-wallust.css'
-
-#macchina.template = 'templates/colors-macchina.toml'
-#macchina.target = '~/.config/macchina/themes/wallust.toml'
+quickshell.template = 'qml_color.json'
+quickshell.target = '~/.config/quickshell/qml_color.json'
 
 wezterm.template = 'templates/colors.lua'
 wezterm.target = '~/.config/wezterm/colors/walcolors.lua'
@@ -82,6 +76,9 @@ nvim.target = '~/.cache/wal/colors-wal.vim'
 
 dash.template = 'templates/dashboard.lua'
 dash.target = '~/.config/nvim/lua/plugins/dashboard.lua'
+
+eww.template = 'templates/colors-eww.scss'
+eww.target = '~/.config/eww/dashboard/wallust-colors.scss'
 
 #zathura.template = 'templates/colors-zathura'
 #zathura.target = '~/.config/zathura/zathurarc'
@@ -99,6 +96,13 @@ kvsvg.template = 'templates/pywal.svg'
 kvsvg.target = '~/.config/hypr/Kvantum/pywal/pywal.svg'
 
 openrgb.template = 'templates/claude.json'
-openrgb.target = '~/.config/hypr/Openrgb/wal_rgb.json'
+openrgb.target = '~/.config/quickshell/rgb-launcher/modules/script/wal_rgb.json'
+
+# colors.json standard pywal — requis par dlasagno.wal-theme (Windsurf)
+wal_colors.template = 'templates/claude.json'
+wal_colors.target = '~/.cache/wal/colors.json'
+
+[misc]
+exec = ["python3 /home/florian/.config/wallust/hooks/windsurf-theme.py"]
 
 

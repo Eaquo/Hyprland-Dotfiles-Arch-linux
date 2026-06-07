@@ -1,0 +1,44 @@
+[
+  {
+    "property": "mod.compacttpr.usecompacttransparent",
+    "label": "Enable/Disable Transparent Mode",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "mod.compacttpr.usefromzen",
+    "label": "Use default Zen Browser Color (Will override the custom color below)",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "mod.compacttpr.customcolor",
+    "label": "Custom color for the component (should be on srgb format)",
+    "type": "string",
+    "defaultValue": "rgba(23, 23, 26, 1)"
+  },
+  {
+    "property": "mod.compacttpr.customblur",
+    "label": "Custom blur for the component",
+    "type": "string",
+    "defaultValue": "5px"
+  },
+  {
+    "property": "mod.compacttpr.transparentvalue",
+    "label": "Custom transparent percentage",
+    "type": "string",
+    "defaultValue": "15%"
+  },
+  {
+    "property": "mod.compacttpr.leftsidebarheight",
+    "label": "Custom left sidebar height percentage (default zen is 100%)",
+    "type": "string",
+    "defaultValue": "80%"
+  },
+  {
+    "property": "mod.compacttpr.leftsidebaronlycollapsed",
+    "label": "Implement custom height only on collapsed sidebar (recommended)",
+    "type": "checkbox",
+    "defaultValue": true
+  }
+]

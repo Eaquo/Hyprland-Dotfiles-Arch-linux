@@ -1,0 +1,1 @@
+complete -c cd -f -n '__fish_is_first_token' -a '(cd_fuzzy_suggest)'

@@ -1,0 +1,331 @@
+/* для всех */
+
+* {
+    scrollbar-color: color-mix(in srgb, currentColor 15%, transparent) transparent !important;
+}
+
+menuseparator {
+    padding: 0 !important;
+    margin: var(--s) 0 !important;
+}
+
+/* вкладки, верхняя панель */
+
+menupopup,
+panel {
+    --menuitem-padding: var(--btn) !important;
+    --panel-border-radius: var(--s) !important;
+    --panel-border-color: none !important;
+}
+
+arrowscrollbox {
+    padding: var(--s) 0 !important;
+}
+
+menu,
+menuitem,
+menucaption,
+menuitem.menuitem-iconic {
+    margin: 0 var(--s) !important;
+    padding: var(--btn) !important;
+    border-radius: var(--xs) !important;
+}
+
+menu,
+menuitem {
+    &:where([disabled="true"]) {
+        color: var(--button-text-color-ghost-disabled) !important;
+        opacity: var(--button-opacity-disabled) !important;
+    }
+
+    &:where([_moz-menuactive]:not([disabled="true"])) {
+        color: var(--button-text-color-ghost) !important;
+        background-color: var(--button-background-color-ghost-hover) !important;
+    }
+
+    &:where([_moz-menuactive][disabled="true"]) {
+        background-color: var(--button-background-color-ghost-disabled) !important;
+    }
+}
+
+menuitem[badge]::after {
+    margin: -2px;
+    margin-left: 16px !important;
+    border: none !important;
+    padding: var(--btn-s) !important;
+    background: var(--toolbarbutton-hover-background) !important;
+}
+
+#PlacesToolbarItems {
+    .bookmark-item {
+        margin: 0 !important;
+        padding: 0 var(--s) !important;
+        margin-bottom: 4px !important;
+    }
+        
+    .toolbar-menupopup .bookmark-item {
+        padding: var(--btn) !important;
+        margin: 0 var(--s) !important;
+    }
+}
+
+/* application menu */
+
+panelmultiview,
+toolbarseparator {
+    padding: 0 !important;
+    margin: var(--s) 0 !important;
+}
+
+.subviewbutton {
+    padding: var(--btn) !important;
+    margin: 0 var(--s) !important;
+}
+
+.panel-subview-body {
+    padding: 0 !important;
+}
+
+.subview-subheader {
+    margin-left: 2px !important;
+}
+
+/* #appMenu-zoom-controls > .toolbarbutton-text,
+#PanelUI-signedin-panel > .subviewbutton .toolbarbutton-text,
+#fxa-manage-account-button > vbox,
+#PanelUI-fxa-menu-syncnow-button > hbox {
+    padding-inline-start: 0 !important;
+} */
+
+/* .widget-overflow-list .toolbarbutton-1:not(.toolbarbutton-combined)>.toolbarbutton-text,
+.subviewbutton:not(#appMenu-zoom-controls > .subviewbutton)>.toolbarbutton-icon+.toolbarbutton-text,
+#appMenu-fxa-label2>vbox {
+    padding-inline-start: 0 !important;
+}
+
+.subviewbutton:is(#appmenu-developer-tools-view > .subviewbutton)>.toolbarbutton-icon+.toolbarbutton-text {
+    padding-inline-start: 0 !important;
+} */
+
+#appMenu-fxa-status2,
+.panel-header {
+    padding: 0 !important;
+    margin: 0 !important;
+    min-height: 32px !important;
+
+    h1 {
+        padding: 0 !important;
+        margin: 0 !important;
+        padding-bottom: var(--xxs) !important;
+
+        & > span::before {
+            --header-image: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+    }
+}
+
+#appMenu-zoom-controls {
+    padding: 0 var(--m) !important;
+    padding-top: var(--s) !important;
+    margin: 0 !important;
+    margin-top: var(--s) !important;
+
+    #appMenu-zoomReset-button2,
+    #appMenu-zoomEnlarge-button2,
+    #appMenu-zoomReduce-button2 {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    #appMenu-zoomReset-button2 {
+        padding: 0 var(--s) !important;
+    }
+
+    #appMenu-fullscreen-button2 {
+        display: none !important;
+    }
+
+    :is(label, description)[value][crop]::before {
+        padding: var(--btn-s) !important;
+    }
+}
+
+#PanelUI-developer-tools .subviewbutton>.toolbarbutton-icon+.toolbarbutton-text {
+    padding-inline-start: 0 !important;
+}
+
+/* контекстное меню сайта */
+
+#context-navigation {
+    margin: 0 var(--s) !important;
+    gap: var(--s);
+
+    .menuitem-iconic {
+        padding: var(--xs) var(--s) !important;
+        margin: 0 !important;
+        border-radius: var(--button-border-radius) !important;
+    }
+}
+
+/* dialog */
+
+.dialogBox {
+    outline: none !important;
+    border: none !important;
+}
+
+#infoRow {
+    margin: 0 !important;
+    margin-top: var(--m) !important;
+}
+
+#zen-workspaces-button {
+    gap: 0 !important;
+}
+
+button[part="dialog-button"] {
+    padding-left: 1.2em !important;
+    padding-right: 1.2em !important;
+    --button-text-color: var(--button-text-color) !important;
+    --button-background-color: color-mix(in srgb, currentColor 6%, transparent) !important;
+    color: var(--button-text-color) !important;
+    background: var(--button-background-color) !important;
+
+    &[default="true"],
+    &[default="false"] {
+        color: light-dark(var(--zen-branding-paper), var(--zen-branding-dark)) !important;
+        background: var(--color-accent-primary) !important;
+    }
+
+    &::after {
+        display: none !important;
+    }
+}
+
+button[part="dialog-button"]:hover {
+    --button-background-color: color-mix(in srgb, currentColor 10%, transparent) !important;
+
+    &[default="true"],
+    &[default="false"] {
+        background: var(--color-accent-primary-hover) !important;
+    }
+}
+
+button[part="dialog-button"]:hover:active {
+    scale: 0.98;
+    --button-background-color: color-mix(in srgb, currentColor 14%, transparent) !important;
+
+    &[default="true"],
+    &[default="false"] {
+        background: var(--color-accent-primary-active);
+    }
+}
+
+/* bookmark */
+
+#zenEditBookmarkPanelFaviconContainer {
+    display: none !important;
+}
+
+#editBookmarkPanel .panel-footer {
+    padding-top: var(--s) !important;
+}
+
+#editBookmarkPanel .panel-header {
+    padding: var(--m) !important;
+    padding-bottom: 0 !important;
+}
+
+#editBookmarkPanelContent {
+    padding: 0 !important;
+    margin: 0 !important;
+
+    input, menulist {
+        padding: var(--btn) !important;
+        background: var(--button-background-color) !important;
+        outline: none !important;
+        border: none !important;
+        border-radius: var(--button-border-radius) !important;
+
+        &:hover {
+            background-color: var(--button-background-color-hover) !important;
+        }
+
+        &:active, &:focus {
+            background-color: var(--button-background-color-active) !important;
+        }
+    }
+
+    .workspace-trigger {
+        padding: var(--btn) !important;
+        background: var(--button-background-color) !important;
+        outline: none !important;
+        border: none !important;
+        border-radius: var(--button-border-radius) !important;
+    }
+
+    label {
+        color: var(--text-color-deemphasized) !important;
+    }
+}
+
+#editBookmarkPanel #editBookmarkPanelContent {
+    padding: 0 var(--m) !important;
+}
+
+#titleContainer {
+    margin: 0 !important;
+}
+
+label.editBMPanel_nameRow {
+    padding-top: var(--m) !important;
+    padding-bottom: var(--s) !important;
+}
+
+#bookmarkpropertiesdialog #editBookmarkPanelContent #editBMPanel_tagsField,
+#bookmarkpropertiesdialog #editBookmarkPanelContent #editBMPanel_folderMenuList,
+#bookmarkpropertiesdialog #editBookmarkPanelContent #editBMPanel_workspaceSummary {
+    margin-inline-end: var(--s) !important;
+}
+
+#editBookmarkPanel .expander-up,
+#editBookmarkPanel .expander-down {
+    margin-inline-start: var(--s) !important;
+}
+
+#bookmarkpropertiesdialog {
+    overflow: auto !important;
+    min-height: 400px !important;
+}
+
+#bookmarkpropertiesdialog .caption-label {
+    margin: 0 !important;
+    margin-top: var(--s) !important;
+}
+
+#bookmarkpropertiesdialog #editBookmarkPanelContent label[control] {
+    margin-inline-start: 0;
+    margin-block: 0 var(--s) !important;
+}
+
+.dialog-button-box {
+    padding-top: var(--m) !important;
+}
+
+.zenEditBMPanel_fieldContainer {
+    margin-top: 0 !important;
+}
+
+.zenEditBMPanel_fieldContainer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: initial !important;
+
+    label.hideable {
+        color: var(--text-color-deemphasized) !important;
+        padding-top: var(--m) !important;
+        padding-bottom: var(--s) !important;
+    }
+}

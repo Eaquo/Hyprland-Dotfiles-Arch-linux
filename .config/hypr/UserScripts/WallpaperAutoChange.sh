@@ -1,39 +1,94 @@
 #!/bin/bash
-# /* ---- 💫 https://github.com/JaKooLit 💫 ---- */  ##
-# source https://wiki.archlinux.org/title/Hyprland#Using_a_script_to_change_wallpaper_every_X_minutes
+# Script for Auto-changing Wallpaper with notifications
+wallDIR="${1:-$HOME/Pictures/wallpapers}"
+SCRIPTSDIR="$HOME/.config/hypr/scripts"
+INTERVAL="${2:-1800}"
+SCRIPT_NAME="$(basename "$0")"
+PID_FILE="/tmp/wallpaper_autochange.pid"
+NOTIFY_ICON="$HOME/.config/swaync/icons/ja.png"
+SWWW_PARAMS="--transition-fps $FPS --transition-type $TYPE --transition-duration $DURATION --resize fit"
 
-# This script will randomly go through the files of a directory, setting it
-# up as the wallpaper at regular intervals
-#
-# NOTE: this script uses bash (not POSIX shell) for the RANDOM variable
-
-wallust_refresh=$HOME/.config/hypr/scripts/RefreshNoWaybar.sh
-
-focused_monitor=$(hyprctl monitors | awk '/^Monitor/{name=$2} /focused: yes/{print name}')
-
-if [[ $# -lt 1 ]] || [[ ! -d $1   ]]; then
-	echo "Usage:
-	$0 <dir containing images>"
-	exit 1
+# Kill any existing instances
+if [[ -f "$PID_FILE" ]]; then
+    old_pid=$(cat "$PID_FILE")
+    if ps -p "$old_pid" > /dev/null 2>&1; then
+        kill "$old_pid" 2>/dev/null
+    fi
 fi
 
-# Edit below to control the images transition
-export SWWW_TRANSITION_FPS=60
-export SWWW_TRANSITION_TYPE=simple
+pgrep WallpaperSel > /dev/null && pkill WallpaperSel
+echo $$ > "$PID_FILE"
 
-# This controls (in seconds) when to switch to the next image
-INTERVAL=1800
+cleanup() {
+    notify-send -i "$NOTIFY_ICON" "Wallpaper Autochange" "Stopped"
+    rm -f "$PID_FILE" "$WALLPAPER_LIST"
+    exit 0
+}
 
+trap cleanup SIGTERM SIGINT
+
+# Validate directory
+[[ ! -d "$wallDIR" ]] && notify-send "Error" "Directory not found: $wallDIR" && exit 1
+
+# Check if gslapper is active
+should_run_swww() {
+    pgrep -x "gslapper" > /dev/null && return 1
+    return 0
+}
+
+# Ensure swww-daemon
+ensure_swww() {
+    if ! pgrep -x "awww-daemon" > /dev/null; then
+        awww-daemon --format xrgb &
+        sleep 0.5
+    fi
+}
+
+# Build wallpaper list (cached)
+WALLPAPER_LIST="/tmp/wallpaper_list_$$.txt"
+find -L "$wallDIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.webp" \) > "$WALLPAPER_LIST"
+
+if [[ ! -s "$WALLPAPER_LIST" ]]; then
+    notify-send "Error" "No wallpapers found in $wallDIR"
+    exit 1
+fi
+
+WALLPAPER_COUNT=$(wc -l < "$WALLPAPER_LIST")
+notify-send -i "$NOTIFY_ICON" "Wallpaper Autochange" "Started with $WALLPAPER_COUNT wallpapers\nInterval: ${INTERVAL}s"
+
+# Apply wallpaper
+apply_wallpaper() {
+    local img="$1"
+    local monitor="$2"
+    local img_name="$(basename "$img")"
+
+
+    export SWWW_TRANSITION_FPS=60
+    export SWWW_TRANSITION_TYPE=simple
+    
+    awww img -o "$monitor" "$img"&
+
+    # Notify with wallpaper name
+    notify-send -i "$img" "Wallpaper Changed" "$img_name" -t 3000
+    
+    sleep 0.5
+    "$SCRIPTSDIR/WallustSwww.sh" &
+    sleep 1
+    "$SCRIPTSDIR/Refresh.sh" &
+}
+
+# Main loop
 while true; do
-	find "$1" \
-		| while read -r img; do
-			echo "$((RANDOM % 1000)):$img"
-		done \
-		| sort -n | cut -d':' -f2- \
-		| while read -r img; do
-			swww img -o $focused_monitor "$img" 
-			$wallust_refresh
-			sleep $INTERVAL
-			
-		done
+    focused_monitor=$(hyprctl monitors -j | jq -r '.[] | select(.focused) | .name')
+    
+    shuf "$WALLPAPER_LIST" | while IFS= read -r img; do
+        if ! should_run_swww; then
+            sleep "$INTERVAL"
+            continue
+        fi
+        
+        ensure_swww
+        apply_wallpaper "$img" "$focused_monitor"
+        sleep "$INTERVAL"
+    done
 done

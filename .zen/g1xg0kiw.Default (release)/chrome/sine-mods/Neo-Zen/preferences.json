@@ -1,0 +1,360 @@
+[
+    {
+        "type": "text",
+        "label": "**Neo Features**",
+        "margin": "10px 0 15px 0",
+        "size": "20px"
+    },
+    {
+        "type": "separator",
+        "label": "General"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-disabled",
+        "label": "Disable all the Neo features."
+    },
+    {
+        "type": "separator",
+        "label": "Neo Sidebar"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-sidebar-disabled",
+        "label": "Disable Neo sidebar, this will also disable the sidebar background and align features."
+    },
+    {
+        "type": "separator",
+        "label": "Neo Workspace"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-workspace-disabled",
+        "label": "Disable Neo workspace features."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-workspace-halo-mode-disabled",
+        "label": "Disable Neo workspace halo mode, if disabled all the subbuttons will be displayed in both modes (expanded and collapsed)."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-workspace-halo-mode-collapsed-disabled",
+        "label": "Disable Neo workspace halo mode in collapsed mode, if disabled it will enable automatically the scrollable mode for collapsed mode."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-workspace-halo-mode-expanded-disabled",
+        "label": "Disable Neo workspace halo mode in expanded mode, if disabled it will display all the subbuttons in expanded mode."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-workspace-button-hidden",
+        "label": "Hide the Neo workspace button, This will expand the bottom section automatically in expanded mode, and display all the subbuttons for both modes."
+    },
+    {
+        "type": "separator",
+        "label": "Neo Bottom V2"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-bottom-disabled",
+        "label": "Disable better bottom section."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-bottom-keep-expanded",
+        "label": "Keep better bottom section expanded in expanded mode."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-bottom-at-bottom",
+        "label": "Move the Neo bottom section to the bottom."
+    },
+    {
+        "type": "dropdown",
+        "property": "neo-features-bottom-height",
+        "label": "Change the height of the Neo bottom section in collapsed mode. Default: 220px",
+        "value": "number",
+        "default": 5,
+        "options": [
+            {"value": 0, "label": "120px"},
+            {"value": 1, "label": "140px"},
+            {"value": 2, "label": "160px"},
+            {"value": 3, "label": "180px"},
+            {"value": 4, "label": "200px"},
+            {"value": 5, "label": "220px"},
+            {"value": 6, "label": "240px"},
+            {"value": 7, "label": "260px"},
+            {"value": 8, "label": "280px"},
+            {"value": 9, "label": "300px"},
+            {"value": 10, "label": "320px"},
+            {"value": 11, "label": "340px"},
+            {"value": 12, "label": "360px"},
+            {"value": 13, "label": "380px"},
+            {"value": 14, "label": "400px"},
+            {"value": 15, "label": "420px"},
+            {"value": 16, "label": "440px"},
+            {"value": 17, "label": "460px"},
+            {"value": 18, "label": "480px"},
+            {"value": 19, "label": "500px"},
+            {"value": 20, "label": "520px"}
+        ]
+        
+    },
+    {
+        "type": "separator",
+        "label": "Neo Essentials"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-essentials-disabled",
+        "label": "Disable Neo Essentials feature."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-essentials-keep-expanded",
+        "label": "Keep better essentials area expanded."
+    },
+    {
+        "type": "separator",
+        "label": "Neo Media"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-media-disabled",
+        "label": "Disable Neo Media features, if disabled, the media controls will be hidden in collapsed mode."
+    },
+    {
+        "type": "separator",
+        "label": "Neo Split Groups"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-split-groups-disabled",
+        "label": "Disable Neo Split Groups feature"
+    },
+    {
+        "type": "separator",
+        "label": "Neo Tab Groups"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-tab-groups-disabled",
+        "label": "Disable Neo Tab Groups feature without disabling styling."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tab-groups-disabled",
+        "label": "Disable tab groups styling, but keep feature functionality."
+    },
+    {
+        "type": "separator",
+        "label": "Neo Findbar"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-findbar-disabled",
+        "label": "Disable Neo Findbar feature."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-findbar-hover-enabled",
+        "label": "Enable show on hover for the better findbar."
+    },
+    {
+        "type": "separator",
+        "label": "Neo Search"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-features-search-disabled",
+        "label": "Disable Neo Search feature."
+    },
+    {
+        "type": "text",
+        "label": "**Theme &  UI**",
+        "margin": "10px 0 15px 0",
+        "size": "20px"
+    },
+    {
+        "type": "separator",
+        "label": "General"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-disabled",
+        "label": "Disable Neo theme without disabling features."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-background-enabled",
+        "label": "Enable tab background"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-shadow-enabled",
+        "label": "Enable shadow around the tab background area."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-scrollbar-enabled",
+        "label": "Enable sidebar scrollbar."
+    },
+    {
+        "type": "separator",
+        "label": "Customization Screen"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-customization-toolbar-disabled",
+        "label": "Disable theme styling for the customization screen when the browser is in customization mode."
+    },
+    {
+        "type": "separator",
+        "label": "Window Buttons"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-window-buttons-disabled",
+        "label": "Disable window button styling."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-window-buttons-colorful-enabled",
+        "label": "Keep window buttons colorful while unhovered."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-window-buttons-inverse",
+        "label": "Invert window buttons position in expanded mode single toolbar mode."
+    },
+    {
+        "type": "separator",
+        "label": "Workspace Button"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-workspace-button-disabled",
+        "label": "Disable workspace button styling."
+    },
+    {
+        "type": "separator",
+        "label": "Workspace Indicator"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-hide-workspace-indicator",
+        "label": "Hide the workspace indicator."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-workspace-indicator-disabled",
+        "label": "Disable workspace indicator styling."
+    },
+    {
+        "type": "separator",
+        "label": "Nebula Tab Animations"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-external-nebula-animations-tabs-disabled",
+        "label": "Disable tab animations from Nebula."
+    },
+    
+    {
+        "type": "separator",
+        "label": "Media Controls"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-media-disabled",
+        "label": "Disable styling for media controls / disable glow effects and hover effects."
+    },
+    {
+        "type": "separator",
+        "label": "Tab Customization"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tabs-disabled",
+        "label": "Disable styling for all tab styles."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-close-button-disabled",
+        "label": "Disable tab close button styling."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tabs-essentials-disabled",
+        "label": "Disable styling for essentials."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tabs-pinned-disabled",
+        "label": "Disable styling for pinned tabs."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tabs-newtab-button-disabled",
+        "label": "Disable styling for new tab buttons."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tabs-normals-disabled",
+        "label": "Disable styling for normal tabs."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tabs-containers-disabled",
+        "label": "Disable styling for container tabs."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tabs-containers-essentials-disabled",
+        "label": "Disable styling for container-specific essentials."
+    },
+    {
+        "type": "separator",
+        "label": "Overflow Indicators"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-tabs-overflow-indicators-disabled",
+        "label": "Disable styling for overflow indicators."
+    },
+    {
+        "type": "separator",
+        "label": "Findbar"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-findbar-disabled",
+        "label": "Disable findbar styling."
+    },
+    {
+        "type": "separator",
+        "label": "URL Bar"
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-urlbar-disabled",
+        "label": "Disable urlbar styling."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-urlbar-glow-border-disabled",
+        "label": "Disable glow border around the floating urlbar."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-urlbar-glow-disabled",
+        "label": "Disable glow effect around the floating urlbar without disabling the border."
+    },
+    {
+        "type": "checkbox",
+        "property": "neo-theme-urlbar-border-disabled",
+        "label": "Disable border around the floating urlbar without disabling the glow."
+    }
+]

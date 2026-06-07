@@ -1,1 +1,171 @@
-/home/florian/.config/starship.toml
+## FIRST LINE/ROW: Info & Status
+# First param ─┌
+[username]
+format = " [╭─$user]($style)@"
+show_always = true
+style_root = "#ff5400"
+style_user = "#ff5400"
+
+# Second param
+[hostname]
+disabled = false
+format = "[$hostname]($style) in "
+ssh_only = false
+style = "#8976BB"
+trim_at = "-"
+
+# Third param
+[directory]
+style = "#B8AFF0"
+truncate_to_repo = true
+truncation_length = 0
+truncation_symbol = "repo: "
+
+# Fourth param
+[sudo]
+disabled = false
+
+# Before all the version info (python, nodejs, php, etc.)
+[git_status]
+ahead = "⇡${count}"
+behind = "⇣${count}"
+deleted = "x"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+style = "#D8D4F4"
+
+[git_metrics]
+disabled = false
+added_style = "#78AA91"
+deleted_style = "#ff5400"
+format = '[+$added]($added_style)/[-$deleted]($deleted_style) '
+
+[git_commit]
+commit_hash_length = 7
+tag_symbol = "🏷 "
+
+[memory_usage]
+disabled = false
+threshold = 75
+format = "via $symbol [${ram_pct}]($style) "
+symbol = "🐏 "
+style = "#D9D087"
+
+[container]
+format = '[$symbol \[$name\]]($style) '
+symbol = "⬢"
+
+[rust]
+symbol = " "
+format = "via [$symbol($version )]($style)"
+style = "#ff5400"
+
+[nodejs]
+symbol = " "
+format = "via [$symbol($version )]($style)"
+
+# Last param in the first line/row
+[cmd_duration]
+disabled = false
+format = "took [$duration]($style)"
+min_time = 1
+
+
+## SECOND LINE/ROW: Prompt
+# Somethere at the beginning
+[battery]
+charging_symbol = ""
+disabled = true
+discharging_symbol = ""
+full_symbol = ""
+
+[[battery.display]]  # "bold red" style when capacity is between 0% and 10%
+disabled = false
+style = "#C1BAFA"
+threshold = 15
+
+[[battery.display]]  # "bold yellow" style when capacity is between 10% and 30%
+disabled = true
+style = "#D8D4F4"
+threshold = 50
+
+[[battery.display]]  # "bold green" style when capacity is between 10% and 30%
+disabled = true
+style = "#918CBC"
+threshold = 80
+
+# Prompt: optional param 1
+[time]
+disabled = true
+format = " 🕙 $time($style)\n"
+style = "#D8D4F4"
+time_format = "%T"
+
+# Prompt: param 2
+[character]
+error_symbol = " [×](#9794AB)"
+success_symbol = " [╰─](#B8AFF0)"
+
+# SYMBOLS
+[status]
+disabled = false
+format = '[\[$symbol$status_common_meaning$status_signal_name$status_maybe_int\]]($style)'
+map_symbol = true
+pipestatus = true
+symbol = "🔴"
+
+[aws]
+symbol = " "
+
+[conda]
+symbol = " "
+
+[dart]
+symbol = " "
+
+[docker_context]
+symbol = " "
+
+[elixir]
+symbol = " "
+
+[elm]
+symbol = " "
+
+[git_branch]
+symbol = " "
+
+[golang]
+symbol = " "
+
+[hg_branch]
+symbol = " "
+
+[java]
+symbol = " "
+
+[julia]
+symbol = " "
+
+[nim]
+symbol = " "
+
+[nix_shell]
+symbol = " "
+
+[package]
+symbol = " "
+
+[perl]
+symbol = " "
+
+[php]
+symbol = " "
+
+[python]
+symbol = " "
+
+[ruby]
+symbol = " "
+
+[swift]
+symbol = "ﯣ "

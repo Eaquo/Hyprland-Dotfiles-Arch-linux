@@ -1,0 +1,41 @@
+/* Disable Tab scaling animation on click */
+/* @media (-moz-bool-pref: "zen.tabs.vertical") {
+  .tabbrowser-tab:active,
+  .zen-sidebar-panel-button:active {
+    transform: scale(1) !important;
+  }
+} */
+
+/* Enable animation of background color on tab hover */
+/* @media (-moz-bool-pref: "zen.tabs.vertical") {
+  .tabbrowser-tab {
+    transition: background 100ms !important;
+  }
+} */
+
+/* Add transparency to tab panel (website view) */
+/* :root { --tabpanel-background-color: #00000000 !important; } */
+
+/* Import for injecting temporary, prototyped code without changing userChrome */
+@import url(src/.temp.css);
+
+/* Reordering of context menu items */
+@import url(ContextMenuEnhanced/ContextMenuEnhanced.css);
+
+/* Redesign of extension menu */
+@import url(ExtensionMenuEnhanced/ExtensionMenuEnhanced.css);
+
+/* Redesign of audio indicator on tab */
+@import url(AudioIndicatorEnhanced/AudioIndicatorEnhanced.css);
+
+/* Redesign of status panel */
+@import url(StatusBarEnhanced/StatusBarEnhanced.css);
+
+/* Redesign of tab preview panel */
+@import url(TabPreviewEnhanced/TabPreviewEnhanced.css);
+
+/* Fixes to customization view */
+@import url(CustomizationViewEnhanced/CustomizationViewEnhanced.css);
+
+/* Snowflakes */
+/* @import url(WinterSpirit/WinterSpirit.css); */

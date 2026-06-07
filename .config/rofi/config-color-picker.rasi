@@ -1,0 +1,68 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+/* Main Config (Color Picker) */
+
+@import "~/.config/rofi/config.rasi"  
+
+/* ---- Configuration ---- */ 
+configuration {
+  modi: "drun";
+}
+
+window {
+  width: 15%;
+  height: 28%;
+}
+
+/* ---- Mainbox ---- */
+mainbox {
+  children: [ "inputbar", "listview" ];
+}
+
+inputbar {
+  children: [ "prompt", "entry" ];
+}
+
+prompt {
+  enabled: true;
+  content: "🎨";
+  padding: 8px 12px;
+  border-radius: 12px;
+}
+
+entry {
+  expand: true;
+  placeholder: " 🌈 Choisir une couleur fixe";
+  horizontal-align: 0.5;
+  vertical-align: 0.5;
+}
+
+/* ---- Listview ---- */
+listview {
+  columns: 3;
+  lines: 4;
+  spacing: 0px;
+  padding: 15px;
+  flow: horizontal;
+  fixed-width: false;
+  fixed-height: true;
+}
+
+/* ---- Element ---- */
+element {
+  orientation: vertical;
+  border-radius: 12px;
+  spacing: 5px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+element-icon {
+  size: 0.5%;
+}
+
+element-text {
+  vertical-align: 5.0;
+  horizontal-align: 0.5;
+  padding: 0px;
+  margin: 0px;
+}

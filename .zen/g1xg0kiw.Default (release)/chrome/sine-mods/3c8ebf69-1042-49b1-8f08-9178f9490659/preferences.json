@@ -1,0 +1,44 @@
+[
+  {
+    "property": "mod.zenbettermusicbar.enabled",
+    "label": "Enable/Disable Feature",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "mod.zenbettermusicbar.alwaysshow",
+    "label": "Always Extend Music Bar",
+    "type": "checkbox",
+    "defaultValue": true
+  },
+  {
+    "property": "mod.zenbettermusicbar.hidemusicinfo",
+    "label": "Hide Music Info",
+    "type": "checkbox",
+    "defaultValue": false
+  },
+  {
+    "property": "mod.zenbettermusicbar.hideprogress",
+    "label": "Hide Progress Bar",
+    "type": "checkbox",
+    "defaultValue": false
+  },
+  {
+    "property": "mod.zenbettermusicbar.hidecontrol",
+    "label": "Hide Control Bar",
+    "type": "checkbox",
+    "defaultValue": false
+  },
+  {
+    "property": "mod.zenbettermusicbar.hideparticles",
+    "label": "Hide Particles",
+    "type": "checkbox",
+    "defaultValue": false
+  },
+  {
+    "property": "mod.zenbettermusicbar.custombackground",
+    "label": "Custom Background Color",
+    "type": "string",
+    "defaultValue": "var(--zen-media-control-bg)"
+  }
+]

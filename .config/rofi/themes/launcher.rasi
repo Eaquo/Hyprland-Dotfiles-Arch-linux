@@ -97,7 +97,7 @@ element-icon {
     border:                         4px;
     border-color:                   transparent;
     border-radius:                  8;
-    size:                           96;
+    size:                           240;
 }
 
 element-text {

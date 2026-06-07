@@ -1,0 +1,28 @@
+{
+  "wallpaper": "/home/florian/Pictures/wallpapers/18.jpg",
+  "alpha": "100",
+
+  "special": {
+      "background": "#231B28",
+      "foreground": "#E9E7FD",
+      "cursor": "#ced5da"
+  },
+  "colors": {
+      "color0": "#4A4150",
+      "color1": "#290C46",
+      "color2": "#4B376D",
+      "color3": "#8E0D3C",
+      "color4": "#67598D",
+      "color5": "#8A83B4",
+      "color6": "#918CBC",
+      "color7": "#D8D4F4",
+      "color8": "#9794AB",
+      "color9": "#36105D",
+      "color10": "#644992",
+      "color11": "#BD1150",
+      "color12": "#8976BB",
+      "color13": "#B8AFF0",
+      "color14": "#C1BAFA",
+      "color15": "#D8D4F4"
+  }
+}

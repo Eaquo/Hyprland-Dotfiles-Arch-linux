@@ -1,0 +1,163 @@
+{
+  "webtoon": {
+    "components": [
+      {
+        "name": "CarouselWebtoon",
+        "component": "carousel",
+        "props": {
+          "site": "ALLSKREEN"
+        }
+      },
+      {
+        "name": "Nouveautés",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Nouveautés</strong> Webtoons",
+            "en": "<strong>Latest</strong> Webtoons",
+            "pt": "<strong>Ultimas</strong> Webtoons",
+            "es": "<strong>Ultimas</strong> Webtoons"
+          },
+          "type": "new_series"
+        }
+      },
+      {
+        "component": "gallery-history",
+        "props": {
+          "filter": "unFinished",
+          "title": {
+            "fr": "<strong>Vous avez commencé...</strong>",
+            "en": "<strong>You started...</strong>",
+            "pt": "<strong>Você começou...</strong>",
+            "es": "<strong>Te inscribiste...</strong>"
+          }
+        }
+      },
+      {
+        "name": "Top 10",
+        "component": "gallery-top-ten-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Top 10</strong> Webtoons",
+            "en": "<strong>Top 10</strong> Webtoons",
+            "pt": "<strong>Top 10</strong> Webtoons",
+            "es": "<strong>Top 10</strong> Webtoons"
+          }
+        }
+      },
+      {
+        "name": "Gratis",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Gratuites</strong>",
+            "en": "<strong>Free</strong>",
+            "pt": "<strong>Livre</strong>",
+            "es": "<strong>Gratis</strong>"
+          },
+          "type": "free_series"
+        }
+      },
+      {
+        "name": "Manga",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Manga</strong>",
+            "en": "<strong>Manga</strong>",
+            "pt": "<strong>Manga</strong>",
+            "es": "<strong>Manga</strong>"
+          },
+          "type": "mangas"
+        }
+      },
+      {
+        "name": "Quest",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Quête</strong> Initiatique",
+            "en": "<strong>Initiatory</strong> Quest",
+            "pt": "<strong>Initiatory</strong> Quest",
+            "es": "<strong>Initiatory</strong> Quest"
+          },
+          "type": "shonen"
+        }
+      },
+      {
+        "name": "roman",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Roman</strong> Graphique",
+            "en": "<strong>Graphic</strong> Novel",
+            "pt": "<strong>Graphic</strong> Novel",
+            "es": "<strong>Graphic</strong> Novel"
+          },
+          "type": "graphic_novel"
+        }
+      },
+      {
+        "name": "Incontournable",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Incontournable</strong>",
+            "en": "<strong>Unmissable</strong>",
+            "pt": "<strong>Unmissable</strong>",
+            "es": "<strong>Unmissable</strong>"
+          },
+          "type": "unmissable"
+        }
+      },
+      {
+        "name": "Krosmoz World",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Krosmoz</strong> world",
+            "en": "<strong>Krosmoz</strong> world",
+            "pt": "<strong>Krosmoz</strong> world",
+            "es": "<strong>Krosmoz</strong> world"
+          },
+          "type": "krosmoz_world"
+        }
+      },
+      {
+        "name": "Coming Soon",
+        "component": "gallery-series",
+        "props": {
+          "title": {
+            "fr": "<strong>Prochainement</strong> disponibles",
+            "en": "<strong>Coming</strong> Soon",
+            "pt": "<strong>Coming</strong> Soon",
+            "es": "<strong>Coming</strong> Soon"
+          },
+          "type": "coming_soon"
+        }
+      },
+      {
+        "name": "Nouveaux épisodes des séries",
+        "component": "galleries-new-episodes-series"
+      },
+      {
+        "name": "Actus Webtoons",
+        "component": "gallery-news",
+        "props": {
+          "title": {
+            "fr": "<b>Actus</b> Webtoons",
+            "en": "Webtoons <b>News</b>",
+            "es": "<b>Noticias</b> Webtoons",
+            "de": "Webtoons-<b>Nachrichten</b>"
+          },
+          "site": "ALLSKREEN"
+        }
+      }
+    ]
+  },
+  "shop": {
+    "shopKey": "ALLSKREEN",
+    "shopCategoryId": "740"
+  },
+  "wallpaper": {}
+}

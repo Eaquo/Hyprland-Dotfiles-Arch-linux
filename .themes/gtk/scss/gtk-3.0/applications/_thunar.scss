@@ -1,9 +1,18 @@
+@use "sass:color";
 @use "../colors";
+@use "../config";
 
 .thunar .view:selected {
+  background-color: color.change(colors.$accent-primary, $alpha: config.$tint-medium);
   border: 1px solid colors.$red;
   border-radius: 5px;
-  color: colors.$red;
+  color: colors.$white-strong;
+}
+
+.thunar .view cell:selected {
+  background-color: color.change(colors.$accent-primary, $alpha: config.$tint-medium);
+  border-radius: 5px;
+  color: colors.$white-strong;
 }
 
 .thunar .view:hover {

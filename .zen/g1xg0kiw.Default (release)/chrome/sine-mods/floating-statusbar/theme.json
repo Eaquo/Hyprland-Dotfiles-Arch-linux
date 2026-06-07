@@ -1,0 +1,21 @@
+{
+  "id": "floating-statusbar",
+  "homepage": "https://github.com/qumeqa/floating-statusbar",
+  "author": "qumeqa",
+  "name": "Floating Statusbar",
+  "description": "A floating statusbar for Zen",
+  "version": "1.0",
+  "style": {
+    "chrome": "userChrome.css"
+  },
+  "readme": "https://raw.githubusercontent.com/qumeqa/floating-statusbar/refs/heads/main/README.md",
+  "image": "https://raw.githubusercontent.com/qumeqa/floating-statusbar/refs/heads/main/cover.png",
+  "tags": [
+    "Float",
+    "Floating",
+    "Statusbar"
+  ],
+  "fork": [
+    "zen"
+  ]
+}

@@ -1,0 +1,13 @@
+set -gx _ZO_FZF_OPTS '--style full
+  --multi
+  --height 30%
+  --reverse
+  --border=rounded
+  --delimiter \t
+  --with-nth 2..
+  --preview "test -d {2..} && eza --icons --color=always --group-directories-first {2..} 2>/dev/null || echo \"Impossible de prévisualiser : {2..}\""
+  --preview-window=right:55%:wrap
+  --prompt " Jump : "
+  --pointer " "
+  --color "pointer:#71ffee,prompt:#71ffee,border:#6272a4,header:#71ffee,info:#71ffee"
+  --header "zoxide jump | Tab = multi | Entrée = aller"'

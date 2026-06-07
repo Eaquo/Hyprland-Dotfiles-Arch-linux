@@ -1,56 +1,46 @@
 #!/bin/bash
-# Script pour lancer des jeux via Gamescope avec optimisations Hyprland + AMD
+# Script pour lancer Magic Arena via Steam avec Hyprland optimisé
 SCRIPTSDIR="$HOME/.config/hypr/scripts"
 SCRIPT_NAME=$(basename "$0")
+
 # ======= OPTIONS DE CONFIGURATION =======
-GAMESCOPE_OPTIONS="True"
-GAME_PERF="True"
-GAME_VRR="False"
+GAMESCOPE_OPTIONS="False"
+GAME_PERF="False"
+GAME_VRR="True"
 ANIMATION="False"
 MANGOHUD_OPTION="False"
 OPTION_AFTER=""
 LANG_KEY="fr"
+
 # ======= PARAMÈTRES GÉNÉRAUX =======
 MONITOR="DP-2"
 RESOLUTION="3440x1440"
 REFRESH_RATE="165"
 POSITION="0x0"
 SCALE="1"
+
 RES_WIDTH=3440
 RES_HEIGHT=1440
 FSR="True"
-# ======= CONFIGURATION UNTAPPED =======
-USE_UNTAPPED="False" # Activer ou désactiver Untapped Companion
-UNTAPPED_PATH="/home/florian/Documents/Untapped.gg+Companion+Stable+Installer.exe"
-UNTAPPED_APPID="2141910"
-UNTAPPED_PROTON="Proton Experimental"
-UNTAPPED_WAIT=15 # Temps d'attente en secondes avant de lancer Untapped après le jeu
+
 # ======= CONFIGURATION DYNAMIQUE =======
-if [ "$FSR" = "True" ]; then
-  FSR_MODE="-F fsr"
-else
-  FSR_MODE=""
-fi
-if [ "$GAMESCOPE_OPTIONS" = "True" ]; then
+[[ "$FSR" == "True" ]] && FSR_MODE="-F fsr" || FSR_MODE=""
+
+if [[ "$GAMESCOPE_OPTIONS" == "True" ]]; then
   export XKB_DEFAULT_LAYOUT=$LANG_KEY
-  GAMESCOPE_SET="gamescope -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE --force-grab-cursor --"
+  GAMESCOPE_SET="gamescope -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE --force-grab-cursor --backend sdl --"
 else
   GAMESCOPE_SET=""
 fi
-if [ "$GAME_PERF" = "True" ]; then
-  GAME_PERF_SET="gamemoderun"
-else
-  GAME_PERF_SET=""
-fi
-if [ "$MANGOHUD_OPTION" = "True" ]; then
-  export MANGOHUD=1
-else
-  export MANGOHUD=0
-fi
+
+[[ "$GAME_PERF" == "True" ]] && GAME_PERF_SET="gamemoderun" || GAME_PERF_SET=""
+[[ "$MANGOHUD_OPTION" == "True" ]] && export MANGOHUD=1 || export MANGOHUD=0
+
 # ======= GAME MODE HYPRLAND =======
 enable_hyprland_gamemode() {
-  if [ "$ANIMATION" = "True" ]; then
+  if [[ "$ANIMATION" == "True" ]]; then
     hyprctl --batch "\
+      keyword general:no_focus_fallback true;\
       keyword misc:focus_on_activate false;\
       keyword misc:layers_hog_keyboard_focus false;\
       keyword animations:enabled 0;\
@@ -64,85 +54,113 @@ enable_hyprland_gamemode() {
     swww kill
   fi
 }
+
 disable_hyprland_gamemode() {
-  if [ "$ANIMATION" = "True" ]; then
-    if ! pgrep -x "swww" >/dev/null; then
-      swww-daemon --format xrgb && swww img "$HOME/.config/rofi/.current_wallpaper" &
-      sleep 1
+  hyprctl keyword general:no_focus_fallback false
+  if [[ "$ANIMATION" == "True" ]]; then
+    if ! pgrep -x "swww-daemon" >/dev/null; then
+      swww-daemon --format xrgb &
+      sleep 0.5
+      swww img "$HOME/.config/rofi/.current_wallpaper" &
+      sleep 0.5
       hyprctl reload
     fi
   fi
 }
-# ======= ENVIRONNEMENT AMD =======
-export RADV_PERFTEST=gpl
-export mesa_glthread=true
-export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
-unset SDL_VIDEODRIVER
 
-# ======= LAUNCH UNTAPPED COMPANION =======
-untapped_pid=""
-launch_untapped() {
-  if [ "$USE_UNTAPPED" = "True" ] && [ -f "$UNTAPPED_PATH" ]; then
-    notify-send -e -u normal " Démarrage d'Untapped.gg Companion"
-    export PROTON_VERSION="$UNTAPPED_PROTON"
-    protontricks-launch --appid $UNTAPPED_APPID "$UNTAPPED_PATH" &
-    untapped_pid=$!
-    # Pas de sleep ici, nous laissons Untapped s'exécuter en parallèle avec le jeu
-  fi
+# ======= GESTION WAYBAR =======
+stop_waybar() {
+  pgrep -x "waybar" >/dev/null && killall -q waybar && sleep 0.3
 }
-kill_untapped() {
-  if [ -n "$untapped_pid" ]; then
-    if ps -p $untapped_pid >/dev/null; then
-      notify-send -e -u normal " Fermeture d'Untapped.gg Companion"
-      kill $untapped_pid
+
+start_waybar() {
+  pgrep -x "waybar" >/dev/null || { waybar & sleep 0.3; }
+}
+
+# ======= DÉTECTION SIMPLIFIÉE DU JEU =======
+detect_game_window() {
+  local game_pid=$1
+  local timeout=60
+  local game_class=""
+  
+  for i in $(seq 1 $timeout); do
+    kill -0 $game_pid 2>/dev/null || return 1
+    
+    game_class=$(hyprctl clients -j | jq -r --arg pid "$game_pid" \
+      '.[] | select(.pid == ($pid | tonumber)) | .class' 2>/dev/null)
+    
+    if [[ -z "$game_class" ]]; then
+      game_class=$(hyprctl clients -j | jq -r \
+        '.[] | select(.class | test("MTGA|steam_app")) | .class' | head -1)
     fi
-    # S'assurer que tous les processus Wine associés sont terminés
-    pkill -f "Untapped.gg" || true
-  fi
+    
+    [[ -n "$game_class" ]] && echo "$game_class" && return 0
+    sleep 1
+  done
+  
+  return 1
 }
-# ======= TRAP POUR NETTOYAGE À LA SORTIE =======
-cleanup() {
-  kill_untapped
-  if [ "$GAME_VRR" = "True" ] && [ -n "$GAME_WINDOW_CLASS" ]; then
-    hyprctl keyword windowrulev2 "unset, class:$GAME_WINDOW_CLASS"
-    notify-send -e -u normal " Disabling VRR Hyprland "
-    hyprctl keyword monitor "$MONITOR,${RESOLUTION}@${REFRESH_RATE},${POSITION},${SCALE},vrr,0"
-  fi
-  disable_hyprland_gamemode
-}
-trap cleanup EXIT INT TERM
-# ======= LAUNCH THE GAME =======
-[ "$GAME_VRR" = "True" ] && notify-send -e -u normal " Enabling VRR Hyprland"
-enable_hyprland_gamemode
-notify-send -e -u normal " Lancement du jeu $SCRIPT_NAME"
 
-# Lancer le jeu
+# ======= FORCER MODE TILED =======
+force_tiled_mode() {
+  local game_class=$1
+  
+  hyprctl dispatch focuswindow "class:^($game_class)$"
+  sleep 0.3
+  
+  local is_floating=$(hyprctl activewindow -j | jq -r '.floating')
+  
+  if [[ "$is_floating" == "true" ]]; then
+    hyprctl dispatch togglefloating active
+    sleep 0.2
+    hyprctl dispatch fullscreen 2
+    sleep 0.2
+  else
+    hyprctl dispatch fullscreen 2
+  fi
+}
+
+# ======= LAUNCH THE GAME =======
+enable_hyprland_gamemode
+
 $GAME_PERF_SET $GAMESCOPE_SET "$@" $OPTION_AFTER &
 GAME_PID=$!
-sleep 3
 
-# ======= AUTO FOCUS & WARP FIX =======
-if [ "$GAME_VRR" = "True" ]; then
-  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
-  if [ -n "$GAME_WINDOW_CLASS" ]; then
-    hyprctl keyword windowrulev2 "immediate, class:$GAME_WINDOW_CLASS"
-    hyprctl dispatch focuswindow "class:$GAME_WINDOW_CLASS"
-    hyprctl dispatch movetoworkspacesilent 1,class:$GAME_WINDOW_CLASS
-  else
-    echo "Failed to detect game window class."
+GAME_WINDOW_CLASS=$(detect_game_window $GAME_PID)
+
+if [[ -n "$GAME_WINDOW_CLASS" ]]; then
+  if [[ "$GAME_VRR" == "True" ]]; then
+    hyprctl keyword windowrulev2 "immediate, class:^($GAME_WINDOW_CLASS)$"
   fi
+  
+  hyprctl --batch "\
+    keyword windowrulev2 'tile, class:^($GAME_WINDOW_CLASS)$';\
+    keyword windowrulev2 'fullscreen, class:^($GAME_WINDOW_CLASS)$';\
+    keyword windowrulev2 'workspace 1 silent, class:^($GAME_WINDOW_CLASS)$'"
+  
+  sleep 0.5
+  force_tiled_mode "$GAME_WINDOW_CLASS"
+  stop_waybar
 fi
 
-# Attendre que le jeu se charge suffisamment avant de lancer Untapped
-notify-send -e -u normal " Attente de $UNTAPPED_WAIT secondes avant de lancer Untapped..."
-sleep $UNTAPPED_WAIT
+# Attendre la fermeture
+while kill -0 $GAME_PID 2>/dev/null; do
+  sleep 2
+done
 
-# Lancer Untapped après que le jeu ait démarré
-launch_untapped
-
-# Attendre que le jeu se termine
-wait $GAME_PID
+wait $GAME_PID 2>/dev/null
 GAME_EXIT_CODE=$?
 
-# Le reste sera géré par le trap cleanup
+# ======= NETTOYAGE =======
+if [[ -n "$GAME_WINDOW_CLASS" ]]; then
+  hyprctl --batch "keyword windowrulev2 'unset, class:^($GAME_WINDOW_CLASS)$'"
+  
+  [[ "$GAME_VRR" == "True" ]] && \
+    hyprctl keyword monitor "$MONITOR,${RESOLUTION}@${REFRESH_RATE},${POSITION},${SCALE},vrr,0"
+fi
+
+disable_hyprland_gamemode
+sleep 1
+start_waybar
+
 exit $GAME_EXIT_CODE

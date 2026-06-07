@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chat>
+	<window id="0" selectedView="0" isInLine="false">
+		<view id="1" name="private" isDefault="true" isNameDirty="false" channelName="local" isPrivate="false" opennedPipes="2,3,5,6,10,11,14"/>
+		<view id="0" name="general" isDefault="true" isNameDirty="false" channelName="local" isPrivate="false" opennedPipes="1,2,3,4,5,6,7,8,10,11,13,14,15,16,17,18,19,20,21,22"/>
+	</window>
+	<selectedChat value="0"/>
+</chat>
