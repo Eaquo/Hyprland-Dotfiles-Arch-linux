@@ -1,0 +1,34 @@
+# =============================================================
+#  Paquets AUR (installés via yay)
+#  Liste DÉDUITE — certains noms peuvent varier, le script
+#  continue si un paquet échoue (et te le liste à la fin).
+# =============================================================
+
+# --- Shells QML / barres custom ---
+quickshell-git
+aylurs-gtk-shell-git
+
+# --- Theming dynamique ---
+wallust
+matugen-bin
+
+# --- Spotify ---
+spicetify-cli
+
+# --- Pyprland (plugins Hyprland: scratchpads, etc.) ---
+pyprland
+
+# --- RGB ---
+openrgb
+
+# --- Navigateur (profil .zen présent) ---
+zen-browser-bin
+
+# --- Éditeur ---
+zed
+
+# --- Divers ---
+neofetch
+
+# --- À VÉRIFIER MANUELLEMENT (outil perso, nom AUR incertain) ---
+# vader5d     # référencé dans Startup_Apps.conf — non essentiel

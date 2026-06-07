@@ -30,7 +30,7 @@ listview {
 
 @media (min-width: 3440) {
     listview {
-        columns:                    8;
+        columns:                    16;
     }
 }
 
@@ -40,11 +40,12 @@ element-icon {
     border:                         4px 4px solid 4px 4px;
     border-color:                   transparent;
     border-radius:                  16;
-    size:                           240;
+    size:                           190;
 }
 
 element-icon selected {
     border-color:                   @primary;
+    border-radius:                  8;
 }
 
 element-text {

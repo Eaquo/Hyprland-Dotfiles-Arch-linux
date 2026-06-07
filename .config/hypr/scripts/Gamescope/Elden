@@ -1,0 +1,163 @@
+#!/bin/bash
+# Script pour lancer des jeux via Gamescope avec optimisations Hyprland + AMD
+SCRIPTSDIR="$HOME/.config/hypr/scripts"
+SCRIPT_NAME=$(basename "$0")
+
+# ======= OPTIONS DE CONFIGURATION =======
+GAMESCOPE_OPTIONS="False"
+GAME_PERF="True"
+GAME_VRR="False"
+ANIMATION="True"
+MANGOHUD_OPTION="True"
+OPTION_AFTER=""
+LANG_KEY="fr"
+
+# ======= Option
+# ======= PARAMÈTRES GÉNÉRAUX GAMESCOPE =======
+MONITOR="DP-2"
+RESOLUTION="3440x1440"
+REFRESH_RATE="125"
+POSITION="0x0"
+SCALE="1"
+
+RES_WIDTH=3440
+RES_HEIGHT=1440
+FSR="False"
+HDR="False"
+
+cleanup() {
+  echo "Réactivation du split lock mitigate..."
+  sudo sysctl kernel.split_lock_mitigate=1
+  exit 0
+}
+
+# ======= ENVIRONNEMENT AMD =======
+export RADV_PERFTEST=gpl
+#export mesa_glthread=true
+export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
+export __GL_SYNC_TO_VBLANK=0
+export DXVK_VSYNC=0
+#export WLR_NO_HARDWARE_CURSORS=1  # évite bugs curseur sous Wayland
+#export RADV_PERFTEST=aco,sam,nggc # backend optimisé AMD (optionnel)
+#export VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/radeon_icd.x86_64.json
+#export VK_LAYER_PATH=/usr/share/vulkan/explicit_layer.d
+# Proton/DXVK
+#export PROTON_ENABLE_NVAPI=1 # Accès à certaines APIs
+#export PROTON_NO_ESYNC=0
+#export PROTON_NO_FSYNC=0
+#export PROTON_USE_WINED3D=0 # Assure que DXVK est utilisé
+#export RADV_REQUIRE_ETC2=1
+# Proton/Wayland
+# export PROTON_ENABLE_WAYLAND=1
+#export PROTON_ENABLE_HDR=1
+
+#export SDL_VIDEODRIVER='wayland,x11,windows'
+export VKD3D_CONFIG=pipeline_library,no_upload_hvv
+#export PROTON_USE_NTSYNC=1
+#export taskset -c 1-23
+
+# ======= CONFIGURATION DYNAMIQUE =======
+if [ "$HDR" = "True" ]; then
+  HDR_MODE="--hdr-enabled"
+  export DXVK_HDR=1
+else
+  HDR_MODE=""
+  export DXVK_ASYNC=1
+fi
+
+if [ "$FSR" = "True" ]; then
+  FSR_MODE="-F fsr"
+else
+  FSR_MODE=""
+fi
+
+if [ "$GAMESCOPE_OPTIONS" = "True" ]; then
+  export XKB_DEFAULT_LAYOUT=$LANG_KEY
+  GAMESCOPE_SET="gamescope --backend sdl -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE $HDR_MODE -w $RES_WIDTH -h $RES_HEIGHT -U --fsr-sharpness 3 --force-grab-cursor --"
+else
+  GAMESCOPE_SET=""
+fi
+
+if [ "$GAME_PERF" = "True" ]; then
+  GAME_PERF_SET="game-performance"
+else
+  GAME_PERF_SET=""
+fi
+
+if [ "$MANGOHUD_OPTION" = "True" ]; then
+  export MANGOHUD=1
+else
+  export MANGOHUD=0
+fi
+
+# ======= GAME MODE HYPRLAND =======
+enable_hyprland_gamemode() {
+  if [ "$ANIMATION" = "True" ]; then
+    hyprctl --batch "\
+      keyword general:no_focus_fallback true;\
+      keyword misc:focus_on_activate false;\
+      keyword misc:layers_hog_keyboard_focus false;\
+      keyword animations:enabled 0;\
+      keyword decoration:shadow:enabled 0;\
+      keyword decoration:blur:enabled 0;\
+      keyword general:gaps_in 0;\
+      keyword general:gaps_out 0;\
+      keyword general:border_size 1;\
+      keyword decoration:rounding 0"
+    hyprctl keyword "windowrule opacity 1 override 1 override 1 override, ^(.*)$"
+    swww kill
+    echo "Désactivation du split lock mitigate..."
+    sudo sysctl kernel.split_lock_mitigate=0
+  fi
+}
+
+disable_hyprland_gamemode() {
+  hyprctl keyword general:no_focus_fallback false
+  if [ "$ANIMATION" = "True" ]; then
+    if ! pgrep -x "swww" >/dev/null; then
+      swww-daemon --format xrgb && swww img "$HOME/.config/rofi/.current_wallpaper" &
+      sleep 1
+      hyprctl reload
+    fi
+  fi
+}
+
+# ======= LAUNCH THE GAME =======
+[ "$GAME_VRR" = "True" ] && notify-send -e -u normal " Enabling VRR Hyprland"
+
+enable_hyprland_gamemode
+notify-send -e -u normal "  Launching the game $SCRIPT_NAME"
+
+$GAME_PERF_SET $GAMESCOPE_SET "$@" $OPTION_AFTER &
+GAME_PID=$!
+
+for i in {1..10}; do
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  [ -n "$GAME_WINDOW_CLASS" ] && break
+  sleep 1
+done
+
+# ======= AUTO FOCUS & WARP FIX =======
+if [ "$GAME_VRR" = "True" ]; then
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  if [ -n "$GAME_WINDOW_CLASS" ]; then
+    hyprctl keyword windowrulev2 "immediate, class:$GAME_WINDOW_CLASS"
+    hyprctl dispatch focuswindow "class:$GAME_WINDOW_CLASS"
+    hyprctl dispatch movetoworkspacesilent "1,class:$GAME_WINDOW_CLASS"
+  else
+    echo "Failed to detect game window class."
+  fi
+fi
+
+wait $GAME_PID
+GAME_EXIT_CODE=$?
+
+if [ "$GAME_VRR" = "True" ] && [ -n "$GAME_WINDOW_CLASS" ]; then
+  hyprctl keyword windowrulev2 "unset, class:$GAME_WINDOW_CLASS"
+  notify-send -e -u normal " Disabling VRR Hyprland "
+  hyprctl keyword monitor "$MONITOR,${RESOLUTION}@${REFRESH_RATE},${POSITION},${SCALE},vrr,0"
+fi
+
+disable_hyprland_gamemode
+cleanup
+exit $GAME_EXIT_CODE

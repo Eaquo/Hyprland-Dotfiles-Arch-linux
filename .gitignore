@@ -1,35 +1,22 @@
-# ⚠️ Ne pas ignorer .config pour garder ta config (on suit .config/* volontairement)
+# Backups générés par le script
+.config-backup-*/
 
-# Ignorer les caches et fichiers temporaires
+# Caches / runtime du profil navigateur (régénérables, parfois sensibles)
+.zen/**/cache2/
+.zen/**/startupCache/
+.zen/**/storage/
+.zen/**/*.sqlite-wal
+.zen/**/*.sqlite-shm
+.zen/Crash Reports/
+.zen/Pending Pings/
+
+# Données de sites du profil navigateur (1,1 Go, régénérées)
+.zen/**/storage/
+
+# Cache de bannières du game-launcher (301 Mo, re-téléchargées par quickshell)
+.config/quickshell/game-launcher/cache/
+
+# Caches divers
+**/__pycache__/
 *.log
-*.bak
-*~
 *.tmp
-*.swp
-*.swo
-
-# Cache système / XDG
-.cache/
-.trash/
-.goutputstream-*
-recently-used.xbel
-.xsession-errors*
-
-# Historique shell (personnel)
-.fish_history
-.bash_history
-.zsh_history
-
-# Éviter de versionner les profils lourds ou non essentiels
-.mozilla/
-.config/discord/
-.config/spotify/
-.config/Steam/
-.config/Code/
-
-# Fichiers de bureau et thumbnails
-.DS_Store
-Thumbs.db
-
-# GTK/thumbnail cache
-.thumbnails/

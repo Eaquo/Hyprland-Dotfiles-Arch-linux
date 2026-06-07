@@ -1,0 +1,17 @@
+{
+  "FAVORITE_RELEASES": [
+    {
+      "id": "dofusdofus3",
+      "active": true
+    },
+    {
+      "id": "retromain",
+      "active": true
+    },
+    {
+      "id": "wakfumain",
+      "active": true
+    }
+  ],
+  "LAST_GAME_ROUTE": "/Krosmoz/games/game/dofus/dofus3"
+}

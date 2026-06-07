@@ -1,0 +1,13 @@
+{
+  "productName": "Dofus 3.0",
+  "extraMetadata": {
+    "source": "dofus",
+    "sourceRelease": "dofus3",
+    "games": {
+      "favoriteReleases": [
+        {"id": "dofusdofus3", "active": true}
+      ],
+      "lastGameRoute": "/Krosmoz/games/game/dofus/dofus3"
+    }
+  }
+}

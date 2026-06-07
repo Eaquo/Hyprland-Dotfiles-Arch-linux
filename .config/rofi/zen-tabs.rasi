@@ -1,0 +1,125 @@
+/* ---- 🗂️ Zen Browser Tabs Selector ---- */
+/* Style inspiré de JaKooLit config */
+
+@import "~/.config/rofi/config.rasi"  
+
+/* ---- Configuration ---- */ 
+configuration {
+  modi: "drun";
+}
+
+window {
+  width: 80%;
+  height: 60%;
+}
+
+/* ---- Mainbox ---- */
+mainbox {
+  children: [ "inputbar", "listview", "message"];
+}
+
+/* ---- Input Bar ---- */
+inputbar {
+  padding: 12px;
+  margin: 0px 0px 10px 0px;
+}
+
+entry {
+  expand: true;
+  placeholder: " 🗂️ Search Zen Browser Tabs...";
+  horizontal-align: 0;
+  vertical-align: 0.5;
+  padding: 8px 12px;
+}
+
+/* ---- Message (pour les raccourcis) ---- */
+message {
+  background-color: rgba(40, 40, 40, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px;
+  margin: 0px;
+}
+
+textbox {
+  horizontal-align: 0.5;
+  vertical-align: 0.5;
+  text-color: rgba(255, 255, 255, 0.8);
+}
+
+/* ---- Listview ---- */
+listview {
+  columns: 1;
+  lines: 8;
+  spacing: 8px;
+  padding: 10px;
+  scrollbar: true;
+  fixed-height: true;
+  cycle: false;
+}
+
+/* ---- Scrollbar ---- */
+scrollbar {
+  width: 4px;
+  border: 0px;
+  handle-width: 8px;
+  padding: 0px;
+  handle-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Elements ---- */
+element {
+  orientation: horizontal;
+  border-radius: 8px;
+  spacing: 12px;
+  padding: 12px;
+  margin: 2px;
+  cursor: pointer;
+  background-color: transparent;
+  text-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid transparent;
+}
+
+element normal {
+  background-color: rgba(30, 30, 30, 0.6);
+}
+
+element selected {
+  background-color: rgba(97, 175, 239, 0.3);
+  border: 1px solid rgba(97, 175, 239, 0.6);
+  text-color: rgba(255, 255, 255, 1.0);
+}
+
+element alternate {
+  background-color: rgba(25, 25, 25, 0.4);
+}
+
+/* ---- Element Icon ---- */
+element-icon {
+  background-color: transparent;
+  text-color: rgba(97, 175, 239, 0.8);
+  size: 24px;
+  cursor: inherit;
+  vertical-align: 0.5;
+}
+
+/* ---- Element Text ---- */
+element-text {
+  background-color: transparent;
+  text-color: inherit;
+  cursor: inherit;
+  vertical-align: 0.5;
+  horizontal-align: 0;
+  expand: true;
+}
+
+/* ---- Highlight des éléments spéciaux ---- */
+element.urgent {
+  background-color: rgba(255, 100, 100, 0.2);
+  border: 1px solid rgba(255, 100, 100, 0.4);
+}
+
+element.active {
+  background-color: rgba(100, 255, 100, 0.2);
+  border: 1px solid rgba(100, 255, 100, 0.4);
+}

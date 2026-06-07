@@ -9,9 +9,9 @@ configuration {
 * {
     background-color:       transparent;
     background:             rgba(0,0,0,0.7);
-    background-transparent: #16101B;
+    background-transparent: #231B28;
     text-color:             #D8DEE9;
-    primary:                #8C7EB2;
-    secondary:              #9592AA;
-    urgent:                 #D4D0F3;
+    primary:                #8A83B4;
+    secondary:              #9794AB;
+    urgent:                 #D8D4F4;
 }

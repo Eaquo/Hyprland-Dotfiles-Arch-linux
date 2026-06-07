@@ -4,12 +4,12 @@ SCRIPTSDIR="$HOME/.config/hypr/scripts"
 SCRIPT_NAME=$(basename "$0")
 
 # ======= OPTIONS DE CONFIGURATION =======
-GAMESCOPE_OPTIONS="True"
-GAME_PERF="True"
+GAMESCOPE_OPTIONS="False"
+GAME_PERF="False"
 GAME_VRR="True"
 ANIMATION="True"
 MANGOHUD_OPTION="True"
-OPTION_AFTER="" #ex: -useallavailablecores
+OPTION_AFTER=""
 LANG_KEY="fr"
 
 # ======= PARAMÈTRES GÉNÉRAUX =======
@@ -23,6 +23,9 @@ RES_WIDTH=3440
 RES_HEIGHT=1440
 FSR="True"
 
+# ======= Config Wayland or X11 ======
+X11="True"
+
 # ======= CONFIGURATION DYNAMIQUE =======
 if [ "$FSR" = "True" ]; then
   FSR_MODE="-F fsr"
@@ -32,13 +35,13 @@ fi
 
 if [ "$GAMESCOPE_OPTIONS" = "True" ]; then
   export XKB_DEFAULT_LAYOUT=$LANG_KEY
-  GAMESCOPE_SET="gamescope -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE --force-grab-cursor --"
+  GAMESCOPE_SET="gamescope --backend sdl -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE --force-grab-cursor --"
 else
   GAMESCOPE_SET=""
 fi
 
 if [ "$GAME_PERF" = "True" ]; then
-  GAME_PERF_SET="gamemoderun"
+  GAME_PERF_SET="game-performance"
 else
   GAME_PERF_SET=""
 fi
@@ -49,10 +52,19 @@ else
   export MANGOHUD=0
 fi
 
+if [ "$X11" = "True" ]; then
+  unset WAYLAND_DISPLAY
+  export GDK_BACKEND=x11
+  export QT_QPA_PLATFORM
+else
+  ""
+fi
+
 # ======= GAME MODE HYPRLAND =======
 enable_hyprland_gamemode() {
   if [ "$ANIMATION" = "True" ]; then
     hyprctl --batch "\
+      keyword general:no_focus_fallback true;\
       keyword misc:focus_on_activate false;\
       keyword misc:layers_hog_keyboard_focus false;\
       keyword animations:enabled 0;\
@@ -68,6 +80,7 @@ enable_hyprland_gamemode() {
 }
 
 disable_hyprland_gamemode() {
+  hyprctl keyword general:no_focus_fallback false
   if [ "$ANIMATION" = "True" ]; then
     if ! pgrep -x "swww" >/dev/null; then
       swww-daemon --format xrgb && swww img "$HOME/.config/rofi/.current_wallpaper" &
@@ -78,10 +91,10 @@ disable_hyprland_gamemode() {
 }
 
 # ======= ENVIRONNEMENT AMD =======
-export RADV_PERFTEST=gpl
-export mesa_glthread=true
-export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
-unset SDL_VIDEODRIVER
+#export RADV_PERFTEST=gpl
+#export mesa_glthread=true
+#export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
+#unset SDL_VIDEODRIVER
 
 # ======= LAUNCH THE GAME =======
 [ "$GAME_VRR" = "True" ] && notify-send -e -u normal " Enabling VRR Hyprland"
@@ -89,10 +102,14 @@ unset SDL_VIDEODRIVER
 enable_hyprland_gamemode
 notify-send -e -u normal " Launching the game $SCRIPT_NAME"
 
-$GAME_PERF_SET $GAMESCOPE_SET "$@" $OPTION_AFTER &
+env --unset=SDL_VIDEODRIVER $GAME_PERF_SET $GAMESCOPE_SET "$@" $OPTION_AFTER &
 GAME_PID=$!
 
-sleep 3
+for i in {1..10}; do
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  [ -n "$GAME_WINDOW_CLASS" ] && break
+  sleep 1
+done
 
 # ======= AUTO FOCUS & WARP FIX =======
 if [ "$GAME_VRR" = "True" ]; then

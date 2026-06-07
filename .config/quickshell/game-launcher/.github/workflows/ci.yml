@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python:
+    name: Python syntax & imports
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install vdf tomlkit
+
+      - name: Syntax check (all .py files)
+        run: find modules/service -name "*.py" -exec python -m py_compile {} \;
+
+      - name: Import check (backend dry-run)
+        run: |
+          cd modules/service
+          python - <<'EOF'
+          import sys
+          sys.path.insert(0, ".")
+          try:
+              from helpers import image_cache, scanners, sgdb
+              print("OK   helpers/image_cache.py")
+              print("OK   helpers/scanners.py")
+              print("OK   helpers/sgdb.py")
+              import config_writer
+              print("OK   config_writer.py")
+              import backend
+              print("OK   backend.py")
+          except SystemExit:
+              pass
+          except Exception as e:
+              print(f"FAIL: {e}", file=sys.stderr)
+              sys.exit(1)
+          EOF

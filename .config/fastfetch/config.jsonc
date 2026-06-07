@@ -1,0 +1,105 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/dev/doc/json_schema.json",
+    "logo": {
+    	"source": "~/.config/fastfetch/waifu/face.png",
+    	"type": "kitty",
+    	"height": 18,
+    	"padding": {
+    		"top": 0
+    	}
+      },
+  "display": {
+    "separator": "  "
+  },
+  "modules": [
+    {
+      "type": "custom",
+      "format": "{#32}------------>Shell Kitty Fish<---------------"
+    },
+    {
+      "type": "custom",
+      "format": "{#17}╔═══════════════════════════════════════════╗"
+    },
+    {
+      "type": "os",
+      "key": "{#green} ╭─",
+      "format": "{2}"
+    },
+    {
+      "type": "kernel",
+      "key": "{#green} ├─",
+      "format": "{2}"
+    },
+    {
+      "type": "packages",
+      "key": "{#green} ├─",
+      "format": "{9} (pacman)"
+    },
+    {
+      "type": "shell",
+      "key": "{#green} ╰─",
+      "format": "{6} {7}"
+    },
+    {
+      "type": "custom",
+      "format": "{#12}┣━━━━━━━━━━━━━ Hardware Information ━━━━━━━━┫"
+    },
+    {
+      "type": "host",
+      "key": "{#blue} ╭─"
+    },
+    {
+      "type": "cpu",
+      "key": "{#blue} ├─",
+      "temp": true
+    },
+    {
+      "type": "gpu",
+      "key": "{#blue} ├─",
+      "format": "{2}"
+    },
+    {
+      "type": "memory",
+      "key": "{#blue} ├─"
+    },
+    {
+      "type": "disk",
+      "key": "{#blue} ╰─",
+      "folders": "/"
+    },
+    {
+      "type": "custom",
+      "format": "{#12}┣━━━━━━━━━━━━━ Hyprland Information ━━━━━━━━┫"
+    },
+    {
+      "type": "de",
+      "key": "{#yellow} ╭─"
+    },
+    {
+      "type": "wm",
+      "key": "{#yellow} ├─"
+    },
+    {
+      "type": "terminal",
+      "key": "{#yellow} ├─"
+    },
+    {
+      "type": "terminalfont",
+      "key": "{#yellow} ├─"
+    },
+    {
+      "type": "theme",
+      "key": "{#yellow} ╰─"
+    },
+    {
+      "type": "custom",
+      "format": "{#17}╚═══════════════════════════════════════════╝"
+    },
+    {
+      "type": "colors",
+      "paddingLeft": 2,
+      "symbol": "circle"
+    }
+  ]
+}
+

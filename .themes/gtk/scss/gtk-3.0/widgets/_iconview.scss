@@ -1,23 +1,15 @@
+@use "sass:color";
 @use "../colors";
+@use "../config";
 
 iconview {
-    background: colors.$surface-moderate;
+    background: colors.$surface-strong;
     padding: 0.3em;
 
     &:selected {
-        color: colors.$red;
-        background: colors.$accent-primary;
+        color: colors.$white-strong;
+        background: color.change(colors.$accent-primary, $alpha: config.$tint-medium);
         border-radius: 0.5em;
     }
 }
 
-thunariconview {
-    background: colors.$surface-moderate;
-    padding: 0.3em;
-
-    &:selected {
-        color: colors.$red;
-        background: colors.$accent-primary;
-        border-radius: 0.5em;
-    }
-}

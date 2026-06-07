@@ -1,0 +1,178 @@
+#!/bin/bash
+# Script pour lancer des jeux via Gamescope avec optimisations Hyprland + AMD
+SCRIPTSDIR="$HOME/.config/hypr/scripts"
+SCRIPT_NAME=$(basename "$0")
+# ======= OPTIONS DE CONFIGURATION =======
+GAMESCOPE_OPTIONS="False"
+GAME_PERF="True"
+GAME_VRR="False"
+ANIMATION="True"
+MANGOHUD_OPTION="True"
+OPTION_AFTER=""
+LANG_KEY="fr"
+# ======= PARAMÈTRES GÉNÉRAUX =======
+MONITOR="DP-2"
+RESOLUTION="3440x1440"
+REFRESH_RATE="165"
+POSITION="0x0"
+SCALE="1"
+RES_WIDTH=3440
+RES_HEIGHT=1440
+FSR="True"
+# ======= Config Wayland or X11 ======
+X11="False"
+# ======= CONFIGURATION DYNAMIQUE =======
+if [ "$FSR" = "True" ]; then
+  FSR_MODE="-F fsr"
+else
+  FSR_MODE=""
+fi
+if [ "$GAMESCOPE_OPTIONS" = "True" ]; then
+  export XKB_DEFAULT_LAYOUT=$LANG_KEY
+  GAMESCOPE_SET="gamescope --backend sdl -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE -S integer --force-windows-fullscreen --force-grab-cursor --hdr-enabled --"
+else
+  GAMESCOPE_SET=""
+fi
+if [ "$GAME_PERF" = "True" ]; then
+  GAME_PERF_SET="game-performance"
+else
+  GAME_PERF_SET=""
+fi
+if [ "$MANGOHUD_OPTION" = "True" ]; then
+  export MANGOHUD=1
+else
+  export MANGOHUD=0
+fi
+if [ "$X11" = "True" ]; then
+  unset WAYLAND_DISPLAY
+  export GDK_BACKEND=x11
+  export QT_QPA_PLATFORM
+fi
+# ======= GAME MODE HYPRLAND =======
+enable_hyprland_gamemode() {
+  if [ "$ANIMATION" = "True" ]; then
+    hyprctl --batch "\
+      keyword general:no_focus_fallback true;\
+      keyword misc:focus_on_activate false;\
+      keyword misc:layers_hog_keyboard_focus false;\
+      keyword animations:enabled 0;\
+      keyword decoration:shadow:enabled 0;\
+      keyword decoration:blur:enabled 0;\
+      keyword general:gaps_in 0;\
+      keyword general:gaps_out 0;\
+      keyword general:border_size 1;\
+      keyword decoration:rounding 0"
+    hyprctl keyword "windowrule opacity 1 override 1 override 1 override, ^(.*)$"
+    swww kill
+  fi
+}
+disable_hyprland_gamemode() {
+  hyprctl keyword general:no_focus_fallback false
+  if [ "$ANIMATION" = "True" ]; then
+    if ! pgrep -x "swww" >/dev/null; then
+      swww-daemon --format xrgb && swww img "$HOME/.config/rofi/.current_wallpaper" &
+      sleep 1
+      hyprctl reload
+    fi
+  fi
+}
+# ======= ENVIRONNEMENT AMD =======
+export RADV_PERFTEST=gpl
+export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
+export __GL_SYNC_TO_VBLANK=0
+export WINEDLLOVERRIDES="dinput8.dll=n,b"
+export VKD3D_CONFIG=no_upload_hvv
+export WINE_CPU_TOPOLOGY=16:0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+export DXVK_FRAME_RATE=165
+#export AMD_VULKAN_ICD=RADV
+
+# ======= SAVE MANAGER ELDEN RING =======
+SAVE_DIR="$HOME/.config/eldenring-saves"
+GAME_SAVE_PATH="$HOME/PortProton/prefixes/DEFAULT/drive_c/users/steamuser/Application Data/EldenRing/76561197960271872"
+ACTIVE_PROFILE_FILE="$SAVE_DIR/.active_profile"
+
+PROFILE_LABELS=("⚔️  Elden Ring Vanilla" "🔧  Elden Ring Modded" "🎲  Random")
+
+mkdir -p "$SAVE_DIR/vanilla" "$SAVE_DIR/modded" "$SAVE_DIR/random"
+
+SELECTED=$(printf '%s\n' "${PROFILE_LABELS[@]}" | rofi -dmenu -p "🎮 Choisir profil de sauvegarde :" -theme config-wallpaper 'window {width: 420px;}')
+
+case "$SELECTED" in
+"${PROFILE_LABELS[0]}") PROFILE="vanilla" ;;
+"${PROFILE_LABELS[1]}") PROFILE="modded" ;;
+"${PROFILE_LABELS[2]}") PROFILE="random" ;;
+*)
+  notify-send -e -u critical "⚠️ Aucun profil sélectionné — abandon du lancement."
+  exit 1
+  ;;
+esac
+
+notify-send -e -u normal "💾 Profil sélectionné : $PROFILE"
+
+# Sauvegarde de l'ancien profil actif avant de switcher
+if [ -f "$ACTIVE_PROFILE_FILE" ]; then
+  PREV_PROFILE=$(cat "$ACTIVE_PROFILE_FILE")
+  if [ -d "$GAME_SAVE_PATH" ]; then
+    notify-send -e -u normal "💾 Sauvegarde profil précédent : $PREV_PROFILE"
+    rsync -a --delete "$GAME_SAVE_PATH/" "$SAVE_DIR/$PREV_PROFILE/"
+  fi
+fi
+
+# Restauration du profil choisi
+if [ "$(ls -A "$SAVE_DIR/$PROFILE" 2>/dev/null)" ]; then
+  notify-send -e -u normal "📂 Restauration du profil : $PROFILE"
+  rsync -a --delete "$SAVE_DIR/$PROFILE/" "$GAME_SAVE_PATH/"
+else
+  notify-send -e -u normal "🆕 Nouveau profil $PROFILE — aucune sauvegarde existante"
+fi
+
+echo "$PROFILE" >"$ACTIVE_PROFILE_FILE"
+
+# ======= LAUNCH THE GAME =======
+[ "$GAME_VRR" = "True" ] && notify-send -e -u normal " Enabling VRR Hyprland"
+enable_hyprland_gamemode
+notify-send -e -u normal "  Launching the game $SCRIPT_NAME"
+$GAME_PERF_SET $GAMESCOPE_SET "$@" $OPTION_AFTER &
+GAME_PID=$!
+for i in {1..10}; do
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  [ -n "$GAME_WINDOW_CLASS" ] && break
+  sleep 1
+done
+# ======= AUTO FOCUS & WARP FIX =======
+if [ "$GAME_VRR" = "True" ]; then
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  if [ -n "$GAME_WINDOW_CLASS" ]; then
+    hyprctl keyword windowrulev2 "immediate, class:$GAME_WINDOW_CLASS"
+    hyprctl dispatch focuswindow "class:$GAME_WINDOW_CLASS"
+    hyprctl dispatch movetoworkspacesilent "1,class:$GAME_WINDOW_CLASS"
+  else
+    echo "Failed to detect game window class."
+  fi
+fi
+for i in {1..10}; do
+  ID=$(pgrep -i eldenring)
+  if [ -n "$ID" ]; then
+    ID_TASK=$(taskset -cp 12-23 $ID)
+    notify-send -e -u normal " CPU Affinity Set: $ID_TASK"
+    break
+  fi
+  sleep 1
+done
+wait $GAME_PID
+GAME_EXIT_CODE=$?
+
+# ======= SAUVEGARDE AUTO EN SORTIE =======
+if [ -f "$ACTIVE_PROFILE_FILE" ] && [ -d "$GAME_SAVE_PATH" ]; then
+  PROFILE=$(cat "$ACTIVE_PROFILE_FILE")
+  notify-send -e -u normal "💾 Sauvegarde du profil $PROFILE en sortie..."
+  rsync -a --delete "$GAME_SAVE_PATH/" "$SAVE_DIR/$PROFILE/"
+fi
+
+if [ "$GAME_VRR" = "True" ] && [ -n "$GAME_WINDOW_CLASS" ]; then
+  hyprctl keyword windowrulev2 "unset, class:$GAME_WINDOW_CLASS"
+  notify-send -e -u normal "  Disabling VRR Hyprland "
+  hyprctl keyword monitor "$MONITOR,${RESOLUTION}@${REFRESH_RATE},${POSITION},${SCALE},vrr,0"
+fi
+disable_hyprland_gamemode
+exit $GAME_EXIT_CODE

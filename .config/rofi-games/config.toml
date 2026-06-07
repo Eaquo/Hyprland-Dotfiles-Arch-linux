@@ -1,9 +1,14 @@
-box_art_dir = "/home/florian/.config/rofi-games/box-art"
+box_art_dir = "/home/florian/.config/rofi-games/box-art" 
 
 [[entries]]
 title = "01-Script Game"
 launch_command = "/home/florian/.config/hypr/UserScripts/EditScriptGame.sh"
 path_box_art = "Neo.png"
+
+[[entries]]
+title = "Moonlight"
+launch_command = "moonlight"
+path_box_art = "Moon.jpeg"
 
 [[entries]]
 title = "Ankama Launcher"
@@ -25,13 +30,4 @@ title = "Battle.net"
 launch_command = "xdg-open heroic://launch/sideload/oMmBBJ5V9e7tDXPoyCpZiy"
 path_box_art = "battle.jpg"
 
-[[entries]]
-title = "Parsec"
-launch_command = "/usr/bin/parsecd %u"
-path_box_art = "parsec.png"
 
-
-[[entries]]
-title = "Magic The Gathering"
-launch_command = "steam steam://rungameid/2141910"
-path_box_art = "Magic.jpg" 

@@ -1,0 +1,67 @@
+/* Quick CSS file created by Millennium */
+/* ── Généré automatiquement par wallust ── ne pas éditer manuellement ── */
+/* ── Cible : Material-Theme pour Steam ── */
+
+:root {
+    /* ── SystemAccentColor (utilisé par Millennium) ────────────────────── */
+    --SystemAccentColor:            {{color12}};
+    --SystemAccentColor-RGB:        {{color12-rgb}};
+    --SystemAccentColorLight1:      {{color13}};
+    --SystemAccentColorLight1-RGB:  {{color13-rgb}};
+    --SystemAccentColorLight2:      {{color14}};
+    --SystemAccentColorLight2-RGB:  {{color14-rgb}};
+    --SystemAccentColorLight3:      {{color15}};
+    --SystemAccentColorDark1:       {{color8}};
+    --SystemAccentColorDark2:       {{color4}};
+    --SystemAccentColorDark3:       {{color2}};
+
+    /* ── Material Design sys colors (Material-Theme) ───────────────────── */
+    --md-sys-color-primary:                  {{color12}};
+    --md-sys-color-on-primary:               {{color0}};
+    --md-sys-color-primary-container:        {{color4}};
+    --md-sys-color-on-primary-container:     {{color14}};
+
+    --md-sys-color-secondary:                {{color8}};
+    --md-sys-color-on-secondary:             {{color0}};
+    --md-sys-color-secondary-container:      {{color2}};
+    --md-sys-color-on-secondary-container:   {{color7}};
+
+    --md-sys-color-tertiary:                 {{color13}};
+    --md-sys-color-on-tertiary:              {{color0}};
+    --md-sys-color-tertiary-container:       {{color5}};
+    --md-sys-color-on-tertiary-container:    {{color15}};
+
+    --md-sys-color-error:                    {{color1}};
+    --md-sys-color-on-error:                 {{color0}};
+    --md-sys-color-error-container:          {{color9}};
+    --md-sys-color-on-error-container:       {{color15}};
+
+    --md-sys-color-background:               {{background}};
+    --md-sys-color-on-background:            {{foreground}};
+    --md-sys-color-surface:                  {{background}};
+    --md-sys-color-on-surface:               {{foreground}};
+
+    --md-sys-color-surface-variant:          {{color1}};
+    --md-sys-color-on-surface-variant:       {{color7}};
+    --md-sys-color-surface-dim:              {{color0}};
+    --md-sys-color-surface-bright:           {{color2}};
+
+    --md-sys-color-surface-container-lowest: {{color0}};
+    --md-sys-color-surface-container-low:    {{color1}};
+    --md-sys-color-surface-container:        {{color2}};
+    --md-sys-color-surface-container-high:   {{color3}};
+    --md-sys-color-surface-container-highest:{{color4}};
+
+    --md-sys-color-outline:                  {{color8}};
+    --md-sys-color-outline-variant:          {{color2}};
+    --md-sys-color-shadow:                   {{color0}};
+    --md-sys-color-scrim:                    {{color0}};
+    --md-sys-color-surface-tint:             {{color12}};
+
+    --md-sys-color-inverse-surface:          {{foreground}};
+    --md-sys-color-inverse-on-surface:       {{background}};
+    --md-sys-color-inverse-primary:          {{color4}};
+
+    /* ── Accent custom (RootColors) ────────────────────────────────────── */
+    --custom-accent-color:                   {{color12}};
+}

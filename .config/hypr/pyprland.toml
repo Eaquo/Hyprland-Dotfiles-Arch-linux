@@ -28,26 +28,12 @@ unfocus = "hide"
 
 [scratchpads.spot]
 animation = "fromRight"
-command = "spotify"
+command = "spotify --force-device-scale-factor=1"
 class = "Spotify"
 size = "30% 97%"
-captive_focus = true
 position = "70% 3%"
 unfocus = "hide"
-excludes = "*"
 lazy = true
-process_tracking = true
 margin = 1
 
-[scratchpads.claude]
-animation = "fromRight"
-command = "claude-desktop"
-class = "claude-desktop"
-size = "50% 97%"
-position = "70% 3%"
-unfocus = "hide"
-excludes = "*"
-lazy = true
-process_tracking = true
-margin = 1
 

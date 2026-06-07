@@ -1,0 +1,1 @@
+{"pack":{"name":"pack","default":"remastered","label":{"en":"Version","fr":"Version","de":"Version","es":"Version","it":"Version","pt":"Version"},"type":"select","options":[{"label":"Classic","value":"classic"},{"label":"Remastered","value":"remastered"}],"order":0},"autoUpgrade":{"order":1000,"name":"autoUpgrade","default":true,"type":"checkbox"}}

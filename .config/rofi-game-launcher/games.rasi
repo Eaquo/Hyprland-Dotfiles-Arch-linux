@@ -1,0 +1,165 @@
+* {
+    background:     #1e1e2e;
+    background-alt: #313244;
+    foreground:     #cdd6f4;
+    selected:       #89b4fa;
+    active:         #a6e3a1;
+    urgent:         #f38ba8;
+    primary:        #89b4fa;
+}
+
+configuration {
+    show-icons:                     true;
+    drun-display-format:            "{name}";
+    drun-match-fields:              "name";
+    hover-select:                   true;
+}
+
+@import "list"
+
+window {
+    background-color:               @background;
+    border:                         2px;
+    border-color:                   @primary;
+    border-radius:                  8px;
+}
+
+listview {
+    padding:                        10px;
+    dynamic:                        false;
+    cycle:                          false;
+    columns:                        2;
+    layout:                         vertical;
+    flow:                           horizontal;
+    background-color:               transparent;
+}
+
+element {
+    children:                       [dummy, element-box, dummy];
+    padding:                        5px;
+    margin:                         5px 0px;
+    orientation:                    horizontal;
+    border:                         0;
+    border-color:                   transparent;
+    background-color:               transparent;
+}
+
+element selected {
+    background-color:               @background-alt;
+    border-radius:                  8px;
+}
+
+element-box {
+    children:                       [element-icon, element-text];
+    orientation:                    vertical;
+    expand:                         false;
+    background-color:               transparent;
+}
+
+element-icon {
+    padding:                        0px 2px 2px 0px;
+    margin:                         0px 40px;
+    border:                         4px solid;
+    border-color:                   transparent;
+    border-radius:                  8px;
+    size:                           96px;
+    background-color:               transparent;
+}
+
+element-icon selected {
+    border-color:                   @primary;
+}
+
+element-text {
+    horizontal-align:               0.5;
+    width:                          180px;
+    padding:                        5px;
+    text-color:                     @foreground;
+    background-color:               transparent;
+}
+
+element-text selected {
+    text-color:                     @selected;
+}* {
+    background:     #1e1e2e;
+    background-alt: #313244;
+    foreground:     #cdd6f4;
+    selected:       #89b4fa;
+    active:         #a6e3a1;
+    urgent:         #f38ba8;
+    primary:        #89b4fa;
+}
+
+configuration {
+    show-icons:                     true;
+    drun-display-format:            "{name}";
+    drun-match-fields:              "name";
+    hover-select:                   true;
+}
+
+@import "list"
+
+window {
+    background-color:               @background;
+    border:                         2px;
+    border-color:                   @primary;
+    border-radius:                  8px;
+}
+
+listview {
+    padding:                        10px;
+    dynamic:                        false;
+    cycle:                          false;
+    columns:                        2;
+    layout:                         vertical;
+    flow:                           horizontal;
+    background-color:               transparent;
+}
+
+element {
+    children:                       [dummy, element-box, dummy];
+    padding:                        5px;
+    margin:                         5px 0px;
+    orientation:                    horizontal;
+    border:                         0;
+    border-color:                   transparent;
+    background-color:               transparent;
+}
+
+element selected {
+    background-color:               @background-alt;
+    border-radius:                  8px;
+}
+
+element-box {
+    children:                       [element-icon, element-text];
+    orientation:                    vertical;
+    expand:                         false;
+    background-color:               transparent;
+}
+
+element-icon {
+    padding:                        0px 2px 2px 0px;
+    margin:                         0px 40px;
+    border:                         4px solid;
+    border-color:                   transparent;
+    border-radius:                  8px;
+    size:                           96px;
+    background-color:               transparent;
+}
+
+element-icon selected {
+    border-color:                   @primary;
+}
+
+element-text {
+    horizontal-align:               0.5;
+    width:                          180px;
+    padding:                        5px;
+    text-color:                     @foreground;
+    background-color:               transparent;
+}
+
+element-text selected {
+    text-color:                     @selected;
+}

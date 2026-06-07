@@ -1,0 +1,206 @@
+# ─────────────────────────────────────────────────────────────────────────────
+#   Quickshell Game Launcher  ·  config.toml
+#   https://github.com/Eaquo/quickshell-games-launchers
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+# ── DISPLAY ──────────────────────────────────────────────────────────────────
+
+[display]
+
+# Launcher position on screen
+#   Values: center | top | bottom | left | right
+position = "bottom"
+
+# Card layout direction
+#   Values: horizontal | vertical
+orientation = "horizontal"
+
+# Grid size [columns, rows]
+#   Note: rows is only used in vertical orientation — ignored in horizontal (always 1 row)
+grid_size = [3, 3]
+
+# Card dimensions in pixels
+#   Recommended: 400×200 for horizontal · 220×300 for vertical / left / right
+item_width  = 420
+item_height = 165
+
+# Gap between cards (pixels)
+spacing = 20
+
+
+# ── APPEARANCE ───────────────────────────────────────────────────────────────
+
+[appearance]
+
+# Use pywal / wallust palette for accent colors (mutually exclusive with use_matugen)
+use_wallust  = true
+wallust_path = "~/.cache/wal/wal.json"
+
+# Use matugen (Material You) palette — mutually exclusive with use_wallust
+use_matugen         = false
+matugen_colors_path = "~/.cache/matugen/game_launcher_colors.json"
+
+# Frosted-glass background behind the launcher
+blur_background    = false
+background_opacity = 1
+
+
+# ── BEHAVIOR ─────────────────────────────────────────────────────────────────
+
+[behavior]
+
+# Card sort order
+#   Values: recent | name | playtime
+sort_by = "recent"
+
+# Pin favorites to the top of the list
+show_favorites_first = false
+
+# Close the launcher automatically after launching a game
+close_on_launch = true
+
+# Active source tab on startup
+#   0 = All  ·  1 = first tab (e.g. Steam)  ·  2 = second tab  ·  etc.
+#   Ignored when remember_source = true
+default_source_index = 0
+
+# Remember the last active tab between sessions (overrides default_source_index)
+remember_source = false
+
+# Start directly in Big Picture mode on launch
+start_in_bigpicture = false
+
+
+# ── ANIMATIONS ───────────────────────────────────────────────────────────────
+
+[animations]
+
+# Launcher open / close animation duration (milliseconds)
+duration_ms = 300
+
+
+# ── STEAM ────────────────────────────────────────────────────────────────────
+
+[steam]
+
+enabled = true
+
+# Steam library folders — add as many as you have
+library_paths = ["~/.local/share/Steam/steamapps", "~/.var/app/com.valvesoftware.Steam/data/Steam/steamapps"]
+
+
+# ── HEROIC ───────────────────────────────────────────────────────────────────
+
+[heroic]
+
+enabled      = true
+config_paths = ["~/.config/heroic"]
+
+# Which Heroic stores to include
+scan_epic     = true # Epic Games Store
+scan_gog      = false # GOG
+scan_amazon   = false # Amazon Prime Gaming
+scan_sideload = true # Games added manually in Heroic
+
+
+# ── LUTRIS ───────────────────────────────────────────────────────────────────
+
+[lutris]
+
+enabled = true
+db_path = "~/.local/share/lutris/pga.db"
+
+
+# ── FILTERING ────────────────────────────────────────────────────────────────
+
+[filtering]
+
+# Hide launchers, runtimes, tools — show only actual games
+games_only = false
+
+# Hide games belonging to these categories
+#   Common values: "desktop" | "steam" | "launcher"
+exclude_categories = ["desktop"]
+
+# Hide games whose name contains any of these words (case-insensitive)
+exclude_keywords = ["Launcher", "Manager", "Runtime", "SDK", "Tool", "Aimlabs", "Steam"]
+
+
+# ── STEAMGRIDDB ──────────────────────────────────────────────────────────────
+#   Fetches high-quality cover art from steamgriddb.com
+#   Free API key: https://www.steamgriddb.com/profile/preferences/api
+# ─────────────────────────────────────────────────────────────────────────────
+
+[steamgriddb]
+
+enabled = true
+api_key = "66785c05faf41a94b340ab703aeabdd1"   # ← paste your key here
+
+# Image type to fetch
+#   Values: grid (portrait cover)  |  hero (wide banner)  |  logo  |  icon
+image_type = "hero"
+
+# Prefer animated WebP covers over static PNG when available
+prefer_animated = true
+
+# Fall back to Steam CDN images when no SGDB cover is found
+fallback_to_steam = true
+
+# ── Quality filters ───────────────────────────────────────────────────────
+
+# Rank results by number of likes (most liked first)
+sort_by_likes = true
+
+# Minimum likes required to accept an image  (0 = no filter)
+min_likes = 0
+
+# Restrict to specific image dimensions  (empty = any size)
+#   Examples: ["600x900", "460x215", "920x430", "3840x1240"]
+dimensions = []
+
+# Restrict to specific art styles  (empty = any style)
+#   Values: alternate | blurred | material | no_logo | white
+styles = []
+
+# ── Content filters ───────────────────────────────────────────────────────
+
+nsfw     = false
+humor    = false
+epilepsy = false
+
+# ── Performance ───────────────────────────────────────────────────────────
+
+# Download cover art for all games at once instead of one by one
+parallel_requests = true
+
+# Maximum simultaneous download threads
+max_workers = 12
+
+# Per-request network timeout (seconds)
+request_timeout = 3
+
+# How long to keep cached API responses before re-fetching (hours)
+cache_ttl_hours = 48
+
+
+# ── MANUAL ENTRIES ───────────────────────────────────────────────────────────
+#   Add custom apps or scripts not detected automatically.
+#   Drop box-art images in the folder below, then reference them by filename.
+# ─────────────────────────────────────────────────────────────────────────────
+
+[manual]
+
+box_art_dir = "~/.config/quickshell/game-launcher/box-art"
+
+# ── Add entries below — copy the block to add more ───────────────────────
+
+[[manual.entries]]
+title = "Game Library"
+launch_command = "~/.config/quickshell/game-launcher/modules/service/run_in_terminal.sh python3 ~/.config/quickshell/game-launcher/modules/service/list_games.py"
+path_box_art = "library.png"
+
+[[manual.entries]]
+title = "Script Games"
+launch_command = "/home/florian/.config/hypr/UserScripts/EditScriptGame.sh"
+path_box_art = "Eaquo.jpg"

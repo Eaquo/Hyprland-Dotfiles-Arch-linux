@@ -3,7 +3,7 @@ return {
   priority = 2000,
   lazy = false, -- As https://github.com/nvimdev/dashboard-nvim/pull/450, dashboard-nvim shouldn't be lazy-loaded to properly handle stdin.
   opts = function()
-    vim.cmd([[highlight DashboardHeader guifg=#BF3777 guibg=none]])
+    vim.cmd([[highlight DashboardHeader guifg=#BD1150 guibg=none]])
     -- Font Name: ANSI Shadow
     -- https://patorjk.com/software/taag
     local logo =

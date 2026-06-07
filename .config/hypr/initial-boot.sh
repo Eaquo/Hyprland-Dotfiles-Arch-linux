@@ -27,8 +27,8 @@ if [ ! -f ~/.config/hypr/.initial_startup_done ]; then
   # Initialize wallust and wallpaper
   if [ -f "$wallpaper" ]; then
     wallust run -s $wallpaper >/dev/null
-    swww query || swww-daemon && $swww $wallpaper $effect
     "$scriptsDir/WallustSwww.sh" >/dev/null 2>&1 &
+    swww query || swww-daemon && $swww $wallpaper $effect
   fi
 
   # initiate GTK dark mode and apply icon and cursor theme

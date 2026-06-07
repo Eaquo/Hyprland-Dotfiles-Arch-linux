@@ -1,0 +1,24 @@
+emulate_elite = false
+
+[gyro]
+mode = "off"
+
+[stick.left]
+deadzone = 128
+
+[stick.right]
+deadzone = 128
+
+[dpad]
+mode = "gamepad"
+
+
+[remap]
+M1 = "KEY_R"
+M2 = "KEY_G"
+M3 = "KEY_J"
+M4 = "KEY_K"
+LM = "KEY_E"
+RM = "KEY_F"
+Z = "KEY_M"
+
