@@ -29,6 +29,7 @@ PanelWindow {
         "home":   900,
         "stats":  900,
         "kanban": 900,
+        "files":  900,
         "eq":     900
     })
 
@@ -168,6 +169,7 @@ PanelWindow {
                         { key: "home",   icon: "󰋜", label: "Home"   },
                         { key: "stats",  icon: "󰻠", label: "System" },
                         { key: "kanban", icon: "󰄬", label: "Tasks"  },
+                        { key: "files",  icon: "󰉋", label: "Files"  },
                         { key: "eq",     icon: "󰓃", label: "Eq"     },
                     ]
                     onPageChanged: function(key) { root.page = key }
@@ -197,6 +199,12 @@ PanelWindow {
                         anchors.fill: parent
                         visible:      root.page === "kanban"
                         KanbanBoard { anchors.fill: parent }
+                    }
+
+                    Item {
+                        anchors.fill: parent
+                        visible:      root.page === "files"
+                        FileBrowser { anchors.fill: parent }
                     }
 
                     Item {

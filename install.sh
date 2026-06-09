@@ -165,6 +165,13 @@ step_dotfiles(){
   fi
   [[ -d .themes ]]  && deploy_one ".themes"  "$HOME/.themes"
   [[ -d .zen ]]     && deploy_one ".zen"     "$HOME/.zen"
+  # Windsurf : seulement les réglages (jamais extensions/, conservées sur la machine)
+  if [[ -d .windsurf ]]; then
+    mkdir -p "$HOME/.windsurf"
+    for f in .windsurf/settings.json .windsurf/argv.json; do
+      [[ -f "$f" ]] && deploy_one "$f" "$HOME/.windsurf/$(basename "$f")"
+    done
+  fi
   if [[ -d Pictures ]]; then
     if ask "Déployer les wallpapers (dossier Pictures) ?"; then
       mkdir -p "$HOME/Pictures"
