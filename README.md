@@ -10,6 +10,22 @@ This repository contains configuration files for various applications that make 
 
 ---
 
+## 🖥️ Quickbar — Quickshell
+
+Ma barre/dashboard est faite en **Quickshell** (`~/.config/quickshell/Quick-Bar`).
+
+<div align="center">
+  <img src="image/Desktop.png" alt="Quickbar - bureau" width="80%">
+  <p><em>Bureau avec la Quickbar</em></p>
+</div>
+
+<div align="center">
+  <img src="image/Desk1.png" alt="Quickbar - vue 2" width="80%">
+  <p><em>Quickbar — autre vue</em></p>
+</div>
+
+---
+
 ## 📦 Included Configurations
 This repository includes configuration files for the following applications:
 ```bash
@@ -149,27 +165,30 @@ My setup includes a custom theme for the Floorp browser that integrates with the
 
 ---
 
-## 🎮 Gaming with Custom Scripts
+## 🎮 Game Launcher — Quickshell
 
-I developed a game launching system with preconfigured options for each game. This makes it easy to launch games with different configurations without having to manually specify them each time.
+Lanceur de jeux maison en **Quickshell** (il remplace l'ancien lanceur Rofi) :
+un mode fenêtré et un mode plein écran type console (**Big Mode**), avec
+récupération automatique des jaquettes et lancement de chaque jeu selon ses
+options préconfigurées.
 
 ### Features
-- Preferred options for each game (resolution, fullscreen, etc.)
-- Optimized performance configurations
-- Integration with Mangohud for in-game statistics
-- Support for launchers (Steam, Lutris, etc.)
+- Options préférées par jeu (résolution, plein écran, etc.)
+- Configurations de performance optimisées
+- Intégration MangoHud (stats en jeu)
+- Support des launchers (Steam, Lutris, etc.)
 
 <div align="center">
-  <img src="image/Rofi_game.png" alt="Gaming Launcher" width="80%">
-  <p><em>Rofi Game Launcher Interface</em></p>
+  <img src="image/Quickshell_game.png" alt="Quickshell Game Launcher" width="80%">
+  <p><em>Lanceur de jeux Quickshell</em></p>
+</div>
+
+<div align="center">
+  <img src="image/Bigmode.png" alt="Big Mode" width="80%">
+  <p><em>Mode plein écran « Big Mode »</em></p>
 </div>
 
 ### Game Script Creation
-
-<div align="center">
-  <img src="image/Script_game_edit.png" alt="Script Gaming" width="80%">
-  <p><em>Game script editor</em></p>
-</div>
 
 #### Creating a new game script:
 1. Run `-01-script-Game` to open the game script interface
