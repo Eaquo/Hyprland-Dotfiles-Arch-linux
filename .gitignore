@@ -16,6 +16,10 @@
 # Cache de bannières du game-launcher (301 Mo, re-téléchargées par quickshell)
 .config/quickshell/game-launcher/cache/
 
+# Windsurf IDE : on ne garde que settings.json / argv.json, pas les extensions (~1 Go, re-téléchargées)
+.windsurf/extensions/
+.windsurf/**/cache/
+
 # Caches divers
 **/__pycache__/
 *.log

@@ -135,7 +135,7 @@ exclude_keywords = ["Launcher", "Manager", "Runtime", "SDK", "Tool", "Aimlabs", 
 [steamgriddb]
 
 enabled = true
-api_key = ""   # ← paste your key here
+api_key = ""   # ← paste your key here (https://www.steamgriddb.com/profile/preferences/api)
 
 # Image type to fetch
 #   Values: grid (portrait cover)  |  hero (wide banner)  |  logo  |  icon
