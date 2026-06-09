@@ -14,25 +14,32 @@ This repository contains configuration files for various applications that make 
 This repository includes configuration files for the following applications:
 ```bash
 .config/
-├── Ags        # Aylur's GTK Shell
-├── btop       # Resource monitor
-├── cava       # Audio visualizer
-├── fish       # Shell
-├── hypr       # Hyprland WM
-├── kitty      # Terminal
-├── mpvlock    # MPV screen locker
-├── neofetch   # System info tool
-├── nvim       # Neovim editor
-├── rofi       # Application launcher
-├── rofi-games # Extension for launching games with Rofi
-├── spicetify  # Spotify customization
-├── swaync     # Notification center
-├── swappy     # Screenshot annotation tool
-├── wallust    # Color scheme manager
-├── waybar     # Status bar for Wayland
-├── wezterm    # Terminal
-└── floorp     # Floorp browser customization
+├── hypr        # Hyprland WM (configs, scripts, hyprlock, hypridle, hyprpaper)
+├── quickshell  # Barre + game-launcher + rgb-launcher (QML)
+├── waybar      # Status bar (alternative)
+├── ags         # Aylur's GTK Shell
+├── rofi        # Application launcher (+ rofi-game-launcher, rofi-games, rofi-spotify)
+├── swaync      # Notification center
+├── wlogout     # Logout menu
+├── kitty       # Terminal
+├── fish        # Shell (+ starship.toml)
+├── nvim        # Neovim editor
+├── zed         # Zed editor
+├── yazi / ranger  # File managers (TUI)
+├── cava        # Audio visualizer
+├── mpv         # Media player
+├── fastfetch   # System info
+├── btop        # Resource monitor
+├── wallust     # Dynamic color scheme manager
+├── pypr        # Pyprland (scratchpads…)
+├── spicetify   # Spotify customization
+├── qt5ct / qt6ct / Kvantum   # Qt theming
+├── gtk-3.0 / gtk-4.0         # GTK theming
+├── nwg-look / nwg-displays   # GTK & monitor GUI tools
+└── MangoHud    # In-game overlay
 ```
+> Aussi inclus : `home_dotfiles/` (`.zshrc`, `.bashrc`), `.themes/gtk` (thème GTK),
+> `Pictures/wallpapers`, profil `.zen` (Zen Browser) et `simple-sddm-2/` (thème SDDM).
 
 ---
 
@@ -218,28 +225,44 @@ cd hypr-restore
 ```
 
 Le script `install.sh` est **interactif** et coloré : il demande confirmation à
-chaque grande étape.
+chaque grande étape (tu peux en sauter n'importe laquelle).
 
-| Étape | Action |
-|-------|--------|
-| 1 | Vérifications (Arch, sudo, réseau) |
-| 2 | Installe **yay** s'il manque |
-| 3 | Paquets dépôts officiels → `pkglist-pacman.txt` (hyprland, waybar, nwg-displays/look, sddm, qt6…) |
-| 4 | Paquets AUR → `pkglist-aur.txt` (quickshell, pyprland, wallust, ags, spicetify…) |
-| 5 | Déploie les dotfiles dans `~` et `~/.config` (**backup** auto de l'existant dans `~/.config-backup-<date>`) |
-| 6 | Installe le thème **SDDM** dans `/usr/share/sddm/themes/` + écrit `/etc/sddm.conf.d/theme.conf.user` |
-| 7 | Active NetworkManager, bluetooth et (au choix) SDDM |
+| # | Étape | Détail |
+|---|-------|--------|
+| 1 | Vérifications | Arch, non-root, sudo, réseau |
+| 2 | **yay** | installé automatiquement s'il manque |
+| 3 | Paquets officiels | `pkglist-pacman.txt` (hyprland, waybar, rofi, sddm, qt6, fish, awww…) |
+| 4 | Paquets AUR | `pkglist-aur.txt` (quickshell, pyprland-git, wallust, ags, spicetify-cli-git…) |
+| 5 | Dotfiles | déploie `~` et `~/.config` ; **demande dédiée** pour les wallpapers (`Pictures`) |
+| 6 | Shell par défaut | au choix : **fish** ou **zsh** (`chsh`) |
+| 7 | Plugins **hyprpm** | `hyprpm update` + dépôts hyprland-plugins/hy3 + active **hy3** & **hyprbars** |
+| 8 | Thème **SDDM** | copie dans `/usr/share/sddm/themes/` + `theme.conf.user` + crée la session Hyprland |
+| 9 | Services | NetworkManager, bluetooth, (au choix) SDDM — puis propose le **redémarrage** |
 
-Chaque paquet est installé individuellement : si l'un échoue, le script
-**continue** et liste les ratés à la fin.
+**Gestion des fichiers existants** — au début de l'étape Dotfiles, tu choisis :
+- `[o]` **tout écraser** — l'ancien fichier/dossier est conservé renommé `<nom>_backup` juste à côté
+- `[g]` **garder l'existant** — ne déploie que ce qui manque
+- `[d]` **demander** pour chaque fichier
+
+Chaque paquet est installé **individuellement** : si l'un échoue, le script
+**continue**, le logue dans `~/hypr-install.log` et liste les ratés à la fin.
 
 ### 🧩 Personnaliser les paquets
 Édite `pkglist-pacman.txt` (dépôts officiels) ou `pkglist-aur.txt` (AUR) —
 `#` = commentaire, une ligne = un paquet — puis relance `./install.sh`.
 
 ### 🖥️ Thème SDDM
-Le thème (`simple-sddm-2`) est installé dans `/usr/share/sddm/themes/` par le
-script. Dépendances : `sddm qt6-svg qt6-declarative qt6-5compat`.
+Le thème (`simple-sddm-2`) est installé dans `/usr/share/sddm/themes/` et défini
+par défaut. Dépendances : `sddm qt6-svg qt6-declarative qt6-5compat`. Le script
+crée aussi la session **Hyprland** (`/usr/share/wayland-sessions/hyprland.desktop`)
+que le paquet n'installe pas toujours.
+
+### 🔌 Plugins Hyprland (hyprpm)
+À lancer idéalement **dans une session Hyprland**. Si l'étape échoue depuis le TTY,
+relance après le 1er login :
+```bash
+hyprpm update && hyprpm enable hy3 && hyprpm enable hyprbars && hyprpm reload
+```
 
 ---
 
