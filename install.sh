@@ -217,6 +217,7 @@ step_hyprpm(){
   if ! command -v hyprpm >/dev/null; then
     warn "hyprpm absent (hyprland installé ?) — étape ignorée"; return
   fi
+  sudo rm -rf /usr/include/hyprland
   note "Idéalement à lancer DANS une session Hyprland."
   note "Sinon, si ça échoue, relance simplement cette commande après le 1er login :"
   note "  hyprpm update && hyprpm enable hy3 && hyprpm enable hyprbars && hyprpm reload"
