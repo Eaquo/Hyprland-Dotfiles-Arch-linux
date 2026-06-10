@@ -11,6 +11,7 @@ aylurs-gtk-shell-git
 # --- Theming dynamique ---
 wallust
 matugen
+rofi
 
 # --- Spotify ---
 spicetify-cli-git
