@@ -82,7 +82,7 @@ RowLayout {
                 font.pixelSize: Appearance.font.small
                 font.family:    Appearance.font.family
                 color: wsBtn.isActive
-                    ? Appearance.colors.color13
+                    ? Appearance.textOn(Appearance.colors.accent)   // contraste garanti sur le pill actif
                     : wsBtn.isHovered
                         ? Appearance.colors.color13
                         : ColorUtils.applyAlpha(Appearance.colors.color15, 0.80)

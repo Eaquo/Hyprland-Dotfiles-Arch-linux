@@ -3,7 +3,7 @@ import Quickshell.Io
 import "../Common/"
 import "../Components/"
 
-// KanbanBoard — three columns, JSON at $HOME/.config/Brain_Shell/src/user_data/tasks.json.
+// KanbanBoard — three columns, JSON at $HOME/.config/quickshell/Quick-Bar/user_data/tasks.json.
 //
 // Key behaviours:
 //   • Draft: task only saved when Enter pressed or focus lost with text.
@@ -55,11 +55,11 @@ Item {
             onRead: function(line) {
                 var h = line.trim()
                 if (h === "") return
-                root._filePath = h + "/.config/Brain_Shell/src/user_data/tasks.json"
+                root._filePath = h + "/.config/quickshell/Quick-Bar/user_data/tasks.json"
                 mkProc.command = [
                     "bash", "-c",
                     "[ -f '" + root._filePath + "' ] || " +
-                    "(mkdir -p \"$HOME/.config/Brain_Shell/src/user_data\" && " +
+                    "(mkdir -p \"$HOME/.config/quickshell/Quick-Bar/user_data\" && " +
                     "printf '%s' '{\"tasks\":[],\"nextId\":0}' > '" + root._filePath + "')"
                 ]
                 mkProc.running = false; mkProc.running = true

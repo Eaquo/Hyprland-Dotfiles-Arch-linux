@@ -133,6 +133,10 @@ PanelWindow {
             radius:       Appearance.cornerRadius
             flareWidth:   root.fw
             flareHeight:  root.fh
+            // Contour dégradé wallust 45° animé, seulement quand le dashboard est ouvert
+            borderColor:    Appearance.outline
+            borderWidth:    Popups.dashboardOpen ? 2 : 0
+            borderAnimated: Popups.dashboardOpen && Appearance.animationsEnabled
         }
 
         // ── Content ───────────────────────────────────────────────────────────

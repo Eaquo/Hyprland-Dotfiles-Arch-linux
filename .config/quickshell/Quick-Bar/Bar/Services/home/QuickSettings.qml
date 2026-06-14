@@ -189,7 +189,7 @@ StatCard {
     property string _hsWifiIface:  "wlan0"
 
     readonly property string _hsCfgPath:
-        Quickshell.env("HOME") + "/.config/Brain_Shell/src/user_data/hotspot.json"
+        Quickshell.env("HOME") + "/.config/quickshell/Quick-Bar/user_data/hotspot.json"
 
     // Load config on startup
     Process {
@@ -715,6 +715,40 @@ StatCard {
             }
         }
 
+        // ── Toggle animations (perf) ─────────────────────────────────────────
+        Item {
+            width: parent.width
+            height: 22
+
+            Text {
+                anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                text: "ANIMATIONS"; font.pixelSize: 9; font.weight: Font.Bold
+                color: Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.55)
+            }
+
+            Rectangle {
+                anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+                width: 38; height: 20; radius: 10
+                color: Appearance.animationsEnabled
+                    ? Appearance.active
+                    : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.18)
+                Behavior on color { ColorAnimation { duration: 150 } }
+
+                Rectangle {
+                    width: 16; height: 16; radius: 8
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: Appearance.animationsEnabled ? parent.width - width - 2 : 2
+                    color: "#ffffff"
+                    Behavior on x { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                }
+
+                MouseArea {
+                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                    onClicked: Appearance.animationsEnabled = !Appearance.animationsEnabled
+                }
+            }
+        }
+
         Rectangle {
             width: parent.width; height: 1
             color: Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.08)
@@ -731,7 +765,7 @@ StatCard {
         // ── Tile grid ─────────────────────────────────────────────────────────
         Item {
             width:  parent.width
-            height: root.height - 12 - 52 - 1 - 8 - qsLbl.height - 8
+            height: root.height - 12 - 52 - 22 - 1 - 8 - qsLbl.height - 8
 
             Flickable {
                 id: flick

@@ -59,6 +59,36 @@ elif cmd == "load_preset":
         subprocess.run(["easyeffects", "-l", name], capture_output=True)
         print(json.dumps({"gains": read_gains(name), "preset": name}))
 
+elif cmd == "save_preset":
+    # save_preset <name> g0 g1 ... g9  → écrit <name>.json (structure basée sur HP)
+    name  = sys.argv[2].strip().replace("/", "").replace("..", "")
+    gains = [float(x) for x in sys.argv[3:13]]
+    if name == "" or name in ("quickbar_eq",):
+        print(json.dumps({"ok": False, "error": "nom invalide"}))
+    else:
+        base_path = f"{PRESET_DIR}/HP.json"
+        with open(base_path) as f:
+            d = json.load(f)
+        eq = d["output"]["equalizer#0"]
+        for side in ("left", "right"):
+            for i, g in enumerate(gains):
+                if f"band{i}" in eq[side]:
+                    eq[side][f"band{i}"]["gain"]  = g
+                    eq[side][f"band{i}"]["mute"]  = False
+        with open(f"{PRESET_DIR}/{name}.json", "w") as f:
+            json.dump(d, f, indent=2)
+        print(json.dumps({"ok": True, "preset": name}))
+
+elif cmd == "delete_preset":
+    name = sys.argv[2].strip().replace("/", "").replace("..", "")
+    protected = {"HP", "quickbar_eq"}
+    path = f"{PRESET_DIR}/{name}.json"
+    if name in protected or not os.path.exists(path):
+        print(json.dumps({"ok": False, "error": "protégé ou introuvable"}))
+    else:
+        os.remove(path)
+        print(json.dumps({"ok": True}))
+
 elif cmd == "list":
     files = [f[:-5] for f in os.listdir(PRESET_DIR) if f.endswith(".json")]
     print(json.dumps({"presets": sorted(files)}))
