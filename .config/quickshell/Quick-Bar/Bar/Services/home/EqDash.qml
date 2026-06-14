@@ -20,6 +20,22 @@ Item {
     property var    gains:         [0,0,0,0,0,0,0,0,0,0]
     property string currentPreset: ""
     property real   preamp:        0
+    // ── Presets (liste dynamique + sauvegarde) ──────────────────────────────
+    property var    presets:        []
+    property bool   presetMenuOpen: false
+    property bool   saveMode:       false
+    // Liste affichée : "Flat" en tête, on masque le fichier de travail interne.
+    readonly property var presetList: {
+        var out = ["Flat"]
+        for (var i = 0; i < root.presets.length; i++) {
+            var p = root.presets[i]
+            if (p !== "quickbar_eq" && p !== "Flat") out.push(p)
+        }
+        return out
+    }
+    function presetDeletable(name) {
+        return name !== "Flat" && name !== "HP" && name !== "quickbar_eq"
+    }
     readonly property var freqLabels: ["32","64","125","250","500","1k","2k","4k","8k","16k"]
     readonly property string scriptPath:
         Qt.resolvedUrl("../../Scripts/eq_control.py").toString().replace("file://", "")
@@ -57,6 +73,31 @@ Item {
         applyGains()
     }
 
+    function loadPreset(name) {
+        loadPresetProc.command = ["python3", root.scriptPath, "load_preset", name]
+        loadPresetProc.running = true
+        root.currentPreset     = name
+        root.preamp            = 0
+        root.presetMenuOpen    = false
+    }
+
+    function savePreset(name) {
+        var n = (name || "").trim()
+        if (n === "") return
+        var args = ["python3", root.scriptPath, "save_preset", n]
+        for (var i = 0; i < 10; i++) args.push(root.gains[i].toFixed(1))
+        saveProc.command = args
+        saveProc.running = true
+        root.currentPreset = n
+        root.saveMode      = false
+    }
+
+    function deletePreset(name) {
+        if (!root.presetDeletable(name)) return
+        deleteProc.command = ["python3", root.scriptPath, "delete_preset", name]
+        deleteProc.running = true
+    }
+
 
     // ── Processes EQ ────────────────────────────────────────────────────────
     Process {
@@ -85,16 +126,38 @@ Item {
             }
         }
     }
+    Process {
+        id: listProc
+        command: ["python3", root.scriptPath, "list"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { root.presets = (JSON.parse(text.trim()).presets) || [] } catch(e) {}
+            }
+        }
+    }
+    Process {
+        id: saveProc
+        stdout: StdioCollector {
+            onStreamFinished: listProc.running = true   // rafraîchir la liste
+        }
+    }
+    Process {
+        id: deleteProc
+        stdout: StdioCollector {
+            onStreamFinished: listProc.running = true
+        }
+    }
     Timer {
         id: applyTimer
         interval: 250; repeat: false
         onTriggered: root.applyGains()
     }
-    Component.onCompleted: getProc.running = true
+    Component.onCompleted: { getProc.running = true; listProc.running = true }
     Connections {
         target: Popups
         function onDashboardOpenChanged() {
-            if (Popups.dashboardOpen) getProc.running = true
+            if (Popups.dashboardOpen) { getProc.running = true; listProc.running = true }
+            else { root.presetMenuOpen = false; root.saveMode = false }
         }
     }
 
@@ -253,37 +316,72 @@ Item {
 
                     Item { Layout.fillWidth: true; implicitWidth: 30 }
 
-                    Repeater {
-                        model: ["HP", "Bose", "Flat"]
-                        Rectangle {
-                            required property string modelData
-                            property bool active: root.currentPreset === modelData
-                            implicitWidth:  pLbl.implicitWidth + 22
-                            implicitHeight: 26
-                            radius: 13
-                            color: active ? Appearance.colors.accent
-                                          : ColorUtils.applyAlpha(Appearance.colors.fg, 0.07)
-                            border.color: active ? "transparent"
-                                                 : ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
-                            border.width: 1
-                            Behavior on color { ColorAnimation { duration: 150 } }
+                    // Sélecteur de preset (liste déroulante)
+                    Rectangle {
+                        id: presetSelector
+                        implicitWidth:  Math.max(110, selRow.implicitWidth + 20)
+                        implicitHeight: 26
+                        radius: 13
+                        color: root.presetMenuOpen
+                               ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.18)
+                               : ColorUtils.applyAlpha(Appearance.colors.fg, 0.07)
+                        border.color: root.presetMenuOpen
+                                      ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.35)
+                                      : ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
+                        border.width: 1
+                        Behavior on color { ColorAnimation { duration: 120 } }
+
+                        Row {
+                            id: selRow
+                            anchors.centerIn: parent
+                            spacing: 8
                             Text {
-                                id: pLbl
-                                anchors.centerIn: parent
-                                text: parent.modelData
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: (root.currentPreset && root.currentPreset !== "") ? root.currentPreset : "Preset"
                                 font.pixelSize: Appearance.font.small - 1
                                 font.family:    Appearance.font.family
                                 font.weight:    Font.Medium
-                                color: parent.active ? Appearance.colors.color8 : Appearance.colors.color10
+                                color: Appearance.colors.color10
+                                elide: Text.ElideRight
+                                width: Math.min(implicitWidth, 130)
                             }
-                            MouseArea {
-                                anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                                onClicked: {
-                                    loadPresetProc.command = ["python3", root.scriptPath, "load_preset", parent.modelData]
-                                    loadPresetProc.running = true
-                                    root.currentPreset     = parent.modelData
-                                    root.preamp            = 0
-                                }
+                            Text {
+                                anchors.verticalCenter: parent.verticalCenter
+                                text: root.presetMenuOpen ? "▴" : "▾"
+                                font.pixelSize: 9
+                                color: Appearance.colors.dim
+                            }
+                        }
+                        MouseArea {
+                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                            onClicked: { root.saveMode = false; root.presetMenuOpen = !root.presetMenuOpen }
+                        }
+                    }
+
+                    // Bouton sauvegarder la courbe actuelle
+                    Rectangle {
+                        implicitWidth: 26; implicitHeight: 26; radius: 13
+                        color: svHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.12) : "transparent"
+                        border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
+                        border.width: 1
+                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰆓"
+                            font.family:    Appearance.font.family
+                            font.pixelSize: 13
+                            color: svHov.hovered ? Appearance.colors.fg : Appearance.colors.dim
+                        }
+                        HoverHandler { id: svHov; cursorShape: Qt.PointingHandCursor }
+                        MouseArea {
+                            anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                root.presetMenuOpen = false
+                                saveField.text = (root.currentPreset && root.currentPreset !== "" && root.currentPreset !== "Flat")
+                                                 ? root.currentPreset : ""
+                                root.saveMode = true
+                                saveField.forceActiveFocus()
+                                saveField.selectAll()
                             }
                         }
                     }
@@ -495,6 +593,16 @@ Item {
                 anchors.fill: parent
                 spacing: 12
 
+                // Molette n'importe où sur le bloc volume → règle le volume (Shift = pas fin)
+                WheelHandler {
+                    onWheel: function(ev) {
+                        if (!root.sink?.ready) return
+                        var step = (ev.modifiers & Qt.ShiftModifier) ? 0.02 : 0.05
+                        root.sink.audio.volume = Math.max(0, Math.min(1,
+                            root.sink.audio.volume + (ev.angleDelta.y > 0 ? step : -step)))
+                    }
+                }
+
                 Text {
                     text: {
                         if (!root.sink?.ready)            return "󰖁"
@@ -543,14 +651,6 @@ Item {
                         onPressed:         (ev) => setv(ev.x)
                         onPositionChanged: if (pressed) setv(mouseX)
                     }
-                    WheelHandler {
-                        onWheel: function(ev) {
-                            if (!root.sink?.ready) return
-                            var step = 0.05
-                            root.sink.audio.volume = Math.max(0, Math.min(1,
-                                root.sink.audio.volume + (ev.angleDelta.y > 0 ? step : -step)))
-                        }
-                    }
                 }
 
                 Text {
@@ -594,6 +694,152 @@ Item {
                     HoverHandler { id: devHov; cursorShape: Qt.PointingHandCursor }
                     MouseArea { anchors.fill: parent; onClicked: root.cycleOutput() }
                 }
+            }
+        }
+    }
+
+    // ── Overlays : liste déroulante + sauvegarde ──────────────────────────────
+
+    // Clic en dehors → ferme le menu / la sauvegarde
+    MouseArea {
+        anchors.fill: parent
+        z: 290
+        visible: root.presetMenuOpen || root.saveMode
+        onClicked: { root.presetMenuOpen = false; root.saveMode = false }
+    }
+
+    // Liste déroulante des presets
+    Rectangle {
+        id: presetMenu
+        z: 300
+        visible: root.presetMenuOpen
+        anchors { right: parent.right; top: parent.top; rightMargin: 26; topMargin: 54 }
+        width:  210
+        height: Math.min(menuList.contentHeight + 8, 290)
+        radius: 12
+        color:  ColorUtils.applyAlpha(Appearance.colors.bg, 0.98)
+        border.color: Appearance.colors.color15
+        border.width: 1
+        clip: true
+
+        ListView {
+            id: menuList
+            anchors.fill: parent
+            anchors.margins: 4
+            clip: true
+            model: root.presetList
+            boundsBehavior: Flickable.StopAtBounds
+
+            delegate: Rectangle {
+                required property string modelData
+                width:  menuList.width
+                height: 30
+                radius: 7
+                readonly property bool active: root.currentPreset === modelData
+                color: active ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.18)
+                              : (itHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.07) : "transparent")
+                Behavior on color { ColorAnimation { duration: 90 } }
+
+                Text {
+                    anchors {
+                        left: parent.left; leftMargin: 10
+                        right: delBtn.left; rightMargin: 6
+                        verticalCenter: parent.verticalCenter
+                    }
+                    text: parent.modelData
+                    color: parent.active ? Appearance.colors.accent : Appearance.colors.fg
+                    font.family:    Appearance.font.family
+                    font.pixelSize: Appearance.font.small - 1
+                    font.weight:    parent.active ? Font.Medium : Font.Normal
+                    elide: Text.ElideRight
+                }
+
+                HoverHandler { id: itHov; cursorShape: Qt.PointingHandCursor }
+                MouseArea {
+                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                    onClicked: root.loadPreset(parent.modelData)
+                }
+
+                // Supprimer (presets non protégés uniquement)
+                Rectangle {
+                    id: delBtn
+                    anchors { right: parent.right; rightMargin: 5; verticalCenter: parent.verticalCenter }
+                    width: 20; height: 20; radius: 5
+                    visible: root.presetDeletable(parent.modelData)
+                    color: delHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.red, 0.20) : "transparent"
+                    Behavior on color { ColorAnimation { duration: 100 } }
+                    Text {
+                        anchors.centerIn: parent
+                        text: "󰩺"; font.family: Appearance.font.family; font.pixelSize: 11
+                        color: delHov.hovered ? Appearance.colors.red : ColorUtils.applyAlpha(Appearance.colors.fg, 0.40)
+                    }
+                    HoverHandler { id: delHov; cursorShape: Qt.PointingHandCursor }
+                    MouseArea {
+                        anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                        onClicked: root.deletePreset(delBtn.parent.modelData)
+                    }
+                }
+            }
+        }
+    }
+
+    // Panneau de sauvegarde
+    Rectangle {
+        id: savePanel
+        z: 300
+        visible: root.saveMode
+        anchors { right: parent.right; top: parent.top; rightMargin: 26; topMargin: 54 }
+        width: 240; height: 42
+        radius: 12
+        color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.98)
+        border.color: Appearance.colors.color15
+        border.width: 1
+
+        Row {
+            anchors.fill: parent
+            anchors.margins: 6
+            spacing: 6
+
+            Rectangle {
+                width:  parent.width - 36 - parent.spacing
+                height: parent.height
+                radius: 8
+                color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.08)
+                border.color: ColorUtils.applyAlpha(Appearance.colors.accent, 0.5)
+                border.width: 1
+                TextInput {
+                    id: saveField
+                    anchors { fill: parent; leftMargin: 10; rightMargin: 8 }
+                    verticalAlignment: TextInput.AlignVCenter
+                    color: Appearance.colors.fg
+                    font.family:    Appearance.font.family
+                    font.pixelSize: Appearance.font.small - 1
+                    clip: true
+                    selectByMouse: true
+                    onAccepted: root.savePreset(text)
+                    Keys.onEscapePressed: root.saveMode = false
+
+                    Text {
+                        anchors.fill: parent
+                        verticalAlignment: Text.AlignVCenter
+                        visible: saveField.text.length === 0
+                        text: "Nom du preset…"
+                        color: Appearance.colors.dim
+                        font.family:    Appearance.font.family
+                        font.pixelSize: Appearance.font.small - 1
+                    }
+                }
+            }
+
+            Rectangle {
+                width: 36; height: parent.height
+                radius: 8
+                color: okHov.hovered ? Appearance.colors.accent
+                                     : ColorUtils.applyAlpha(Appearance.colors.accent, 0.6)
+                Behavior on color { ColorAnimation { duration: 100 } }
+                Text { anchors.centerIn: parent; text: "󰆓"; font.family: Appearance.font.family; font.pixelSize: 13; color: Appearance.colors.bg }
+                HoverHandler { id: okHov; cursorShape: Qt.PointingHandCursor }
+                MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.savePreset(saveField.text) }
             }
         }
     }

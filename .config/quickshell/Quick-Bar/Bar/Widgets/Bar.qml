@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Wayland
 import "../Common/"
 import "../Common/functions/"
+import "../Components/"
 import "./"
 import "../Windows/"
 
@@ -42,7 +43,7 @@ Scope {
                     height: Appearance.bar.height
                     width:  leftRow.implicitWidth + Appearance.bar.pillPad * 2
                     radius: Appearance.bar.radius
-                    border.color: Appearance.colors.color15
+                    border.color: Appearance.outline
                     border.width: 1
                     Behavior on border.color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
 
@@ -68,6 +69,14 @@ Scope {
                         BarSeparator {}
                         SysStats {}
                     }
+
+                    GradientBorder {
+                        anchors.fill: parent
+                        radius:       parent.radius
+                        borderWidth:  2
+                        visible:      Appearance.animationsEnabled
+                        z:            5
+                    }
                 }
 
                 // ── CENTER PILL ────────────────────────────────────────────
@@ -77,7 +86,7 @@ Scope {
                     height: Appearance.bar.height
                     width:  centerRow.implicitWidth + Appearance.bar.pillPad * 2
                     radius: Appearance.bar.radius
-                    border.color: Appearance.colors.color15
+                    border.color: Appearance.outline
                     border.width: 1
                     Behavior on border.color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
 
@@ -121,6 +130,14 @@ Scope {
                         BarSeparator {}
                         LocalSend {}
                     }
+
+                    GradientBorder {
+                        anchors.fill: parent
+                        radius:       parent.radius
+                        borderWidth:  2
+                        visible:      Appearance.animationsEnabled
+                        z:            5
+                    }
                 }
 
                 // ── RIGHT PILL ─────────────────────────────────────────────
@@ -130,7 +147,7 @@ Scope {
                     height: Appearance.bar.height
                     width:  rightRow.implicitWidth + Appearance.bar.pillPad * 2
                     radius: Appearance.bar.radius
-                    border.color: Appearance.colors.color15
+                    border.color: Appearance.outline
                     border.width: 1
                     Behavior on border.color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
 
@@ -179,6 +196,14 @@ Scope {
                         Audio {}
                         BarSeparator {}
                         PowerButtons {}
+                    }
+
+                    GradientBorder {
+                        anchors.fill: parent
+                        radius:       parent.radius
+                        borderWidth:  2
+                        visible:      Appearance.animationsEnabled
+                        z:            5
                     }
                 }
             }

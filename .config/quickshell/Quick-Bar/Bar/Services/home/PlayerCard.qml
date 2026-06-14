@@ -12,8 +12,10 @@ Item {
     // ── Source allowlist ──────────────────────────────────────────────────────
     readonly property var _allowed: [
         "spotify", "youtube",
-        "firefox", "chromium", "chrome",
-        "brave", "edge", "opera", "vivaldi", "safari", "arc"
+        "firefox", "zen", "mozilla", "librewolf", "floorp", "waterfox",
+        "chromium", "chrome",
+        "brave", "edge", "opera", "vivaldi", "safari", "arc",
+        "jellyfin", "vlc", "mpv"
     ]
 
     // Explicit count tracker — forces filteredPlayers to re-evaluate whenever
@@ -62,7 +64,27 @@ Item {
                                   ? root.filteredPlayers[root.selectedPlayerIndex] : null
 
     readonly property bool   isPlaying: root.player?.playbackState === MprisPlaybackState.Playing ?? false
-    readonly property string artUrl:    root.player?.trackArtUrl ?? ""
+
+    // Pochette : trackArtUrl si présent (Spotify http, Jellyfin data: — Qt Image
+    // gère les deux). Sinon, pour YouTube (Firefox/Zen ne donnent pas d'artUrl),
+    // on déduit la miniature depuis xesam:url. mqdefault = 16:9 propre, toujours dispo.
+    readonly property string artUrl: {
+        var t = root.player?.trackArtUrl ?? ""
+        if (t && t !== "") return t
+        var md  = root.player?.metadata
+        var url = md ? (md["xesam:url"] || "") : ""
+        var vid = root._ytId(url)
+        return vid !== "" ? ("https://i.ytimg.com/vi/" + vid + "/mqdefault.jpg") : ""
+    }
+
+    function _ytId(url) {
+        if (!url) return ""
+        var m = url.match(/[?&]v=([A-Za-z0-9_-]{6,})/)
+        if (m) return m[1]
+        m = url.match(/youtu\.be\/([A-Za-z0-9_-]{6,})/)
+        if (m) return m[1]
+        return ""
+    }
 
     readonly property string title: {
         var t = root.player?.trackTitle
@@ -106,11 +128,12 @@ Item {
         if (!player) return "♪"
         var id = (player.identity || "").toLowerCase()
         if (id.indexOf("spotify")  !== -1) return ""
-        if (id.indexOf("firefox")  !== -1) return ""
+        if (id.indexOf("firefox")  !== -1 || id.indexOf("zen") !== -1 || id.indexOf("mozilla") !== -1) return ""
         if (id.indexOf("chromium") !== -1) return ""
         if (id.indexOf("chrome")   !== -1) return ""
         if (id.indexOf("brave")    !== -1) return ""
         if (id.indexOf("youtube")  !== -1) return ""
+        if (id.indexOf("jellyfin") !== -1 || id.indexOf("vlc") !== -1 || id.indexOf("mpv") !== -1) return "󰕧"
         return "♪"
     }
 
@@ -119,7 +142,8 @@ Item {
         if (!player) return "—"
         var id = (player.identity || "").toLowerCase()
         if (id.indexOf("spotify")  !== -1) return "Spotify"
-        if (id.indexOf("firefox")  !== -1) return "Firefox"
+        if (id.indexOf("zen")      !== -1) return "Zen"
+        if (id.indexOf("firefox")  !== -1 || id.indexOf("mozilla") !== -1) return "Firefox"
         if (id.indexOf("chromium") !== -1) return "Chromium"
         if (id.indexOf("chrome")   !== -1) return "Chrome"
         if (id.indexOf("brave")    !== -1) return "Brave"
@@ -127,6 +151,9 @@ Item {
         if (id.indexOf("edge")     !== -1) return "Edge"
         if (id.indexOf("opera")    !== -1) return "Opera"
         if (id.indexOf("vivaldi")  !== -1) return "Vivaldi"
+        if (id.indexOf("jellyfin") !== -1) return "Jellyfin"
+        if (id.indexOf("vlc")      !== -1) return "VLC"
+        if (id.indexOf("mpv")      !== -1) return "mpv"
         return player.identity || "Player"
     }
 

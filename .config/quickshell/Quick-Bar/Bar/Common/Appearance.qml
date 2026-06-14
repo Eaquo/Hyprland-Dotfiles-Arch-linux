@@ -80,7 +80,51 @@ Singleton {
     // alias so both Appearance.color.* and Appearance.colors.* work
     property alias color: root.colors
 
+    // ── Auto-contraste (lisibilité wallust) ───────────────────────────────────
+    // wallust tire les couleurs du wallpaper ; parfois un rôle "clair" tombe sombre.
+    // On choisit des couleurs lisibles selon le contraste WCAG vs le fond.
+    function _lin(v) { return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }
+    function _lum(c) { return 0.2126 * _lin(c.r) + 0.7152 * _lin(c.g) + 0.0722 * _lin(c.b) }
+    function contrastRatio(a, b) {
+        var la = _lum(a) + 0.05, lb = _lum(b) + 0.05
+        return la > lb ? la / lb : lb / la
+    }
+    // Première couleur de la liste qui atteint le contraste mini, sinon la plus contrastée.
+    function _pickLegible(list, bg, minC) {
+        var best = list[0], bestC = contrastRatio(list[0], bg)
+        for (var i = 0; i < list.length; i++) {
+            var c = contrastRatio(list[i], bg)
+            if (c >= minC) return list[i]   // 1er dans l'ordre de préférence qui ressort
+            if (c > bestC) { bestC = c; best = list[i] }
+        }
+        return best                          // sinon : le plus contrasté dispo
+    }
+
+    // Bordure/contour lisible : garde color15 s'il ressort (>=3), sinon couleur vive.
+    readonly property color outline: _pickLegible(
+        [colors.color15, colors.color13, colors.color11, colors.color12, colors.color14, colors.color6],
+        colors.bg, 3.0)
+
+    // Couleur de texte lisible SUR un fond donné `c` (renvoie bg ou fg, le + contrasté).
+    // Évite le cas "texte même couleur que son pill" (dark16 fusionne color11/12/13).
+    function textOn(c) {
+        return contrastRatio(c, colors.bg) >= contrastRatio(c, colors.fg) ? colors.bg : colors.fg
+    }
+
+    // Palette vive & lisible (contraste >= 2.6) pour les dégradés animés.
+    readonly property var legiblePalette: {
+        var bg   = colors.bg
+        var cand = [colors.color1, colors.color2, colors.color3,  colors.color4,  colors.color5,  colors.color6,
+                    colors.color9, colors.color10, colors.color11, colors.color12, colors.color13, colors.color14]
+        var out = []
+        for (var i = 0; i < cand.length; i++)
+            if (contrastRatio(cand[i], bg) >= 2.6) out.push(cand[i])
+        if (out.length < 2) out = [colors.color13, colors.color11, colors.color15]
+        return out
+    }
+
     // ── UI state ──────────────────────────────────────────────────────────
+    property bool   animationsEnabled: true   // bordures dégradé animées (dashboard + barre)
     property bool   calendarVisible: false
     property real   calPopupX:       0
     property real   calPopupW:       0
