@@ -12,7 +12,9 @@ This repository contains configuration files for various applications that make 
 
 ## 🖥️ Quickbar — Quickshell
 
-Ma barre/dashboard est faite en **Quickshell** (`~/.config/quickshell/Quick-Bar`).
+Ma barre, mon **dashboard** et mon **panneau tactile** sont faits en **Quickshell**
+(`~/.config/quickshell/Quick-Bar`). Toutes les couleurs viennent de **wallust** →
+l'ensemble se re-teinte automatiquement à chaque changement de wallpaper.
 
 <div align="center">
   <img src="image/Desktop.png" alt="Quickbar - bureau" width="80%">
@@ -24,6 +26,77 @@ Ma barre/dashboard est faite en **Quickshell** (`~/.config/quickshell/Quick-Bar`
   <p><em>Quickbar — autre vue</em></p>
 </div>
 
+### 🖐️ TouchPanel — Corsair Xeneon Edge
+
+Un panneau **plein écran sur le tactile Xeneon Edge** (détecté par modèle),
+organisé en **onglets** — un clone tactile du dashboard. Activé par la tuile
+*Touch Panel* des Quick Settings.
+
+| Onglet | Contenu |
+|--------|---------|
+| **Home** | Profil, calendrier, horloge/timer/alarme, lecteur média, Quick Settings |
+| **System** | CPU/RAM/GPU (jauges wallust), températures, disques, réseau, ventilos, alim |
+| **Tasks** | Kanban (JSON local) |
+| **Files** | Explorateur type yazi (aperçu `bat`, images) |
+| **Wall** | Sélecteur de wallpapers + effets |
+| **Eq** | Égaliseur 10 bandes, presets, volume, sortie |
+| **Discord** | Chat 2 sens avec un salon *(voir plus bas)* |
+| **Apps** | Lanceurs façon Stream Deck *(voir plus bas)* |
+| **Games** | Jaquettes de jeux (backend du game-launcher) |
+
+- Barre d'onglets **centrée** et **colorée par wallust** (une couleur par onglet).
+- Onglets **lazy-loadés** (chargés à l'ouverture, libérés ensuite) → RAM optimisée.
+- Les apps lancées depuis le panneau s'ouvrent sur l'**écran principal**
+  (`Bar/Scripts/launch-main.sh`), pas sous le plein écran tactile.
+
+### 💬 Onglet Discord
+
+Chat **2 sens** avec un serveur Discord via un **bot** (bridge Python
+`aiohttp`/`websockets`, sans discord.py) : historique, messages en direct,
+threads, **embeds et boutons** rendus, et déclenchement de **téléchargements**
+(intégration qBittorrent via un endpoint HTTP sur le bot).
+
+**Prérequis :** un bot avec l'intent **Message Content** activé et présent dans le
+serveur ; le token dans `~/.config/quickshell/Quick-Bar/.discord_token` *(gitignoré)*.
+
+### 🎛️ Onglet Apps — Stream Deck
+
+Grille tactile de lanceurs en **sections** (Dev / Gaming / Média / Other), une
+couleur wallust par section, avec les **vrais logos d'apps** (résolus via le thème
+d'icônes, comme rofi). Piloté par `user_data/streamdeck.json`, rechargé à chaud :
+
+```json
+[
+  {
+    "title": "Dev",
+    "accent": 4,
+    "items": [
+      { "icon": "󰅩", "appicon": "windsurf", "label": "Windsurf", "exec": "windsurf" },
+      { "icon": "", "appicon": "/usr/share/pixmaps/kitty.png", "label": "Nvim", "exec": "kitty -e nvim" }
+    ]
+  }
+]
+```
+
+- `appicon` = nom d'icône (`steam`, `discord`…) **ou** chemin absolu (`/usr/share/…`).
+- `icon` = glyphe Nerd Font en secours ; `accent` = index de la palette wallust.
+- App **terminale** (nvim, htop…) → à envelopper : `"exec": "kitty -e nvim"`.
+
+### 🎮 Onglet Games
+
+Étagère de **jaquettes** alimentée par le backend du game-launcher (Steam + jeux
+manuels + SteamGridDB), lancement au tap.
+
+### 🔐 Après un clone : secrets à recréer
+
+Deux fichiers **gitignorés** (jamais poussés), nécessaires à l'onglet Discord :
+
+```bash
+echo "TON_TOKEN_BOT" > ~/.config/quickshell/Quick-Bar/.discord_token
+echo "TON_SECRET"    > ~/.config/quickshell/Quick-Bar/.dl_secret   # = DL_API_SECRET de bot.js
+chmod 600 ~/.config/quickshell/Quick-Bar/.discord_token ~/.config/quickshell/Quick-Bar/.dl_secret
+```
+
 ---
 
 ## 📦 Included Configurations
@@ -31,9 +104,7 @@ This repository includes configuration files for the following applications:
 ```bash
 .config/
 ├── hypr        # Hyprland WM (configs, scripts, hyprlock, hypridle, hyprpaper)
-├── quickshell  # Barre + game-launcher + rgb-launcher (QML)
-├── waybar      # Status bar (alternative)
-├── ags         # Aylur's GTK Shell
+├── quickshell  # Barre + dashboard + touch panel + game-launcher (QML)
 ├── rofi        # Application launcher (+ rofi-game-launcher, rofi-games, rofi-spotify)
 ├── swaync      # Notification center
 ├── wlogout     # Logout menu
@@ -133,35 +204,6 @@ My setup uses a custom GTK configuration based on the [phocus/gtk](https://githu
 4. Wallust automatically regenerates the theme based on the new wallpaper
 
 This creates a seamless visual experience where your file manager and other GTK applications automatically match your desktop theme.
-
----
-
-## 🦊 Floorp - Customized Browser Theme
-
-My setup includes a custom theme for the Floorp browser that integrates with the overall system aesthetic. Floorp is a Firefox-based browser with enhanced privacy features and customization options.
-
-<div align="center">
-  <img src="image/Floorp.png" alt="Floorp Custom Theme" width="80%">
-  <p><em>Floorp browser with custom theme</em></p>
-</div>
-
-### Features
-- Custom CSS for seamless integration with Hyprland
-- Theme adapts to Wallust color scheme
-- Enhanced privacy settings
-- Custom startpage
-- Optimized for keyboard navigation
-
-### Installation and Setup
-1. Install Floorp browser: `yay -S floorp-bin`
-2. Copy the custom theme files:
-   ```bash
-   cp -r .config/floorp/chrome/ ~/.config/floorp/[your-profile]/
-   ```
-3. Enable custom CSS in Floorp:
-   - Navigate to `about:config`
-   - Set `toolkit.legacyUserProfileCustomizations.stylesheets` to `true`
-4. Restart Floorp to apply the changes
 
 ---
 
