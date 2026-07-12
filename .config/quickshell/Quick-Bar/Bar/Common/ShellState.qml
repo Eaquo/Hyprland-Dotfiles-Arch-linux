@@ -1,8 +1,13 @@
 pragma Singleton
 import QtQuick
+import Quickshell
+import Quickshell.Io
 
 // État global du shell.
 // WiFi / Bluetooth / DND / Hotspot / Focus / ScreenRecord — écrits par QuickSettings.
+//
+// Les modes purement UI (barMainOnly, touchPanelOn) sont persistés sur disque
+// (user_data/shell_state.json) et restaurés au démarrage / reboot.
 
 QtObject {
     id: root
@@ -16,6 +21,47 @@ QtObject {
     property bool screenRecord: false
     property bool hotspot:      false
     property bool airplane:     false
+    property bool barMainOnly:  false   // barre sur l'écran principal uniquement (vs tous)
+    property bool touchPanelOn: false   // panneau widgets plein écran sur le tactile (Xeneon Edge)
+
+    // ── Persistance disque (restaurée au reboot) ───────────────────────────────
+    readonly property string _path:
+        Quickshell.env("HOME") + "/.config/quickshell/Quick-Bar/user_data/shell_state.json"
+
+    property bool _loading: false
+
+    function _parse(txt) {
+        if (!txt || txt.length === 0) return
+        try {
+            var d = JSON.parse(txt)
+            root._loading = true
+            if (d.barMainOnly  !== undefined) root.barMainOnly  = d.barMainOnly
+            if (d.touchPanelOn !== undefined) root.touchPanelOn = d.touchPanelOn
+            root._loading = false
+        } catch (e) { root._loading = false }
+    }
+
+    function _save() {
+        if (root._loading) return
+        var json = JSON.stringify({
+            barMainOnly:  root.barMainOnly,
+            touchPanelOn: root.touchPanelOn
+        })
+        saveProc.command = ["bash", "-c", "printf '%s' \"$1\" > \"$2\"", "_", json, root._path]
+        saveProc.running = false
+        saveProc.running = true
+    }
+
+    property var _fv: FileView {
+        path:         "file://" + root._path
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded:      root._parse(text())
+    }
+    property var _saveProc: Process { id: saveProc }
+
+    onBarMainOnlyChanged:  _save()
+    onTouchPanelOnChanged: _save()
 
     // WiFi — false quand la radio est coupée OU que le hotspot occupe l'interface
     property bool wifiOn: false

@@ -12,7 +12,17 @@ import "../Windows/"
 
 Scope {
     Variants {
-        model: Quickshell.screens
+        model: {
+            var all = Quickshell.screens
+            if (!ShellState.barMainOnly) return all
+            // Écran principal = le plus grand (l'ultrawide, pas le tactile)
+            var main = null, best = -1
+            for (var i = 0; i < all.length; i++) {
+                var a = all[i].width * all[i].height
+                if (a > best) { best = a; main = all[i] }
+            }
+            return main ? [main] : all
+        }
 
         PanelWindow {
             id: root

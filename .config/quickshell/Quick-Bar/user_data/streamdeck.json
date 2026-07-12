@@ -1,0 +1,176 @@
+[
+  {
+    "title": "Dev",
+    "accent": 4,
+    "items": [
+      {
+        "icon": "󰅩",
+        "appicon": "windsurf",
+        "label": "Windsurf",
+        "exec": "windsurf",
+        "color": ""
+      },
+      {
+        "icon": "",
+        "appicon": "/usr/share/pixmaps/kitty.png",
+        "label": "Terminal",
+        "exec": "kitty",
+        "color": ""
+      },
+      {
+        "icon": "󰉋",
+        "appicon": "org.xfce.thunar",
+        "label": "Fichiers",
+        "exec": "thunar",
+        "color": ""
+      },
+      {
+        "icon": "",
+        "appicon": "/usr/share/icons/hicolor/128x128/apps/nvim.png",
+        "label": "Nvim",
+        "exec": "kitty -e nvim",
+        "color": ""
+      },
+      {
+        "appicon": "kate",
+        "label": "Kate",
+        "exec": "kate"
+      }
+    ]
+  },
+  {
+    "title": "Gaming",
+    "accent": 6,
+    "items": [
+      {
+        "icon": "󰓓",
+        "appicon": "steam",
+        "label": "Steam",
+        "exec": "steam",
+        "color": ""
+      },
+      {
+        "icon": "󰊴",
+        "appicon": "com.heroicgameslauncher.hgl",
+        "label": "Heroic",
+        "exec": "heroic",
+        "color": ""
+      },
+      {
+        "icon": "󱎓",
+        "appicon": "net.lutris.Lutris",
+        "label": "Lutris",
+        "exec": "flatpak run net.lutris.Lutris",
+        "color": ""
+      }
+    ]
+  },
+  {
+    "title": "Média",
+    "accent": 8,
+    "items": [
+      {
+        "icon": "󰓇",
+        "appicon": "spotify-client",
+        "label": "Spotify",
+        "exec": "spotify",
+        "color": ""
+      },
+      {
+        "icon": "󰎁",
+        "appicon": "org.jellyfin.JellyfinDesktop",
+        "label": "Jellyfin",
+        "exec": "flatpak run org.jellyfin.JellyfinDesktop",
+        "color": ""
+      },
+      {
+        "icon": "󰐌",
+        "appicon": "mpv",
+        "label": "mpv",
+        "exec": "mpv",
+        "color": ""
+      },
+      {
+        "icon": "󰈰",
+        "appicon": "kdenlive",
+        "label": "Kdenlive",
+        "exec": "kdenlive",
+        "color": ""
+      },
+      {
+        "icon": "󰇚",
+        "appicon": "ktorrent",
+        "label": "KTorrent",
+        "exec": "ktorrent",
+        "color": ""
+      },
+      {
+        "icon": "󰓃",
+        "appicon": "com.github.wwmm.easyeffects",
+        "label": "EasyFX",
+        "exec": "easyeffects",
+        "color": ""
+      },
+      {
+        "icon": "󰡅",
+        "appicon": "vu.b4.alsa-scarlett-gui",
+        "label": "Scarlett",
+        "exec": "alsa-scarlett-gui",
+        "color": ""
+      }
+    ]
+  },
+  {
+    "title": "Other",
+    "accent": 10,
+    "items": [
+      {
+        "icon": "󰖟",
+        "appicon": "zen-browser",
+        "label": "Zen",
+        "exec": "zen-browser",
+        "color": ""
+      },
+      {
+        "icon": "󰙯",
+        "appicon": "discord",
+        "label": "Discord",
+        "exec": "discord",
+        "color": ""
+      },
+      {
+        "icon": "󰢮",
+        "appicon": "corectrl",
+        "label": "CoreCtrl",
+        "exec": "corectrl",
+        "color": ""
+      },
+      {
+        "icon": "󰛳",
+        "appicon": "localsend",
+        "label": "LocalSend",
+        "exec": "localsend",
+        "color": ""
+      },
+      {
+        "icon": "󰌵",
+        "appicon": "/usr/share/icons/hicolor/128x128/apps/org.openrgb.OpenRGB.png",
+        "label": "OpenRGB",
+        "exec": "openrgb",
+        "color": ""
+      },
+      {
+        "icon": "󰡅",
+        "appicon": "proton-pass",
+        "label": "Proton-Pass",
+        "exec": "proton-pass",
+        "color": ""
+      },
+      {
+        "appicon": "nwg-displays",
+        "label": "Display",
+        "exec": "nwg-displays"
+      }
+    ]
+  }
+]

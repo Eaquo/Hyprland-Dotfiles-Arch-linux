@@ -23,6 +23,13 @@ Item {
 	property string currentPage: ""
 	property string orientation: "horizontal"   // "horizontal" | "vertical"
 
+	// Palette wallust vive : chaque onglet cycle dessus (icône/label/pastille).
+	readonly property var _wpal: [
+		Appearance.colors.color4,  Appearance.colors.color5,  Appearance.colors.color6,
+		Appearance.colors.color9,  Appearance.colors.color10, Appearance.colors.color11,
+		Appearance.colors.color12, Appearance.colors.color13, Appearance.colors.color14
+	]
+
 	signal pageChanged(string key)
 
 	// ── Default page & reset ──────────────────────────────────────────────────
@@ -77,11 +84,14 @@ Item {
 			delegate: Item {
 				id: hTab
 				readonly property bool isActive: root.currentPage === modelData.key
+				readonly property color wcol: root._wpal[index % root._wpal.length]
+				// Version éclaircie pour rester lisible sur fond sombre.
+				readonly property color wbright: Qt.lighter(wcol, 1.35)
 
 				width:  hIcon.implicitWidth + hLabel.implicitWidth + 32
 				height: hRow.height
 
-				// Pill background
+				// Pill background — teinte wallust de l'onglet
 				Rectangle {
 					id: hBg
 					anchors.centerIn: parent
@@ -90,13 +100,13 @@ Item {
 					radius: height / 2
 
 					color: hTab.isActive
-					? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.18)
-					: (hHov.hovered ? Qt.rgba(1, 1, 1, 0.07) : "transparent")
+					? Qt.rgba(hTab.wcol.r, hTab.wcol.g, hTab.wcol.b, 0.18)
+					: (hHov.hovered ? Qt.rgba(hTab.wcol.r, hTab.wcol.g, hTab.wcol.b, 0.10) : "transparent")
 
 					Behavior on color { ColorAnimation { duration: 120 } }
 				}
 
-				// Icon + label
+				// Icon + label — couleur wallust de l'onglet (atténuée si inactif)
 				Row {
 					anchors.centerIn: parent
 					spacing: 6
@@ -106,9 +116,9 @@ Item {
 						text:           modelData.icon
 						font.pixelSize: 14
 						anchors.verticalCenter: parent.verticalCenter
-						color: hTab.isActive
-						? Appearance.active
-						: (hHov.hovered ? Qt.rgba(1, 1, 1, 0.75) : Qt.rgba(1, 1, 1, 0.4))
+						color: (hTab.isActive || hHov.hovered)
+						? hTab.wbright
+						: Qt.rgba(hTab.wbright.r, hTab.wbright.g, hTab.wbright.b, 0.8)
 						Behavior on color { ColorAnimation { duration: 120 } }
 					}
 
@@ -119,9 +129,9 @@ Item {
 						font.pixelSize: 12
 						font.weight:    hTab.isActive ? Font.Medium : Font.Normal
 						anchors.verticalCenter: parent.verticalCenter
-						color: hTab.isActive
-						? Appearance.active
-						: (hHov.hovered ? Qt.rgba(1, 1, 1, 0.75) : Qt.rgba(1, 1, 1, 0.4))
+						color: (hTab.isActive || hHov.hovered)
+						? hTab.wbright
+						: Qt.rgba(hTab.wbright.r, hTab.wbright.g, hTab.wbright.b, 0.8)
 						Behavior on color { ColorAnimation { duration: 120 } }
 					}
 				}
