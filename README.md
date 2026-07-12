@@ -32,6 +32,26 @@ Un panneau **plein écran sur le tactile Xeneon Edge** (détecté par modèle),
 organisé en **onglets** — un clone tactile du dashboard. Activé par la tuile
 *Touch Panel* des Quick Settings.
 
+<div align="center">
+  <img src="image/Home_Panel.png" alt="Quickbar - Home" width="80%">
+  <p><em>Panel Corsair Xeneon Edge Touch Scren</em></p>
+</div>
+
+<div align="center">
+  <img src="image/Sys_Panel.png" alt="Quickbar - Sys" width="80%">
+  <p><em>Panel System Scren</em></p>
+</div>
+
+<div align="center">
+  <img src="image/Game_Panel.png" alt="Quickbar - Game" width="80%">
+  <p><em>Panel Gaming Scren</em></p>
+</div>
+
+<div align="center">
+  <img src="image/App_Panel.png" alt="Quickbar - App" width="80%">
+  <p><em>Panel App Scren</em></p>
+</div>
+
 | Onglet | Contenu |
 |--------|---------|
 | **Home** | Profil, calendrier, horloge/timer/alarme, lecteur média, Quick Settings |
@@ -132,17 +152,12 @@ This repository includes configuration files for the following applications:
 
 ## 🚀 Rofi - Application Launcher and More
 
-### Application Launcher and Ags
+### Application Launcher
 My Rofi launcher is customized to integrate seamlessly with my overall theme. It offers a clean and responsive interface for launching your favorite applications.
 
 <div align="center">
   <img src="image/Launcher.png" alt="Rofi Launcher" width="80%">
   <p><em>Rofi Application Launcher</em></p>
-</div>
-
-<div align="center">
-  <img src="image/Ags.png" alt="Ags Shell" width="80%">
-  <p><em>Aylur's GTK Shell (Ags)</em></p>
 </div>
 
 Special thanks to [JaKooLit](https://github.com/JaKooLit) for the inspiration.
@@ -293,7 +308,7 @@ chaque grande étape (tu peux en sauter n'importe laquelle).
 | 1 | Vérifications | Arch, non-root, sudo, réseau |
 | 2 | **yay** | installé automatiquement s'il manque |
 | 3 | Paquets officiels | `pkglist-pacman.txt` (hyprland, waybar, rofi, sddm, qt6, fish, awww…) |
-| 4 | Paquets AUR | `pkglist-aur.txt` (quickshell, pyprland-git, wallust, ags, spicetify-cli-git…) |
+| 4 | Paquets AUR | `pkglist-aur.txt` (quickshell, pyprland-git, wallust, spicetify-cli-git…) |
 | 5 | Dotfiles | déploie `~` et `~/.config` ; **demande dédiée** pour les wallpapers (`Pictures`) |
 | 6 | Shell par défaut | au choix : **fish** ou **zsh** (`chsh`) |
 | 7 | Plugins **hyprpm** | `hyprpm update` + dépôts hyprland-plugins/hy3 + active **hy3** & **hyprbars** |
@@ -322,7 +337,7 @@ que le paquet n'installe pas toujours.
 À lancer idéalement **dans une session Hyprland**. Si l'étape échoue depuis le TTY,
 relance après le 1er login :
 ```bash
-hyprpm update && hyprpm enable hy3 && hyprpm enable hyprbars && hyprpm reload
+hyprpm update && hyprpm enable hy3 && hyprpm enable hyprbars && hyprpm enable hyprland-scroll-overview && hyprpm enable hyprgrass && hyprpm reload
 ```
 
 ---
