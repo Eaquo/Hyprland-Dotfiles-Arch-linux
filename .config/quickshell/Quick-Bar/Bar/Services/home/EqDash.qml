@@ -157,7 +157,7 @@ Item {
         target: Popups
         function onDashboardOpenChanged() {
             if (Popups.dashboardOpen) { getProc.running = true; listProc.running = true }
-            else { root.presetMenuOpen = false; root.saveMode = false }
+            else { root.presetMenuOpen = false; root.saveMode = false; root.appsExpanded = false }
         }
     }
 
@@ -182,6 +182,26 @@ Item {
         for (var i = 0; i < l.length; i++)
             if (root.sink && l[i].name === root.sink.name) ci = i
         Pipewire.preferredDefaultAudioSink = l[(ci + 1) % l.length]
+    }
+
+    // ── Volume par application (streams de lecture PipeWire) ──────────────────
+    property bool appsExpanded: false
+    readonly property var appStreams: {
+        var out = []
+        var nodes = Pipewire.nodes.values
+        for (var i = 0; i < nodes.length; i++) {
+            var n = nodes[i]
+            // Streams de LECTURE = isStream && isSink (Spotify, jeux, navigateur…).
+            // Les captures (cava, micros) ont isSink=false → exclues.
+            if (n.isStream && n.isSink) out.push(n)
+        }
+        return out
+    }
+    PwObjectTracker { objects: root.appStreams }
+    function appName(n) {
+        var p = n.properties
+        var an = p ? (p["application.name"] || p["media.name"]) : ""
+        return an || n.description || n.name || "App"
     }
 
     // ── Slider vertical réutilisable ──────────────────────────────────────────
@@ -469,7 +489,7 @@ Item {
                 Item {
                     id: spectre
                     Layout.fillWidth: true
-                    implicitHeight: 80
+                    implicitHeight: 56
                     opacity: CavaService.isPlaying ? 1 : 0.35
                     Behavior on opacity { NumberAnimation { duration: 200 } }
 
@@ -696,16 +716,143 @@ Item {
                 }
             }
         }
+
+        // ── Bloc 4 : header "volume par application" (liste = popup flottant) ──
+        StatCard {
+            id: appsCard
+            Layout.fillWidth: true
+            padding: 8
+            Layout.preferredHeight: 22 + padding * 2
+
+            Item {
+                anchors.fill: parent
+                Row {
+                    anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                    spacing: 8
+                    Text { anchors.verticalCenter: parent.verticalCenter; text: "󰕾"; font.family: Appearance.font.family; font.pixelSize: 13; color: Appearance.colors.accent }
+                    Text { anchors.verticalCenter: parent.verticalCenter; text: "Volume par application"; font.family: Appearance.font.family; font.pixelSize: Appearance.font.small - 1; font.weight: Font.Medium; color: Appearance.colors.fg }
+                }
+                Row {
+                    anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+                    spacing: 8
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: root.appStreams.length + (root.appStreams.length > 1 ? " apps" : " app")
+                        font.pixelSize: 10; font.family: Appearance.font.family; color: Appearance.colors.dim
+                    }
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: root.appsExpanded ? "▾" : "▴"
+                        font.pixelSize: 12; color: Appearance.colors.dim
+                    }
+                }
+                MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.appsExpanded = !root.appsExpanded }
+            }
+        }
     }
 
     // ── Overlays : liste déroulante + sauvegarde ──────────────────────────────
 
-    // Clic en dehors → ferme le menu / la sauvegarde
+    // Clic en dehors → ferme les menus / la sauvegarde / le panneau apps
     MouseArea {
         anchors.fill: parent
         z: 290
-        visible: root.presetMenuOpen || root.saveMode
-        onClicked: { root.presetMenuOpen = false; root.saveMode = false }
+        visible: root.presetMenuOpen || root.saveMode || root.appsExpanded
+        onClicked: { root.presetMenuOpen = false; root.saveMode = false; root.appsExpanded = false }
+    }
+
+    // Popup volume par application (au-dessus de tout, remonte depuis le bas)
+    Rectangle {
+        id: appsOverlay
+        z: 300
+        visible: root.appsExpanded
+        anchors { left: parent.left; right: parent.right; bottom: parent.bottom
+                  leftMargin: 4; rightMargin: 4; bottomMargin: 46 }
+        height: Math.min(appsCol.implicitHeight + 16, 260)
+        radius: 12
+        color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.98)
+        border.color: Appearance.colors.color15
+        border.width: 1
+        clip: true
+
+        Column {
+            id: appsCol
+            anchors { left: parent.left; right: parent.right; top: parent.top; margins: 8 }
+            spacing: 4
+
+            Repeater {
+                model: root.appStreams
+                delegate: Item {
+                    required property var modelData
+                    width: parent.width; height: 30
+                    readonly property bool muted: modelData.audio ? modelData.audio.muted : false
+
+                    Text {
+                        id: appMute
+                        anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                        text: parent.muted ? "󰝟" : "󰕾"
+                        font.family: Appearance.font.family; font.pixelSize: 13
+                        color: parent.muted ? Appearance.colors.red : Appearance.colors.accent
+                        MouseArea { anchors.fill: parent; anchors.margins: -4; cursorShape: Qt.PointingHandCursor
+                            onClicked: if (modelData.audio) modelData.audio.muted = !modelData.audio.muted }
+                    }
+                    Text {
+                        id: appLbl
+                        anchors { left: appMute.right; leftMargin: 8; verticalCenter: parent.verticalCenter }
+                        width: 130
+                        text: root.appName(modelData)
+                        elide: Text.ElideRight
+                        font.pixelSize: Appearance.font.small - 2; font.family: Appearance.font.family
+                        color: Appearance.colors.fg
+                    }
+                    Item {
+                        id: appVol
+                        anchors { left: appLbl.right; leftMargin: 10; right: appPct.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
+                        height: 16
+                        readonly property real val: modelData.audio ? modelData.audio.volume : 0
+                        Rectangle {
+                            anchors.verticalCenter: parent.verticalCenter
+                            width: parent.width; height: 5; radius: 2.5
+                            color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
+                            Rectangle {
+                                width: parent.width * Math.min(1, appVol.val); height: parent.height; radius: parent.radius
+                                color: Appearance.colors.accent
+                            }
+                        }
+                        Rectangle {
+                            width: 12; height: 12; radius: 6; color: "#ffffff"
+                            anchors.verticalCenter: parent.verticalCenter
+                            x: (parent.width - width) * Math.min(1, appVol.val)
+                        }
+                        MouseArea {
+                            anchors.fill: parent; anchors.margins: -4
+                            cursorShape: Qt.PointingHandCursor
+                            function setv(mx) { if (modelData.audio) modelData.audio.volume = Math.max(0, Math.min(1, mx / appVol.width)) }
+                            onPressed:         (e) => setv(e.x)
+                            onPositionChanged: if (pressed) setv(mouseX)
+                        }
+                        WheelHandler {
+                            onWheel: function(e) { if (modelData.audio) modelData.audio.volume = Math.max(0, Math.min(1, modelData.audio.volume + (e.angleDelta.y > 0 ? 0.05 : -0.05))) }
+                        }
+                    }
+                    Text {
+                        id: appPct
+                        anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+                        width: 34; horizontalAlignment: Text.AlignRight
+                        text: Math.round((modelData.audio ? modelData.audio.volume : 0) * 100) + "%"
+                        font.pixelSize: 10; font.family: "JetBrains Mono"
+                        color: Appearance.colors.dim
+                    }
+                }
+            }
+
+            Text {
+                visible: root.appStreams.length === 0
+                text: "Aucune application en lecture"
+                font.pixelSize: 11; font.family: Appearance.font.family
+                color: Appearance.colors.dim
+            }
+        }
     }
 
     // Liste déroulante des presets

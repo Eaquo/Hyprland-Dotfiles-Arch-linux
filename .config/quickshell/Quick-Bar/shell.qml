@@ -15,6 +15,8 @@ import Quickshell.Wayland
 import Quickshell.Io
 
 ShellRoot {
+    Wallpaper {}
+    TouchPanel {}
     Bar {}
     CalendarWindow {}
     EqPopup {}

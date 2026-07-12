@@ -30,7 +30,11 @@ PanelWindow {
         "stats":  900,
         "kanban": 900,
         "files":  900,
-        "eq":     900
+        "wall":   900,
+        "eq":     900,
+        "discord":900,
+        // "deck":   900,
+        "games":  900
     })
 
     function _applyPageWidth(p) {
@@ -174,7 +178,11 @@ PanelWindow {
                         { key: "stats",  icon: "󰻠", label: "System" },
                         { key: "kanban", icon: "󰄬", label: "Tasks"  },
                         { key: "files",  icon: "󰉋", label: "Files"  },
+                        { key: "wall",   icon: "󰸉", label: "Wall"   },
                         { key: "eq",     icon: "󰓃", label: "Eq"     },
+                        { key: "discord",icon: "󰙯", label: "Discord"},
+                        // { key: "deck",   icon: "󰀻", label: "Apps"   },
+                        // { key: "games",  icon: "󰊴", label: "Games"  },
                     ]
                     onPageChanged: function(key) { root.page = key }
                 }
@@ -187,34 +195,54 @@ PanelWindow {
                     width:  parent.width
                     height: parent.height - tabBar.height
 
-                    Item {
+                    // Pages lazy-loadées : chargées seulement quand le popup est
+                    // affiché ET que c'est l'onglet courant. `windowVisible` (et non
+                    // Popups.dashboardOpen) garde la page pendant l'anim de fermeture,
+                    // puis tout se libère → aucune page en RAM popup fermé.
+                    Loader {
                         anchors.fill: parent
-                        visible:      root.page === "home"
-                        DashHome { anchors.fill: parent }
+                        active: root.windowVisible && root.page === "home"
+                        source: "../Services/home/DashHome.qml"
                     }
-
-                    Item {
+                    Loader {
                         anchors.fill: parent
-                        visible:      root.page === "stats"
-                        DashStats { anchors.fill: parent }
+                        active: root.windowVisible && root.page === "stats"
+                        source: "../Dashboard/DashStats.qml"
                     }
-
-                    Item {
+                    Loader {
                         anchors.fill: parent
-                        visible:      root.page === "kanban"
-                        KanbanBoard { anchors.fill: parent }
+                        active: root.windowVisible && root.page === "kanban"
+                        source: "../Services/KanbanBoard.qml"
                     }
-
-                    Item {
+                    Loader {
                         anchors.fill: parent
-                        visible:      root.page === "files"
-                        FileBrowser { anchors.fill: parent }
+                        active: root.windowVisible && root.page === "files"
+                        source: "../Services/FileBrowser.qml"
                     }
-
-                    Item {
+                    Loader {
                         anchors.fill: parent
-                        visible:      root.page === "eq"
-                        EqDash { anchors.fill: parent }
+                        active: root.windowVisible && root.page === "wall"
+                        source: "../Services/WallpaperTab.qml"
+                    }
+                    Loader {
+                        anchors.fill: parent
+                        active: root.windowVisible && root.page === "eq"
+                        source: "../Services/home/EqDash.qml"
+                    }
+                    Loader {
+                        anchors.fill: parent
+                        active: root.windowVisible && root.page === "discord"
+                        source: "../Services/DiscordChat.qml"
+                    }
+                    Loader {
+                        anchors.fill: parent
+                        active: root.windowVisible && root.page === "deck"
+                        source: "../Services/StreamDeck.qml"
+                    }
+                    Loader {
+                        anchors.fill: parent
+                        active: root.windowVisible && root.page === "games"
+                        source: "../Services/GameTab.qml"
                     }
 
                     Keys.onEscapePressed: Popups.dashboardOpen = false

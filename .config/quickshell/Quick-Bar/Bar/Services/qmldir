@@ -20,8 +20,13 @@ singleton WallpaperService 1.0 WallpaperService.qml
 singleton ScreenRecService 1.0 ScreenRecService.qml
 KanbanBoard KanbanBoard.qml
 FileBrowser FileBrowser.qml
+WallpaperTab WallpaperTab.qml
 AppLauncher AppLauncher.qml
 ShellConfig ./config_tab/ShellConfig.qml
 KeybindsPage ./config_tab/KeybindsPage.qml
 singleton CavaService 1.0 CavaService.qml
 EqDash home/EqDash.qml
+singleton DiscordService 1.0 DiscordService.qml
+DiscordChat DiscordChat.qml
+StreamDeck StreamDeck.qml
+GameTab GameTab.qml

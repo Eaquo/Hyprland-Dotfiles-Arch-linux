@@ -24,3 +24,7 @@
 **/__pycache__/
 *.log
 *.tmp
+
+# Token bot Discord (secret)
+.config/quickshell/Quick-Bar/.discord_token
+.config/quickshell/Quick-Bar/.dl_secret

@@ -843,6 +843,22 @@ StatCard {
 
                     TglBtn {
                         width: tileGrid.btnW; height: tileGrid.btnH
+                        on: ShellState.barMainOnly
+                        icon: ShellState.barMainOnly ? "󰍹" : "󰍺"
+                        label: "Screen"
+                        sublabel: ShellState.barMainOnly ? "Principal" : "Tous"
+                        onToggled: { ShellState.barMainOnly = !ShellState.barMainOnly; Popups.closeAll() }
+                    }
+                    TglBtn {
+                        width: tileGrid.btnW; height: tileGrid.btnH
+                        on:       ShellState.touchPanelOn
+                        icon:     "󰦧"
+                        label:    "Touch Panel"
+                        sublabel: ShellState.touchPanelOn ? "Xeneon Edge" : ""
+                        onToggled: { ShellState.touchPanelOn = !ShellState.touchPanelOn; Popups.closeAll() }
+                    }
+                    TglBtn {
+                        width: tileGrid.btnW; height: tileGrid.btnH
                         on: root.wifiOn && !root.hotspotOn
                         icon: (root.wifiOn && !root.hotspotOn) ? "󰤨" : "󰤭"; label: "Wi-Fi"
                         sublabel: (root.wifiOn && !root.hotspotOn) && root.wifiSSID !== "" ? root.wifiSSID : (root.hotspotOn ? "Used by Hotspot" : "")
@@ -855,14 +871,6 @@ StatCard {
                         sublabel: root.btOn && root.btDevice !== "" ? root.btDevice : ""
                         onToggled: root._btToggle()
                         onRightClicked: root._launch("blueman-manager")
-                    }
-                    TglBtn {
-                        width: tileGrid.btnW; height: tileGrid.btnH
-                        on: root.hotspotOn || root.hotspotBusy
-                        icon: "󰀃"
-                        label: "Hotspot"
-                        sublabel: root.hotspotLabel
-                        onToggled: root._hotspotToggle()
                     }
                     TglBtn {
                         width: tileGrid.btnW; height: tileGrid.btnH
