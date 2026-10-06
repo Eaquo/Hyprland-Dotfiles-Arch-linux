@@ -18,6 +18,8 @@ QtObject {
         property real   freqPercent: 0.0       // = utilisation GPU %
         property string curMhz:      "— GB"    // = VRAM utilisée / totale
         property string maxMhz:      "— MHz"
+        property real   vramPercent: 0.0       // VRAM utilisée en % (0–100)
+        property string vramUsedStr: "— GB"    // VRAM utilisée seule ("1.7 GB")
     }
 
     property QtObject dgpu: QtObject {
@@ -57,7 +59,9 @@ QtObject {
                 var u = parseFloat(p[0]), t = parseFloat(p[1])
                 if (isNaN(u) || isNaN(t) || t <= 0) return
                 var gb = 1073741824
-                root.igpu.curMhz    = (u / gb).toFixed(1) + " / " + (t / gb).toFixed(1) + " GB"
+                root.igpu.curMhz     = (u / gb).toFixed(1) + " / " + (t / gb).toFixed(1) + " GB"
+                root.igpu.vramPercent = u / t * 100
+                root.igpu.vramUsedStr = (u / gb).toFixed(1) + " GB"
                 root.dgpu.usedVram  = (u / 1048576).toFixed(0) + " MB"
                 root.dgpu.totalVram = (t / 1048576).toFixed(0) + " MB"
             }

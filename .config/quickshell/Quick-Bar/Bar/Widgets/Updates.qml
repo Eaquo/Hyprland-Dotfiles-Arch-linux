@@ -47,7 +47,7 @@ RowLayout {
         command: [
             "kitty", "-T", "update",
             "bash", "-c",
-            "paru -Syu || yay -Syu; notify-send 'Système mis à jour'; echo; read -n1 -rp 'Appuie sur une touche pour fermer...'"
+            "cachy-update; notify-send 'Système mis à jour' -i /home/florian/.config/swaync/icons/hyprland.png -e; echo; read -n1 -rp 'Appuie sur une touche pour fermer...'"
         ]
         onRunningChanged: if (!running) refreshTimer.start()
     }

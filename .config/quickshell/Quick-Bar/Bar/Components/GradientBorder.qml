@@ -10,6 +10,9 @@ Canvas {
     property real radius:      Appearance.bar.radius
     property int  borderWidth: 2
     property real phase:       0          // 0..1 → fait défiler les couleurs
+    // Couleurs du défilement (objets color) — palette wallust par défaut.
+    property var  colors:      Appearance.legiblePalette
+    onColorsChanged:      requestPaint()
 
     onPhaseChanged:       requestPaint()
     onWidthChanged:       requestPaint()
@@ -26,7 +29,7 @@ Canvas {
 
     // Couleur cyclique interpolée sur la palette wallust → string rgb()
     function _rainbowAt(t) {
-        var c = Appearance.legiblePalette        // couleurs vives & lisibles (auto-contraste)
+        var c = gb.colors                        // défaut : couleurs vives & lisibles wallust
         var n = c.length
         if (n === 0) return "rgb(255,255,255)"
         var x = (((t % 1) + 1) % 1) * n

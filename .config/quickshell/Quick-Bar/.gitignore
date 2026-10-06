@@ -1,1 +1,6 @@
 .discord_token
+.dl_secret
+graphify-out/
+user_data/
+.claude/
+__pycache__/

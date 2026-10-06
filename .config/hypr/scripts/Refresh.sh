@@ -3,7 +3,7 @@
 # Scripts for refreshing, waybar, rofi, swaync, wallust
 
 SCRIPTSDIR=$HOME/.config/hypr/scripts
-LOGDIR="$HOME/.config/quickshell/rgb-launcher/modules/script"
+LOGDIR="$HOME/.config/quickshell/Quick-Bar/Bar/Scripts/rgb/script"
 UserScripts=$HOME/.config/hypr/UserScripts
 
 # Define file_exists function
@@ -35,7 +35,6 @@ xsettingsd & disown
 
 # reload openrgb
 SEQ=$(cat $LOGDIR/sequence.txt)
-pkill -f OpenRGB_Controller_Watch.py
 # added since wallust sometimes not applying
 killall -SIGUSR2 swaync
 
@@ -48,7 +47,8 @@ done
 sleep 0.5
 swaync > /dev/null 2>&1 &
 
-python "$LOGDIR/OpenRGB_Controller_Watch.py" &
+# watcher + contrôleurs tués puis relancés (évite les contrôleurs orphelins en double)
+bash "$HOME/.config/quickshell/Quick-Bar/Bar/Scripts/rgb/rgb_watch.sh" restart
 
 # Relaunching rainbow borders if the script exists
 sleep 1

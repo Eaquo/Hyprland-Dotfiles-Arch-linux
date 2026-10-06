@@ -17,6 +17,7 @@ import Quickshell.Io
 ShellRoot {
     Wallpaper {}
     TouchPanel {}
+    GameBreakBar {}
     Bar {}
     CalendarWindow {}
     EqPopup {}

@@ -77,6 +77,24 @@ Item {
         return vid !== "" ? ("https://i.ytimg.com/vi/" + vid + "/mqdefault.jpg") : ""
     }
 
+    // Pochettes http(s) téléchargées par curl dans /tmp puis affichées en file:// —
+    // le chargement HTTPS direct par Qt fait planter Quickshell (OpenSSL crash dans
+    // QSslCertificate::fromFile au 1er accès réseau). Même principe que music_info.sh.
+    property string artShown: ""
+    onArtUrlChanged: {
+        if (!/^https?:/.test(artUrl)) { artShown = artUrl; return }
+        const f = "/tmp/qs-art-card-" + Qt.md5(artUrl) + ".jpg"
+        artProc.target = "file://" + f
+        artProc.command = ["sh", "-c", "[ -s \"$2\" ] || curl -sfL --max-time 10 -o \"$2\" \"$1\"", "_", artUrl, f]
+        artProc.running = false
+        artProc.running = true
+    }
+    Process {
+        id: artProc
+        property string target: ""
+        onExited: (code) => root.artShown = code === 0 ? target : ""
+    }
+
     function _ytId(url) {
         if (!url) return ""
         var m = url.match(/[?&]v=([A-Za-z0-9_-]{6,})/)
@@ -170,7 +188,7 @@ Item {
             layer.enabled: true
             Image {
                 anchors.fill: parent
-                source:   root.artUrl
+                source:   root.artShown
                 fillMode: Image.PreserveAspectCrop
                 smooth:   true
             }
@@ -179,8 +197,8 @@ Item {
         MultiEffect {
             source:       artSource
             anchors.fill: parent
-            visible:      root.artUrl !== ""
-            opacity:      root.artUrl !== "" ? 1 : 0
+            visible:      root.artShown !== ""
+            opacity:      root.artShown !== "" ? 1 : 0
             blurEnabled:  true
             blur:         0.5
             blurMax:      32
