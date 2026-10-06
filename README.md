@@ -54,17 +54,26 @@ organisé en **onglets** — un clone tactile du dashboard. Activé par la tuile
 
 | Onglet | Contenu |
 |--------|---------|
+| **Game** | Apparaît tout seul quand un jeu tourne *(voir « Mode jeu » plus bas)* |
 | **Home** | Profil, calendrier, horloge/timer/alarme, lecteur média, Quick Settings |
+| **Grid** | Widgets libres façon Nothing : déplaçables, redimensionnables |
+| **Spaces** | Vue de tous les workspaces avec aperçus live *(voir plus bas)* |
 | **System** | CPU/RAM/GPU (jauges wallust), températures, disques, réseau, ventilos, alim |
-| **Tasks** | Kanban (JSON local) |
+| **Tasks** | Kanban (JSON local) — désactivé par défaut |
 | **Files** | Explorateur type yazi (aperçu `bat`, images) |
 | **Wall** | Sélecteur de wallpapers + effets |
+| **Wallust** | Édition manuelle de la palette de couleurs *(voir plus bas)* |
 | **Eq** | Égaliseur 10 bandes, presets, volume, sortie |
+| **Mixer** | Volume par application, au doigt *(voir plus bas)* |
 | **Discord** | Chat 2 sens avec un salon *(voir plus bas)* |
 | **Apps** | Lanceurs façon Stream Deck *(voir plus bas)* |
 | **Games** | Jaquettes de jeux (backend du game-launcher) |
+| **RGB** | Modes OpenRGB (séquences animées, couleurs fixes) |
 
 - Barre d'onglets **centrée** et **colorée par wallust** (une couleur par onglet).
+- Bouton **⚙** : activer, désactiver et **réordonner** les onglets (gardé au redémarrage).
+- La page **glisse** dans le sens de navigation ; swipe horizontal sur la barre
+  pour passer à l'onglet voisin. Trop d'onglets → barre compacte (icônes seules).
 - Onglets **lazy-loadés** (chargés à l'ouverture, libérés ensuite) → RAM optimisée.
 - Les apps lancées depuis le panneau s'ouvrent sur l'**écran principal**
   (`Bar/Scripts/launch-main.sh`), pas sous le plein écran tactile.
@@ -107,9 +116,66 @@ d'icônes, comme rofi). Piloté par `user_data/streamdeck.json`, rechargé à ch
 Étagère de **jaquettes** alimentée par le backend du game-launcher (Steam + jeux
 manuels + SteamGridDB), lancement au tap.
 
+### 🕹️ Mode jeu automatique
+
+Dès qu'une fenêtre de jeu s'ouvre (tag Hyprland `games`, posé par
+`configs lua/WindowRulesGaming.lua` sur `steam_app_*`, gamescope, `*.exe`), le
+TouchPanel bascule sur la page **Game** :
+
+<div align="center">
+  <img src="image/GameMode_Panel.png" alt="Quickbar - Mode jeu" width="80%">
+  <p><em>Page Game pendant une partie de MTG Arena</em></p>
+</div>
+
+- **Logo officiel** et **bannière** du jeu récupérés dans le cache Steam (logo
+  foncé passé en blanc automatiquement) ; la bannière devient aussi le fond du panneau.
+- **Couleurs du jeu** extraites de la bannière : contour animé de la page **et
+  LED OpenRGB** à la couleur du jeu.
+- **Égaliseur** basculé sur le preset FPS du casque en cours (`KZ-FPS` / `Bose-FPS`).
+- Mesures CPU/GPU/RAM/températures avec **pics de la session**, **ping**, et
+  **temps de jeu** (aujourd'hui / semaine / total, par jeu).
+- Mixeur en verre (jeu, musique, Discord…), lecteur en cours, actions rapides :
+  *Ne pas déranger*, capture de l'écran du jeu, enregistrement.
+- À la fermeture du jeu, **tout revient comme avant** (EQ, LED, page affichée), même
+  si Quickshell a redémarré entre-temps.
+
+Fichiers : `Bar/Common/GameMode.qml`, `Bar/Services/GameModeTab.qml`,
+`Bar/Scripts/game_art.sh`, `Bar/Scripts/game_sessions.py` (historique dans
+`user_data/game_sessions.json`).
+
+### 🪟 Onglet Spaces
+
+Vue des workspaces 1 à 10 sur le tactile, avec le wallpaper dans chaque vignette
+et un **aperçu live** de chaque fenêtre :
+
+- **double-tap** sur une vignette → aller sur ce workspace ;
+- **tap** sur une fenêtre → la mettre au premier plan ;
+- **glisser** une fenêtre au doigt → la déplacer vers un autre workspace (sans
+  changer ce qu'affiche l'écran principal) ;
+- **appui long** → vue agrandie de la fenêtre (pratique pour surveiller une
+  impression 3D, un téléchargement…) ; bouton **×** → fermer la fenêtre.
+
+Les workspaces créés depuis le tactile atterrissent toujours sur l'**écran principal**.
+
+### 🎚️ Onglet Mixer
+
+Une grande tranche verticale par application qui joue du son (PipeWire) + Master,
+et le choix de la sortie. Le bouton **« Avec égaliseur »** garde le passage par
+EasyEffects ; une sortie choisie directement le contourne (c'est indiqué).
+
+### 🎨 Onglet Wallust
+
+Les 19 couleurs de la palette (`background`, `foreground`, `cursor`, `color0`…`color15`),
+chacune avec **son rôle** dans la config (ex. *color11 = accent*). Tap → sélecteur de
+couleur tactile ; **Actualiser** applique la palette à tout le système
+(`wallust cs` → tous les templates, puis `Refresh.sh`) ; **Reset** revient à la
+palette d'origine. Un nouveau wallpaper (nouveau `wallust run`) écrase les changements.
+
 ### 🔐 Après un clone : secrets à recréer
 
-Deux fichiers **gitignorés** (jamais poussés), nécessaires à l'onglet Discord :
+Deux fichiers **gitignorés** (jamais poussés), nécessaires à l'onglet Discord.
+Le dossier `user_data/` (réglages perso, mot de passe hotspot…) n'est pas publié non
+plus : il est recréé au premier lancement.
 
 ```bash
 echo "TON_TOKEN_BOT" > ~/.config/quickshell/Quick-Bar/.discord_token
@@ -339,6 +405,15 @@ relance après le 1er login :
 ```bash
 hyprpm update && hyprpm enable hy3 && hyprpm enable hyprbars && hyprpm enable hyprland-scroll-overview && hyprpm enable hyprgrass && hyprpm reload
 ```
+
+> ⚠️ **Ne jamais lancer `sudo hyprpm`** : le cache passe à root et les plugins
+> sautent à chaque mise à jour (`sudo chown -R $USER:$USER /var/cache/hyprpm/$USER`
+> pour réparer).
+>
+> **hy3** : si hyprpm le compile contre la mauvaise version (« hy3 was compiled for a
+> different version of hyprland »), compile-le depuis le bon tag avec
+> `~/.config/hypr/scripts/rebuild-hy3.sh`, puis `hyprpm disable hy3` et reconnecte-toi.
+> Le script est à relancer après chaque mise à jour de Hyprland.
 
 ---
 
