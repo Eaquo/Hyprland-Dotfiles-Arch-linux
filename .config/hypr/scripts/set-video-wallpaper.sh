@@ -24,7 +24,7 @@ mkdir -p "$HOME/.config/hypr/wallpaper_effects"
 cp -f "$thumb" "$HOME/.config/hypr/wallpaper_effects/.wallpaper_current"
 
 # 3. Palette wallust depuis la vignette (skip séquences terminal)
-wallust run "$thumb" -s >/dev/null 2>&1 &
+{ wallust run "$thumb" -s >/dev/null 2>&1; pkill -USR1 -x kitty; bash "$HOME/.config/hypr/scripts/Refresh.sh"; } >/dev/null 2>&1 &  # + recharge kitty/GTK/swaync/rofi/OpenRGB…
 
 # 4. gslapper prend le fond — tue l'ancien gslapper + awww-daemon d'abord
 pkill -x gslapper 2>/dev/null

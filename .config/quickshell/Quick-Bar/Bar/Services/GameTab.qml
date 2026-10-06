@@ -1,25 +1,33 @@
 import QtQuick
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
-import Quickshell.Widgets
 import "../Common/"
 import "../Common/functions/"
 
 // GameTab — grille de jeux tactile, basée sur le backend du game-launcher.
-// Appelle game-launcher/modules/service/backend.py (sortie JSON { games: [...] }),
-// affiche les jaquettes, lance le jeu au tap via son `exec`.
+// Cartes façon onglet RGB (jaquette en preview + nom), barre de recherche.
+// Lance le jeu au tap via son `exec` (sur l'écran principal).
 Item {
     id: root
 
     readonly property string _backend:
         Quickshell.env("HOME") + "/.config/quickshell/game-launcher/modules/service/backend.py"
-    // Wrapper qui force le lancement sur l'écran principal (pas le tactile).
     readonly property string _launcher:
         Quickshell.env("HOME") + "/.config/quickshell/Quick-Bar/Bar/Scripts/launch-main.sh"
 
     property var  games:   []
     property bool loading:  false
     property bool loaded:   false
+    property string filter: ""
+
+    readonly property var filteredGames: {
+        if (root.filter.trim() === "") return root.games
+        var f = root.filter.toLowerCase()
+        return root.games.filter(function (g) {
+            return (g.name || "").toLowerCase().indexOf(f) !== -1
+        })
+    }
 
     function _load() {
         if (root.loading) return
@@ -34,7 +42,6 @@ Item {
         runProc.running = true
     }
 
-    // Chargement paresseux à la première ouverture de l'onglet.
     onVisibleChanged: if (visible && !root.loaded && !root.loading) _load()
     Component.onCompleted: if (visible) _load()
 
@@ -56,27 +63,37 @@ Item {
 
     Column {
         anchors.fill: parent
-        spacing: 10
+        spacing: 12
 
-        // En-tête : compteur + rafraîchir
-        Row {
+        // En-tête : titre + compteur · recherche · rafraîchir
+        Item {
             width: parent.width
-            spacing: 10
-            Text {
-                text: "󰊴  Jeux"
-                font.family: Appearance.font.family; font.pixelSize: 18; font.weight: Font.Bold
-                color: Appearance.colors.fg
+            height: 38
+
+            Row {
+                id: hLeft
+                anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
+                spacing: 10
+                Text {
+                    text: "󰊴  Jeux"
+                    font.family: Appearance.font.family; font.pixelSize: 18; font.weight: Font.Bold
+                    color: Appearance.colors.fg
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+                Text {
+                    text: root.loading ? "chargement…" : (root.filteredGames.length + " jeux")
+                    font.family: Appearance.font.family; font.pixelSize: 12
+                    color: Appearance.colors.dim
+                    anchors.verticalCenter: parent.verticalCenter
+                }
             }
-            Text {
-                text: root.loading ? "chargement…" : (root.games.length + " jeux")
-                font.family: Appearance.font.family; font.pixelSize: 12
-                color: Appearance.colors.dim
-                anchors.verticalCenter: parent.verticalCenter
-            }
-            Item { width: parent.width - 340; height: 1 }
+
             Rectangle {
-                width: 110; height: 32; radius: 8
+                id: refreshBtn
+                anchors.right: parent.right
+                anchors.verticalCenter: parent.verticalCenter
+                width: 110; height: 34; radius: 8
                 color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.5)
                 border.color: Qt.rgba(1, 1, 1, 0.08); border.width: 1
                 Text {
@@ -85,80 +102,141 @@ Item {
                 }
                 MouseArea { anchors.fill: parent; onClicked: root._load() }
             }
+
+            // Barre de recherche (compacte, centrée)
+            Rectangle {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                width: 340
+                height: 34; radius: 10
+                color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.5)
+                border.color: search.activeFocus ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.6)
+                                                 : Qt.rgba(1, 1, 1, 0.08)
+                border.width: 1
+
+                Text {
+                    id: searchIcon
+                    anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
+                    text: "󰍉"
+                    font.family: Appearance.font.family; font.pixelSize: 15
+                    color: Appearance.colors.dim
+                }
+                TextInput {
+                    id: search
+                    anchors { left: searchIcon.right; leftMargin: 8; right: clearBtn.left; rightMargin: 8
+                              verticalCenter: parent.verticalCenter }
+                    verticalAlignment: TextInput.AlignVCenter
+                    font.family: Appearance.font.family; font.pixelSize: 13
+                    color: Appearance.colors.fg
+                    clip: true
+                    onTextChanged: root.filter = text
+                }
+                Text {
+                    anchors { left: searchIcon.right; leftMargin: 8; verticalCenter: parent.verticalCenter }
+                    visible: search.text.length === 0
+                    text: "Rechercher un jeu…"
+                    font.family: Appearance.font.family; font.pixelSize: 13
+                    color: Qt.rgba(1, 1, 1, 0.3)
+                }
+                Text {   // effacer
+                    id: clearBtn
+                    anchors { right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
+                    visible: search.text.length > 0
+                    text: "󰅖"
+                    font.family: Appearance.font.family; font.pixelSize: 14
+                    color: Appearance.colors.dim
+                    MouseArea { anchors.fill: parent; anchors.margins: -6; onClicked: { search.text = ""; search.forceActiveFocus() } }
+                }
+            }
         }
 
-        // Étagère horizontale : grandes jaquettes qui remplissent la hauteur.
-        ListView {
-            id: shelf
+        GridView {
+            id: grid
             width: parent.width
-            height: parent.height - 42
+            height: parent.height - 50
             clip: true
-            orientation: ListView.Horizontal
-            spacing: 18
-            model: root.games
+            // Cartes larges (jaquettes paysage ~420×165).
+            cellWidth:  Math.floor(width / Math.max(1, Math.floor(width / 380)))
+            cellHeight: 210
+            model: root.filteredGames
             boundsBehavior: Flickable.StopAtBounds
-            cacheBuffer: 1600
-            flickDeceleration: 6000
+            cacheBuffer: 1400
 
             delegate: Item {
+                id: cell
                 required property var modelData
-                height: shelf.height
-                width:  Math.round(shelf.height * 0.66)   // ratio jaquette 2:3
+                width: grid.cellWidth; height: grid.cellHeight
 
-                ClippingRectangle {
-                    id: cardBg
-                    anchors.fill: parent
-                    radius: 16
-                    color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.6)
-                    border.color: tapArea.pressed ? Appearance.colors.accent : Qt.rgba(1, 1, 1, 0.10)
+                Rectangle {
+                    id: card
+                    anchors { fill: parent; margins: 12 }
+                    radius: 26
+                    clip: true
+                    color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.55)
+                    border.color: tapArea.pressed ? Appearance.colors.accent : Qt.rgba(1, 1, 1, 0.08)
                     border.width: tapArea.pressed ? 2 : 1
                     scale: tapArea.pressed ? 0.97 : 1
-                    Behavior on scale { NumberAnimation { duration: 110; easing.type: Easing.OutCubic } }
+                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
 
-                    Image {
+                    // Glow / ombre douce pour faire ressortir la carte (accent au tap).
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        shadowEnabled: true
+                        shadowColor: tapArea.pressed ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.85)
+                                                     : Qt.rgba(0, 0, 0, 0.55)
+                        shadowBlur: tapArea.pressed ? 0.9 : 0.5
+                        shadowVerticalOffset: 5
+                    }
+
+                    Column {
                         anchors.fill: parent
-                        source: modelData.image || ""
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        // cache:false → la texture est libérée quand le delegate/onglet
-                        // est détruit (re-décodée depuis le disque au besoin).
-                        cache: false
-                        // Plafonne la mémoire texture des jaquettes (décodées à la
-                        // taille d'affichage, pas en pleine résolution).
-                        sourceSize.height: 512
-                        visible: status === Image.Ready
-                    }
-                    // Fallback si pas de jaquette : nom centré
-                    Text {
-                        anchors.centerIn: parent
-                        width: parent.width - 24
-                        visible: !modelData.image
-                        horizontalAlignment: Text.AlignHCenter
-                        wrapMode: Text.WordWrap
-                        text: modelData.name || ""
-                        font.family: Appearance.font.family; font.pixelSize: 18
-                        color: Appearance.colors.fg
-                    }
-                    // Bandeau nom en bas (dégradé)
-                    Rectangle {
-                        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                        height: 80
-                        gradient: Gradient {
-                            GradientStop { position: 0.0; color: "transparent" }
-                            GradientStop { position: 1.0; color: Qt.rgba(0, 0, 0, 0.88) }
+
+                        // Preview = jaquette large
+                        Rectangle {
+                            width: parent.width
+                            height: Math.round(card.height * 0.74)
+                            color: ColorUtils.applyAlpha(Appearance.colors.color4, 0.60)
+
+                            Image {
+                                anchors.fill: parent
+                                source: cell.modelData.image || ""
+                                fillMode: Image.PreserveAspectCrop
+                                asynchronous: true
+                                cache: false
+                                sourceSize.height: 300
+                                visible: status === Image.Ready
+                            }
+                            Text {   // fallback sans jaquette
+                                anchors.centerIn: parent
+                                width: parent.width - 20
+                                visible: !cell.modelData.image
+                                horizontalAlignment: Text.AlignHCenter
+                                wrapMode: Text.WordWrap
+                                text: cell.modelData.name || ""
+                                font.family: Appearance.font.family; font.pixelSize: 15
+                                color: Appearance.colors.color4
+                            }
                         }
-                        Text {
-                            anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 12 }
-                            text: modelData.name || ""
-                            elide: Text.ElideRight
-                            font.family: Appearance.font.family; font.pixelSize: 16; font.weight: Font.Bold
-                            color: "#ffffff"
+
+                        // Nom
+                        Item {
+                            width: parent.width
+                            height: parent.height - Math.round(card.height * 0.74)
+                            Text {
+                                anchors { fill: parent; margins: 14 }
+                                verticalAlignment: Text.AlignVCenter
+                                text: cell.modelData.name || ""
+                                elide: Text.ElideRight; wrapMode: Text.WordWrap; maximumLineCount: 2
+                                font.family: Appearance.font.family; font.pixelSize: 14; font.weight: Font.Bold
+                                color: Appearance.colors.fg
+                            }
                         }
                     }
+
                     MouseArea {
                         id: tapArea
                         anchors.fill: parent
-                        onClicked: root._launch(modelData.exec)
+                        onClicked: root._launch(cell.modelData.exec)
                     }
                 }
             }
@@ -168,9 +246,10 @@ Item {
     // État de chargement / vide
     Text {
         anchors.centerIn: parent
-        visible: root.games.length === 0
+        visible: root.filteredGames.length === 0
         font.family: Appearance.font.family; font.pixelSize: 14
         color: Appearance.colors.dim
-        text: root.loading ? "Scan des jeux…" : "Aucun jeu trouvé."
+        text: root.loading ? "Scan des jeux…"
+                           : (root.filter.trim() !== "" ? "Aucun résultat." : "Aucun jeu trouvé.")
     }
 }

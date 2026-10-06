@@ -1,111 +1,362 @@
 import QtQuick
+import QtQuick.Layouts
+import QtQuick.Effects
 import "../Common/"
-import "../Components/"
+import "../Common/functions/"
 import "../Services/"
-import "../Dashboard/"
 
-// TouchStats — variante tactile (ultra-large) de la page System du Dashboard.
-//
-// Réutilise les mêmes panels (Speedometer, TempPanel, FanPanel, NetStatsPanel,
-// DiskPanel, PowerPanel) en grille 4×2 qui remplit la largeur. Positionneurs
-// simples Column/Row (pas QtQuick.Layouts) — sinon largeur auto-référente =
-// boucle de binding qui effondre les cartes.
-//
-//  ┌────────┬────────┬────────┬──────────┐
-//  │  CPU   │  RAM   │  GPU   │  Temps    │
-//  ├────────┼────────┼────────┼──────────┤
-//  │ Réseau │ Disques│Ventilos│  Alim     │
-//  └────────┴────────┴────────┴──────────┘
+// TouchStats — page System du TouchPanel, refaite : cartes glowy + jauges
+// circulaires custom (Canvas), couleurs wallust. Setup AMD (usage GPU + VRAM via
+// gpu.igpu). 2 rangées : CPU/RAM/GPU (héros) puis Temps/Disques/Réseau/Ventilos.
 Item {
     id: root
-    readonly property int gap: 12
+    readonly property int gap: 14
 
     CpuService     { id: cpu;     active: root.visible }
-    MemService     { id: mem;     active: root.visible }
-    NetService     { id: net;     active: root.visible }
-    ThermalService { id: thermal; active: root.visible }
-    FanControl     { id: fan }
-    DiskService    { id: disk;    active: root.visible }
     CpuFreqService { id: cpuFreq }
+    MemService     { id: mem;     active: root.visible }
     GpuService     { id: gpu;     active: root.visible }
+    ThermalService { id: thermal; active: root.visible }
+    NetService     { id: net;     active: root.visible }
+    DiskService    { id: disk;    active: root.visible }
+    FanControl     { id: fan }
 
-    Column {
+    function tempCol(t) {
+        if (t <= 0)  return Appearance.colors.dim
+        if (t < 50)  return "#89dceb"
+        if (t < 70)  return "#a6e3a1"
+        if (t < 82)  return "#f9e2af"
+        if (t < 90)  return "#fab387"
+        return "#f38ba8"
+    }
+
+    // ── Carte avec glow ──────────────────────────────────────────────────────
+    component GlowCard: Item {
+        id: gcard
+        property color glow: Appearance.colors.accent
+        default property alias content: inner.data
+        // Fond + ombre portés par un rectangle dédié → les chiffres (dans inner,
+        // au-dessus) restent NETS, sans halo.
+        Rectangle {
+            anchors.fill: parent
+            radius: 22
+            color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.5)
+            border.color: ColorUtils.applyAlpha(gcard.glow, 0.28)
+            border.width: 1
+            layer.enabled: true
+            layer.effect: MultiEffect {
+                shadowEnabled: true
+                shadowColor: ColorUtils.applyAlpha(gcard.glow, 0.30)
+                shadowBlur: 0.35
+                shadowVerticalOffset: 4
+            }
+        }
+        Item { id: inner; anchors { fill: parent; margins: 18 } }
+    }
+
+    // ── Cellule numérique iCUE : gros chiffre + unité, min/max ▲▼, waveform ──
+    component MetricCell: Item {
+        id: mc
+        property string label: ""
+        property color  col: Appearance.colors.accent
+        property real   value: 0
+        property string unit: ""
+        property int    decimals: 0
+        property string rightText: ""
+        property var    hist: []
+        property int    maxPts: 46
+        property int    bigSize: 46
+        property color  valueColor: Appearance.colors.fg
+        property string valueText: ""     // si défini, remplace le chiffre (ex. "3 KB/s")
+
+        readonly property real vmin: hist.length ? Math.min.apply(Math, hist) : value
+        readonly property real vmax: hist.length ? Math.max.apply(Math, hist) : value
+
+        // Échantillonne chaque seconde → waveform + min/max (style moniteur HW).
+        Timer {
+            interval: 1000; running: mc.visible; repeat: true
+            onTriggered: {
+                var h = mc.hist.slice(); h.push(mc.value)
+                if (h.length > mc.maxPts) h.shift()
+                mc.hist = h; spark.requestPaint()
+            }
+        }
+
+        // waveform de fond (bande basse, neon)
+        Canvas {
+            id: spark
+            anchors.fill: parent
+            onPaint: {
+                var ctx = getContext("2d"); ctx.reset()
+                var W = width, H = height
+                var pts = mc.hist
+                if (pts.length < 2) return
+                var lo = mc.vmin, hi = mc.vmax; if (hi - lo < 1) hi = lo + 1
+                var gy = H * 0.99, gh = H * 0.5
+                ctx.beginPath()
+                for (var i = 0; i < pts.length; i++) {
+                    var xx = W * i / (mc.maxPts - 1)
+                    var yy = gy - gh * ((pts[i] - lo) / (hi - lo))
+                    if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy)
+                }
+                ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"
+                ctx.shadowColor = mc.col; ctx.shadowBlur = 6
+                ctx.strokeStyle = Qt.rgba(mc.col.r, mc.col.g, mc.col.b, 0.7); ctx.stroke()
+                ctx.shadowBlur = 0
+                var lastX = W * (pts.length - 1) / (mc.maxPts - 1)
+                ctx.lineTo(lastX, gy); ctx.lineTo(0, gy); ctx.closePath()
+                var fgd = ctx.createLinearGradient(0, gy - gh, 0, gy)
+                fgd.addColorStop(0, Qt.rgba(mc.col.r, mc.col.g, mc.col.b, 0.18))
+                fgd.addColorStop(1, Qt.rgba(mc.col.r, mc.col.g, mc.col.b, 0.0))
+                ctx.fillStyle = fgd; ctx.fill()
+            }
+            onWidthChanged: requestPaint()
+            onHeightChanged: requestPaint()
+        }
+
+        // label (haut gauche) + détail (haut droite)
+        Text {
+            anchors { top: parent.top; left: parent.left }
+            text: mc.label
+            font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
+            color: mc.col
+        }
+        Text {
+            anchors { top: parent.top; right: parent.right }
+            text: mc.rightText
+            font.family: "JetBrains Mono"; font.pixelSize: 12; color: Appearance.colors.dim
+        }
+
+        // gros chiffre + unité (baseline)
+        Text {
+            id: bigNum
+            anchors { left: parent.left; verticalCenter: parent.verticalCenter; verticalCenterOffset: 2 }
+            text: mc.valueText !== "" ? mc.valueText : mc.value.toFixed(mc.decimals)
+            font.family: Appearance.font.family; font.pixelSize: mc.bigSize; font.weight: Font.Bold
+            color: mc.valueColor
+        }
+        Text {
+            anchors { left: bigNum.right; leftMargin: 3; baseline: bigNum.baseline }
+            text: mc.unit
+            font.family: Appearance.font.family; font.pixelSize: Math.round(mc.bigSize * 0.35); font.weight: Font.Bold
+            color: mc.col
+        }
+        // min/max ▲▼
+        Text {
+            visible: mc.valueText === ""
+            anchors { left: parent.left; top: bigNum.bottom; topMargin: -2 }
+            text: "▲ " + mc.vmax.toFixed(mc.decimals) + "   ▼ " + mc.vmin.toFixed(mc.decimals)
+            font.family: "JetBrains Mono"; font.pixelSize: 11; color: Appearance.colors.dim
+        }
+    }
+
+    // En-tête de carte (label + valeur à droite optionnelle)
+    component CardHead: Item {
+        property string label: ""
+        property string rval: ""
+        property color  rightCol: Appearance.colors.dim
+        property color  labelCol: Appearance.colors.accent
+        implicitHeight: 22
+        width: parent ? parent.width : 0
+        Text {
+            anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter
+            text: parent.label
+            font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
+            color: parent.labelCol
+        }
+        Text {
+            anchors.right: parent.right; anchors.verticalCenter: parent.verticalCenter
+            text: parent.rval
+            font.family: "JetBrains Mono"; font.pixelSize: 13; font.weight: Font.Bold
+            color: parent.rightCol
+        }
+    }
+
+    ColumnLayout {
         anchors.fill: parent
         anchors.topMargin: root.gap
         spacing: root.gap
 
-        readonly property real rowH: (height - anchors.topMargin - root.gap) / 2
-
-        // ══ Rangée haute : jauges + températures ══
-        Row {
-            id: topRow
-            width:  parent.width
-            height: parent.rowH
+        // ══ Rangée héros : CPU · RAM · GPU ══
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             spacing: root.gap
-            readonly property real cw: (width - root.gap * 3) / 4
 
-            StatCard {
-                width: topRow.cw; height: topRow.height
-                Speedometer {
-                    anchors.centerIn: parent
-                    label: "CPU"; percent: cpu.usagePercent
-                    centerText: cpu.usagePercent + "%"; bottomText: cpuFreq.curFreqStr
-                    active: true; accentColor: Qt.lighter(Appearance.colors.color4, 1.15)
-                }
-            }
-            StatCard {
-                width: topRow.cw; height: topRow.height
-                Speedometer {
-                    anchors.centerIn: parent
-                    label: "RAM"; percent: mem.usagePercent
-                    centerText: mem.usagePercent + "%"; bottomText: mem.usedStr + " / " + mem.totalStr
-                    active: true; accentColor: Qt.lighter(Appearance.colors.color5, 1.15)
-                }
-            }
-            StatCard {
-                width: topRow.cw; height: topRow.height
-                Speedometer {
-                    anchors.centerIn: parent
-                    label: "GPU"; percent: gpu.igpu.freqPercent
-                    centerText: gpu.igpu.freqPercent + "%"; bottomText: gpu.igpu.curMhz
-                    active: true; accentColor: Qt.lighter(Appearance.colors.color6, 1.15)
-                }
-            }
-            StatCard {
-                width: topRow.cw; height: topRow.height
-                padding: 6
-                TempPanel {
+            GlowCard {
+                Layout.fillWidth: true; Layout.fillHeight: true
+                glow: Appearance.colors.color4
+                MetricCell {
                     anchors.fill: parent
-                    service: thermal
-                    dgpuActive: gpu.dgpu.active
+                    label: "CPU"; col: Appearance.colors.color4
+                    value: cpu.usagePercent; unit: "%"
+                    rightText: Math.round(thermal.cpuTemp) + "°"
+                }
+            }
+            GlowCard {
+                Layout.fillWidth: true; Layout.fillHeight: true
+                glow: Appearance.colors.color5
+                MetricCell {
+                    anchors.fill: parent
+                    label: "RAM"; col: Appearance.colors.color5
+                    value: mem.usagePercent; unit: "%"
+                    rightText: mem.usedStr + "/" + mem.totalStr
+                }
+            }
+            GlowCard {
+                Layout.fillWidth: true; Layout.fillHeight: true
+                glow: Appearance.colors.color6
+                MetricCell {
+                    anchors.fill: parent
+                    label: "GPU"; col: Appearance.colors.color6
+                    value: gpu.igpu.freqPercent; unit: "%"
+                    rightText: Math.round(thermal.gpuTemp) + "°"
+                }
+            }
+            GlowCard {
+                Layout.fillWidth: true; Layout.fillHeight: true
+                glow: Appearance.colors.color9
+                MetricCell {
+                    anchors.fill: parent
+                    label: "VRAM"; col: Appearance.colors.color9
+                    value: gpu.igpu.vramPercent; unit: "%"
+                    rightText: gpu.igpu.curMhz
                 }
             }
         }
 
-        // ══ Rangée basse : réseau · disques · ventilos · alim ══
-        Row {
-            id: botRow
-            width:  parent.width
-            height: parent.rowH
+        // ══ Rangée : Temps · Disques · Réseau · Ventilos ══
+        RowLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
             spacing: root.gap
-            readonly property real aw: width - root.gap * 3
 
-            StatCard {
-                width: botRow.aw * 0.22; height: botRow.height
-                NetStatsPanel { anchors.fill: parent; service: net }
+            // ── Températures ──
+            GlowCard {
+                Layout.preferredWidth: 1; Layout.fillWidth: true; Layout.fillHeight: true
+                glow: "#fab387"
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 14
+                    MetricCell {
+                        Layout.fillWidth: true; Layout.fillHeight: true
+                        label: "CPU"; unit: "°"; value: thermal.cpuTemp
+                        col: root.tempCol(thermal.cpuTemp); valueColor: root.tempCol(thermal.cpuTemp)
+                    }
+                    MetricCell {
+                        Layout.fillWidth: true; Layout.fillHeight: true
+                        label: "GPU"; unit: "°"; value: thermal.gpuTemp
+                        col: root.tempCol(thermal.gpuTemp); valueColor: root.tempCol(thermal.gpuTemp)
+                    }
+                }
             }
-            StatCard {
-                width: botRow.aw * 0.34; height: botRow.height
-                DiskPanel { anchors.fill: parent; service: disk }
+
+            // ── Disques ──
+            GlowCard {
+                Layout.preferredWidth: 1.6; Layout.fillWidth: true; Layout.fillHeight: true
+                glow: Appearance.colors.color3
+                CardHead { id: dHead; anchors.top: parent.top; label: "Disques"; labelCol: Appearance.colors.color3 }
+                Flickable {
+                    anchors { top: dHead.bottom; left: parent.left; right: parent.right; bottom: parent.bottom; topMargin: 8 }
+                    contentHeight: dCol.height; clip: true; boundsBehavior: Flickable.StopAtBounds
+                    Column {
+                        id: dCol; width: parent.width; spacing: 9
+                        Repeater {
+                            model: disk.disks
+                            delegate: Item {
+                                required property var modelData
+                                width: dCol.width; height: 30
+                                Row {
+                                    width: parent.width; spacing: 8
+                                    Text {
+                                        width: 54; text: modelData.mount
+                                        elide: Text.ElideRight
+                                        font.family: Appearance.font.family; font.pixelSize: 12; color: Appearance.colors.fg
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                    Rectangle {
+                                        width: parent.width - 54 - 8 - 96
+                                        height: 8; radius: 4
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        color: Qt.rgba(1, 1, 1, 0.08)
+                                        Rectangle {
+                                            width: parent.width * Math.max(0, Math.min(1, (modelData.usedPct || 0) / 100))
+                                            height: parent.height; radius: parent.radius
+                                            color: (modelData.usedPct > 88) ? "#f38ba8" : Appearance.colors.color3
+                                        }
+                                    }
+                                    Text {
+                                        width: 96; horizontalAlignment: Text.AlignRight
+                                        text: modelData.usedStr + "/" + modelData.totalStr
+                                        font.family: "JetBrains Mono"; font.pixelSize: 10; color: Appearance.colors.dim
+                                        anchors.verticalCenter: parent.verticalCenter
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-            StatCard {
-                width: botRow.aw * 0.20; height: botRow.height
-                padding: 6
-                FanPanel { anchors.fill: parent; service: fan }
+
+            // ── Réseau ──
+            GlowCard {
+                Layout.preferredWidth: 1; Layout.fillWidth: true; Layout.fillHeight: true
+                glow: Appearance.colors.color2
+                RowLayout {
+                    anchors.fill: parent
+                    spacing: 14
+                    MetricCell {
+                        Layout.fillWidth: true; Layout.fillHeight: true
+                        label: "↓ DOWN"; col: "#89b4fa"; bigSize: 24
+                        value: net.downKbps; valueText: net.downSpeed; rightText: net.iface
+                    }
+                    MetricCell {
+                        Layout.fillWidth: true; Layout.fillHeight: true
+                        label: "↑ UP"; col: "#a6e3a1"; bigSize: 24
+                        value: net.upKbps; valueText: net.upSpeed
+                    }
+                }
             }
-            StatCard {
-                width: botRow.aw * 0.24; height: botRow.height
-                PowerPanel { anchors.fill: parent; cpuFreqService: cpuFreq }
+
+            // ── Ventilos ──
+            GlowCard {
+                Layout.preferredWidth: 1; Layout.fillWidth: true; Layout.fillHeight: true
+                glow: Appearance.colors.color12
+                CardHead {
+                    id: fHead; anchors.top: parent.top; label: "Ventilateurs"
+                    rval: thermal.fanCount > 0 ? thermal.fan1Str : ""
+                    labelCol: Appearance.colors.color12
+                }
+                ColumnLayout {
+                    anchors { top: fHead.bottom; left: parent.left; right: parent.right; bottom: parent.bottom; topMargin: 8 }
+                    spacing: 8
+                    Item { Layout.fillHeight: true }
+                    Repeater {
+                        model: [
+                            { m: "quiet", i: "󰈐", t: "Quiet" },
+                            { m: "auto",  i: "󰈐", t: "Auto"  },
+                            { m: "max",   i: "󰈐", t: "Max"   }
+                        ]
+                        delegate: Rectangle {
+                            required property var modelData
+                            readonly property bool sel: fan.mode === modelData.m
+                            Layout.fillWidth: true; Layout.preferredHeight: 34
+                            radius: 10
+                            color: sel ? ColorUtils.applyAlpha(Appearance.colors.color12, 0.85)
+                                      : ColorUtils.applyAlpha(Appearance.colors.bg, 0.4)
+                            border.color: sel ? "transparent" : Qt.rgba(1, 1, 1, 0.10); border.width: 1
+                            Text {
+                                anchors.centerIn: parent
+                                text: modelData.t
+                                font.family: Appearance.font.family; font.pixelSize: 13
+                                font.weight: parent.sel ? Font.Bold : Font.Normal
+                                color: parent.sel ? Appearance.colors.bg : Appearance.colors.fg
+                            }
+                            MouseArea { anchors.fill: parent; onClicked: fan.setMode(modelData.m) }
+                        }
+                    }
+                    Item { Layout.fillHeight: true }
+                }
             }
         }
     }

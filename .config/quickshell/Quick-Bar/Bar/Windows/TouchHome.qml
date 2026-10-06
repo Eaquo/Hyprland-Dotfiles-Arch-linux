@@ -74,9 +74,13 @@ Item {
         }
 
         // ── 3. Lecteur média (déjà grand) ─────────────────────────────────────────
-        PlayerCard {
+        // Enveloppé dans un Item → PlayerCard se dimensionne via anchors.fill (comme
+        // sur Dashboard/Grid), sinon la chaîne layer+MultiEffect de la pochette ne
+        // s'affiche pas correctement avec un dimensionnement Layout.
+        Item {
             Layout.preferredWidth: rl.avail * 0.28
             Layout.fillHeight: true
+            PlayerCard { anchors.fill: parent }
         }
 
         // ── 4. Quick Settings ─────────────────────────────────────────────────────

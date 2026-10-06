@@ -19,12 +19,14 @@ hl.on("hyprland.start", function()
     hl.exec_cmd(scripts .. "/Polkit.sh")
 
     -- Wallpaper
-    hl.exec_cmd("awww query || awww-daemon")
+--    hl.exec_cmd("awww query || awww-daemon")
     hl.exec_cmd(userScripts .. "/WallpaperRandom.sh " .. wallDir)
 
     -- OpenRGB
     hl.exec_cmd("openrgb --server --startminimized")
-    hl.exec_cmd("bash -c 'sleep 12 && python " .. home .. "/.config/quickshell/rgb-launcher/modules/script/OpenRGB_Controller_Watch.py'")
+    -- Démon RGB : reprend la séquence enregistrée (conf/sequence.txt) ; Quick-Bar
+    -- (onglet RGB) ne fait ensuite que changer de mode. `ensure` = jamais en double.
+    hl.exec_cmd("bash -c 'sleep 12 && " .. home .. "/.config/quickshell/Quick-Bar/Bar/Scripts/rgb/rgb_watch.sh ensure'")
 
     -- Bar / Notifications
     hl.exec_cmd("quickshell -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml")
@@ -48,12 +50,18 @@ hl.on("hyprland.start", function()
 
     -- Plugin hy3
     hl.exec_cmd("hyprpm reload -n")
+    -- hy3 buildé manuellement (tag hl0.55.0 = compatible 0.55.4 ; hyprpm prenait master cassé).
+    -- À rebuild après chaque update Hyprland : ~/.config/hypr/scripts/rebuild-hy3.sh
+    hl.exec_cmd("hyprctl plugin load " .. home .. "/.config/hypr/plugins/libhy3.so")
 
-    -- Spicetify
-    hl.exec_cmd("spicetify apply")
 
     -- Steam Colors
     hl.exec_cmd(home .. "/.config/hypr/scripts/WallustSteam.sh")
+
+	-- Corsair display default
+    -- hl.exec_cmd("bash -c 'sleep 5 && hyprctl dispatch workspace 8'")
+    hl.exec_cmd("[workspace special:magic silent] spotify")
+    hl.exec_cmd("[workspace special:magic silent] discord")
 
 end)
 

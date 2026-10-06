@@ -836,10 +836,12 @@ StatCard {
                 Grid {
                     id: tileGrid
                     width: flick.width
-                    columns: 2; spacing: 6
+                    // Colonnes responsives : 3 sur une large colonne (TouchHome),
+                    // 2 sur le popup Dashboard étroit → tuiles denses, bien réparties.
+                    columns: width > 340 ? 3 : 2; spacing: 6
 
-                    readonly property real btnW: (width - spacing) / 2
-                    readonly property real btnH: btnW * 0.85
+                    readonly property real btnW: (width - spacing * (columns - 1)) / columns
+                    readonly property real btnH: btnW * 0.7
 
                     TglBtn {
                         width: tileGrid.btnW; height: tileGrid.btnH

@@ -16,6 +16,8 @@ QtObject {
     property string iface:     "—"
     property string upSpeed:   "0 KB/s"
     property string downSpeed: "0 KB/s"
+    property real   upKbps:    0          // débit montant en KB/s (pour waveform)
+    property real   downKbps:  0          // débit descendant en KB/s
 
     property real _prevRx:    0
     property real _prevTx:    0
@@ -81,6 +83,8 @@ QtObject {
                 var dTx = Math.max(0, tx - root._prevTx)
                 root.downSpeed = root._fmt(dRx)
                 root.upSpeed   = root._fmt(dTx)
+                root.downKbps  = dRx / 1024
+                root.upKbps    = dTx / 1024
             }
             root._firstRead = false
             root._prevRx = rx
