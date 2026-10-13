@@ -26,6 +26,10 @@ l'ensemble se re-teinte automatiquement à chaque changement de wallpaper.
   <p><em>Quickbar — autre vue</em></p>
 </div>
 
+> 🗺️ **Architecture** : la carte complète du projet (dossiers, flux, recettes « ajouter un
+> onglet / un shader / un widget ») est dans
+> [`.config/quickshell/Quick-Bar/docs/ARCHITECTURE.md`](.config/quickshell/Quick-Bar/docs/ARCHITECTURE.md).
+
 ### 🖐️ TouchPanel — Corsair Xeneon Edge
 
 Un panneau **plein écran sur le tactile Xeneon Edge** (détecté par modèle),
@@ -76,7 +80,7 @@ organisé en **onglets** — un clone tactile du dashboard. Activé par la tuile
   pour passer à l'onglet voisin. Trop d'onglets → barre compacte (icônes seules).
 - Onglets **lazy-loadés** (chargés à l'ouverture, libérés ensuite) → RAM optimisée.
 - Les apps lancées depuis le panneau s'ouvrent sur l'**écran principal**
-  (`Bar/Scripts/launch-main.sh`), pas sous le plein écran tactile.
+  (`scripts/hypr/launch-main.sh`), pas sous le plein écran tactile.
 
 ### 💬 Onglet Discord
 
@@ -139,8 +143,8 @@ TouchPanel bascule sur la page **Game** :
 - À la fermeture du jeu, **tout revient comme avant** (EQ, LED, page affichée), même
   si Quickshell a redémarré entre-temps.
 
-Fichiers : `Bar/Common/GameMode.qml`, `Bar/Services/GameModeTab.qml`,
-`Bar/Scripts/game_art.sh`, `Bar/Scripts/game_sessions.py` (historique dans
+Fichiers : `core/GameMode.qml`, `pages/game/GameModeTab.qml`,
+`scripts/game/game_art.sh`, `scripts/game/game_sessions.py` (historique dans
 `user_data/game_sessions.json`).
 
 ### 🪟 Onglet Spaces

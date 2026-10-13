@@ -3,7 +3,7 @@
 # Scripts for refreshing, waybar, rofi, swaync, wallust
 
 SCRIPTSDIR=$HOME/.config/hypr/scripts
-LOGDIR="$HOME/.config/quickshell/Quick-Bar/Bar/Scripts/rgb/script"
+LOGDIR="$HOME/.config/quickshell/Quick-Bar/scripts/rgb/script"
 UserScripts=$HOME/.config/hypr/UserScripts
 
 # Define file_exists function
@@ -48,7 +48,7 @@ sleep 0.5
 swaync > /dev/null 2>&1 &
 
 # watcher + contrôleurs tués puis relancés (évite les contrôleurs orphelins en double)
-bash "$HOME/.config/quickshell/Quick-Bar/Bar/Scripts/rgb/rgb_watch.sh" restart
+bash "$HOME/.config/quickshell/Quick-Bar/scripts/rgb/rgb_watch.sh" restart
 
 # Relaunching rainbow borders if the script exists
 sleep 1

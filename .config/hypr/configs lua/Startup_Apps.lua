@@ -25,7 +25,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("openrgb --server --startminimized")
 	-- Démon RGB : reprend la séquence enregistrée (conf/sequence.txt) ; Quick-Bar
 	-- (onglet RGB) ne fait ensuite que changer de mode. `ensure` = jamais en double.
-	hl.exec_cmd("bash -c 'sleep 12 && " .. home .. "/.config/quickshell/Quick-Bar/Bar/Scripts/rgb/rgb_watch.sh ensure'")
+	hl.exec_cmd("bash -c 'sleep 12 && " .. home .. "/.config/quickshell/Quick-Bar/scripts/rgb/rgb_watch.sh ensure'")
 
 	-- Bar / Notifications
 	hl.exec_cmd("quickshell -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml")
