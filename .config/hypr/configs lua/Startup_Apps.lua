@@ -1,68 +1,65 @@
 -- ── Chemins ───────────────────────────────────────────────────────────────────
-local home        = os.getenv("HOME")
-local scripts     = home .. "/.config/hypr/scripts"
+local home = os.getenv("HOME")
+local scripts = home .. "/.config/hypr/scripts"
 local userScripts = home .. "/.config/hypr/UserScripts"
-local wallDir     = home .. "/Pictures/wallpapers"
+local wallDir = home .. "/Pictures/wallpapers"
 
 -- ── Curseur ───────────────────────────────────────────────────────────────────
-hl.env("XCURSOR_SIZE",    "24")
+hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
 
 -- ── Démarrage ─────────────────────────────────────────────────────────────────
 hl.on("hyprland.start", function()
+	-- DBus / Session
+	hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+	hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
 
-    -- DBus / Session
-    hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
-    hl.exec_cmd("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
+	-- Polkit
+	hl.exec_cmd(scripts .. "/Polkit.sh")
 
-    -- Polkit
-    hl.exec_cmd(scripts .. "/Polkit.sh")
+	-- Wallpaper
+	--    hl.exec_cmd("awww query || awww-daemon")
+	-- hl.exec_cmd(userScripts .. "/WallpaperRandom.sh " .. wallDir)
 
-    -- Wallpaper
---    hl.exec_cmd("awww query || awww-daemon")
-    hl.exec_cmd(userScripts .. "/WallpaperRandom.sh " .. wallDir)
+	-- OpenRGB
+	hl.exec_cmd("openrgb --server --startminimized")
+	-- Démon RGB : reprend la séquence enregistrée (conf/sequence.txt) ; Quick-Bar
+	-- (onglet RGB) ne fait ensuite que changer de mode. `ensure` = jamais en double.
+	hl.exec_cmd("bash -c 'sleep 12 && " .. home .. "/.config/quickshell/Quick-Bar/Bar/Scripts/rgb/rgb_watch.sh ensure'")
 
-    -- OpenRGB
-    hl.exec_cmd("openrgb --server --startminimized")
-    -- Démon RGB : reprend la séquence enregistrée (conf/sequence.txt) ; Quick-Bar
-    -- (onglet RGB) ne fait ensuite que changer de mode. `ensure` = jamais en double.
-    hl.exec_cmd("bash -c 'sleep 12 && " .. home .. "/.config/quickshell/Quick-Bar/Bar/Scripts/rgb/rgb_watch.sh ensure'")
+	-- Bar / Notifications
+	hl.exec_cmd("quickshell -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml")
+	hl.exec_cmd("swaync")
 
-    -- Bar / Notifications
-    hl.exec_cmd("quickshell -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml")
-    hl.exec_cmd("swaync")
+	-- Système
+	hl.exec_cmd("nm-applet --indicator")
+	hl.exec_cmd("wl-paste --type text  --watch cliphist store")
+	hl.exec_cmd("wl-paste --type image --watch cliphist store")
 
-    -- Système
-    hl.exec_cmd("nm-applet --indicator")
-    hl.exec_cmd("wl-paste --type text  --watch cliphist store")
-    hl.exec_cmd("wl-paste --type image --watch cliphist store")
+	-- Effets visuels
+	hl.exec_cmd(userScripts .. "/RainbowBorders.sh")
+	hl.exec_cmd("easyeffects")
+	hl.exec_cmd("vader5d -c " .. home .. "/.config/vader5/config.toml")
 
-    -- Effets visuels
-    hl.exec_cmd(userScripts .. "/RainbowBorders.sh")
-    hl.exec_cmd("easyeffects")
-    hl.exec_cmd("vader5d -c " .. home .. "/.config/vader5/config.toml")
+	-- Idle / Lock
+	hl.exec_cmd("hypridle")
 
-    -- Idle / Lock
-    hl.exec_cmd("hypridle")
+	-- Démons
+	hl.exec_cmd("pypr")
 
-    -- Démons
-    hl.exec_cmd("pypr")
+	-- Plugin hy3
+	hl.exec_cmd("hyprpm reload -n")
+	-- hy3 buildé manuellement (tag hl0.55.0 = compatible 0.55.4 ; hyprpm prenait master cassé).
+	-- À rebuild après chaque update Hyprland : ~/.config/hypr/scripts/rebuild-hy3.sh
+	hl.exec_cmd("hyprctl plugin load " .. home .. "/.config/hypr/plugins/libhy3.so")
 
-    -- Plugin hy3
-    hl.exec_cmd("hyprpm reload -n")
-    -- hy3 buildé manuellement (tag hl0.55.0 = compatible 0.55.4 ; hyprpm prenait master cassé).
-    -- À rebuild après chaque update Hyprland : ~/.config/hypr/scripts/rebuild-hy3.sh
-    hl.exec_cmd("hyprctl plugin load " .. home .. "/.config/hypr/plugins/libhy3.so")
-
-
-    -- Steam Colors
-    hl.exec_cmd(home .. "/.config/hypr/scripts/WallustSteam.sh")
+	-- Steam Colors
+	hl.exec_cmd(home .. "/.config/hypr/scripts/WallustSteam.sh")
 
 	-- Corsair display default
-    -- hl.exec_cmd("bash -c 'sleep 5 && hyprctl dispatch workspace 8'")
-    hl.exec_cmd("[workspace special:magic silent] spotify")
-    hl.exec_cmd("[workspace special:magic silent] discord")
-
+	-- hl.exec_cmd("bash -c 'sleep 5 && hyprctl dispatch workspace 8'")
+	hl.exec_cmd("[workspace special:magic silent] spotify")
+	hl.exec_cmd("[workspace special:magic silent] discord")
 end)
 
 -- ── Optionnel : actions à l'extinction ───────────────────────────────────────

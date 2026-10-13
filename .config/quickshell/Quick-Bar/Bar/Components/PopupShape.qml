@@ -45,6 +45,14 @@ Canvas {
     property int flareWidth: Appearance.cornerRadius
     property int flareHeight: Appearance.cornerRadius
 
+    // attachedEdge "right-full" : le canevas couvre toute la hauteur de l'écran,
+    // le corps du popup occupe [bodyY, bodyY + bodyHeight] et le contour se
+    // prolonge en trait vertical le long du bord droit, au-dessus et en dessous.
+    property real bodyY: 0
+    property real bodyHeight: height
+    onBodyYChanged:      requestPaint()
+    onBodyHeightChanged: requestPaint()
+
     onWidthChanged:        requestPaint()
     onHeightChanged:       requestPaint()
     onAttachedEdgeChanged: requestPaint()
@@ -96,6 +104,24 @@ Canvas {
             ctx.lineTo(w - fw, h - fh)
             ctx.quadraticCurveTo(w, h - fh, w, h)     // outward flare bottom-right
             break
+
+        case "right-full": {
+            // Comme "right", décalé de bodyY, + traits verticaux pleine hauteur.
+            // e : le trait du bord est rentré d'une demi-épaisseur pour rester visible.
+            var e = root.borderWidth / 2
+            var t = root.bodyY, b = root.bodyY + root.bodyHeight
+            ctx.moveTo(w - e, 0)
+            ctx.lineTo(w - e, t)
+            ctx.quadraticCurveTo(w - e, t + fh, w - fw, t + fh)   // évasement haut
+            ctx.lineTo(r, t + fh)
+            ctx.arcTo(0, t + fh, 0, t + fh + r, r)                // coin haut-gauche
+            ctx.lineTo(0, b - fh - r)
+            ctx.arcTo(0, b - fh, r, b - fh, r)                    // coin bas-gauche
+            ctx.lineTo(w - fw, b - fh)
+            ctx.quadraticCurveTo(w - e, b - fh, w - e, b)         // évasement bas
+            ctx.lineTo(w - e, h)
+            break
+        }
 
         case "top":
             // Body inset by fw on Left/Right. Flare stretches horizontally by fw, vertically by fh.

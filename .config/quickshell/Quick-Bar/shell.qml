@@ -24,6 +24,7 @@ ShellRoot {
     SysTrayPopup {}
     MediaPlayerPopup {}
     Dashboard {}
+    SpotifyPanel {}
 
     // Builds a name→path cache from the GTK icon theme directory.
     // Assigns IconUtils.themeIconMap once when done to trigger reactivity.

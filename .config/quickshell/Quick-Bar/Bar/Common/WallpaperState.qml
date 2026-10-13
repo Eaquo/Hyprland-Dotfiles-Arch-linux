@@ -19,10 +19,13 @@ QtObject {
     property int    glitchDuration:  280      // ms, durée d'un burst
     property real   glitchSpeed:     1.0      // multiplicateur de vitesse de l'anim
     property real   glitchIntensity: 1.0      // 0..1, pic d'intensité
+    property bool   glitchContinuous: false   // effet en continu (sinon par bursts)
+    property string glitchColor:     ""        // couleur de l'effet "#rrggbb" ; vide = accent wallust
+    readonly property color fxColor: glitchColor !== "" ? glitchColor : Appearance.colors.accent
     property bool   wsFxEnabled:     true      // screen shader au changement de workspace
 
     // Thèmes disponibles (nom = fichier shaders/<nom>.frag.qsb)
-    readonly property var themes: ["cyberpunk", "vhs", "hologram", "synthwave", "bwpixel", "matrix"]
+    readonly property var themes: ["cyberpunk", "vhs", "hologram", "synthwave", "bwpixel", "matrix", "rain"]
 
     // ── État courant (rempli par Wallpaper.qml / le picker) ────────────────────
     property string currentWall: ""
@@ -41,6 +44,8 @@ QtObject {
             if (d.glitchDuration  !== undefined) root.glitchDuration  = d.glitchDuration
             if (d.glitchSpeed     !== undefined) root.glitchSpeed     = d.glitchSpeed
             if (d.glitchIntensity !== undefined) root.glitchIntensity = d.glitchIntensity
+            if (d.glitchContinuous !== undefined) root.glitchContinuous = d.glitchContinuous
+            if (d.glitchColor     !== undefined) root.glitchColor     = d.glitchColor
             if (d.wsFxEnabled     !== undefined) root.wsFxEnabled     = d.wsFxEnabled
             root._loading = false
         } catch (e) { root._loading = false }
@@ -55,6 +60,8 @@ QtObject {
             glitchDuration:  root.glitchDuration,
             glitchSpeed:     root.glitchSpeed,
             glitchIntensity: root.glitchIntensity,
+            glitchContinuous: root.glitchContinuous,
+            glitchColor:     root.glitchColor,
             wsFxEnabled:     root.wsFxEnabled
         })
         saveProc.command = ["bash", "-c", "printf '%s' \"$1\" > \"$2\"", "_", json, root._path]
@@ -76,5 +83,7 @@ QtObject {
     onGlitchDurationChanged:  save()
     onGlitchSpeedChanged:     save()
     onGlitchIntensityChanged: save()
+    onGlitchContinuousChanged: save()
+    onGlitchColorChanged:     save()
     onWsFxEnabledChanged:     save()
 }

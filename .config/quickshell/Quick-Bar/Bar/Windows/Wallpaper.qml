@@ -62,6 +62,9 @@ Scope {
                                    ? ("file://" + root.wallPath) : ""
                 fillMode:      Image.PreserveAspectCrop
                 smooth:        true
+                // Niveaux de détail de la texture : requis par les shaders qui floutent
+                // via textureLod (rain = pluie sur vitre embuée).
+                mipmap:        true
                 asynchronous:  true
                 cache:         false
             }
@@ -76,10 +79,10 @@ Scope {
                 property real     intensity: 0.0
                 property real     time:      0.0
                 property vector2d resolution: Qt.vector2d(width, height)
-                // Couleur des arcs/liserés = accent wallust (réactif)
-                property vector4d accent: Qt.vector4d(Appearance.colors.accent.r,
-                                                      Appearance.colors.accent.g,
-                                                      Appearance.colors.accent.b, 1.0)
+                // Couleur de l'effet = accent wallust, ou la couleur choisie dans l'onglet Wall
+                property vector4d accent: Qt.vector4d(WallpaperState.fxColor.r,
+                                                      WallpaperState.fxColor.g,
+                                                      WallpaperState.fxColor.b, 1.0)
 
                 // Thème d'animation sélectionnable (cyberpunk, …) = un .frag par thème
                 fragmentShader: Qt.resolvedUrl("shaders/" + WallpaperState.glitchTheme + ".frag.qsb")
@@ -91,22 +94,36 @@ Scope {
                 onTriggered: glitch.time += frameTime * WallpaperState.glitchSpeed
             }
 
+            // Mode continu : l'effet reste à l'intensité configurée (pas de bursts).
+            readonly property bool continuous: WallpaperState.glitchEnabled && WallpaperState.glitchContinuous
+                                               && !WallpaperState.videoMode
+            readonly property real holdLevel: continuous ? WallpaperState.glitchIntensity : 0
+            onHoldLevelChanged: { burst.stop(); holdAnim.to = holdLevel; holdAnim.restart() }
+            Component.onCompleted: if (continuous) glitch.intensity = holdLevel
+            NumberAnimation { id: holdAnim; target: glitch; property: "intensity"; duration: 600; easing.type: Easing.InOutQuad }
+
             // Burst : intensité 0 → pic configuré → 0 sur la durée configurée
             SequentialAnimation {
                 id: burst
-                NumberAnimation { target: glitch; property: "intensity"; to: WallpaperState.glitchIntensity; duration: Math.round(WallpaperState.glitchDuration * 0.2); easing.type: Easing.OutQuad }
-                NumberAnimation { target: glitch; property: "intensity"; to: 0.0;                            duration: Math.round(WallpaperState.glitchDuration * 0.8); easing.type: Easing.InQuad }
+                // Montée 15 % · palier 55 % · descente 30 % : sur un burst long, l'effet
+                // reste à pleine intensité au lieu de s'effacer dès le départ.
+                NumberAnimation { target: glitch; property: "intensity"; to: WallpaperState.glitchIntensity; duration: Math.round(WallpaperState.glitchDuration * 0.15); easing.type: Easing.OutQuad }
+                PauseAnimation  { duration: Math.round(WallpaperState.glitchDuration * 0.55) }
+                NumberAnimation { target: glitch; property: "intensity"; to: 0.0;                            duration: Math.round(WallpaperState.glitchDuration * 0.30); easing.type: Easing.InQuad }
             }
 
-            // Déclenche le glitch à l'intervalle configuré ± 30 %
+            // Déclenche le glitch ; l'intervalle configuré (± 30 %) est le REPOS entre
+            // deux bursts : on y ajoute la durée du burst, sinon un effet long se
+            // recouperait lui-même.
             Timer {
                 id: glitchTimer
-                running:  WallpaperState.glitchEnabled && !WallpaperState.videoMode
+                running:  WallpaperState.glitchEnabled && !WallpaperState.videoMode && !win.continuous
                 repeat:   true
                 interval: WallpaperState.glitchInterval
                 onTriggered: {
                     burst.restart()
-                    interval = Math.round(WallpaperState.glitchInterval * (0.7 + Math.random() * 0.6))
+                    interval = WallpaperState.glitchDuration
+                             + Math.round(WallpaperState.glitchInterval * (0.7 + Math.random() * 0.6))
                 }
             }
         }
