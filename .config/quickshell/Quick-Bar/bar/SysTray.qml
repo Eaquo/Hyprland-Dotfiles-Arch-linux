@@ -147,6 +147,8 @@ RowLayout {
                                     : "Menu"
                             Appearance.trayMenuIcon   = trayItem.modelData.icon
                             Appearance.trayMenuX      = pos.x
+                            // Le menu ne s'ouvre que sur l'écran de la barre cliquée
+                            Appearance.trayMenuScreen = trayItem.QsWindow.window?.screen?.name ?? ""
                             Qt.callLater(() => { Appearance.trayMenuOpen = true })
                         } else {
                             trayItem.modelData.secondaryActivate()

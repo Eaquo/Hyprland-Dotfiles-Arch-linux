@@ -84,7 +84,7 @@ Scope {
                                                       WallpaperState.fxColor.g,
                                                       WallpaperState.fxColor.b, 1.0)
 
-                // Thème d'animation sélectionnable (cyberpunk, …) = un .frag par thème
+                // Thème d'animation = un .frag par thème (WallpaperState.themes)
                 fragmentShader: Qt.resolvedUrl("shaders/" + WallpaperState.glitchTheme + ".frag.qsb")
             }
 
@@ -95,8 +95,11 @@ Scope {
             }
 
             // Mode continu : l'effet reste à l'intensité configurée (pas de bursts).
-            readonly property bool continuous: WallpaperState.glitchEnabled && WallpaperState.glitchContinuous
-                                               && !WallpaperState.videoMode
+            // En jeu, tous les effets sont suspendus : le GPU va au jeu (le shader
+            // repasse en simple passe-plat dès que l'intensité retombe à 0).
+            readonly property bool fxAllowed: WallpaperState.glitchEnabled && !WallpaperState.videoMode
+                                              && !GameMode.active
+            readonly property bool continuous: fxAllowed && WallpaperState.glitchContinuous
             readonly property real holdLevel: continuous ? WallpaperState.glitchIntensity : 0
             onHoldLevelChanged: { burst.stop(); holdAnim.to = holdLevel; holdAnim.restart() }
             Component.onCompleted: if (continuous) glitch.intensity = holdLevel
@@ -117,7 +120,7 @@ Scope {
             // recouperait lui-même.
             Timer {
                 id: glitchTimer
-                running:  WallpaperState.glitchEnabled && !WallpaperState.videoMode && !win.continuous
+                running:  win.fxAllowed && !win.continuous
                 repeat:   true
                 interval: WallpaperState.glitchInterval
                 onTriggered: {

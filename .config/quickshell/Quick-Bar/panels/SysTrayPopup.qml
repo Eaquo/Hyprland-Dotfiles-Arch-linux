@@ -18,7 +18,9 @@ Scope {
             required property var modelData
             screen: modelData
 
+            // Uniquement sur l'écran où le clic a eu lieu (sinon le menu s'ouvre partout)
             visible: Appearance.trayMenuOpen
+                     && (Appearance.trayMenuScreen === "" || Appearance.trayMenuScreen === modelData.name)
             WlrLayershell.namespace: "quickshell:traymenu"
             WlrLayershell.layer:     WlrLayer.Overlay
             exclusiveZone: -1

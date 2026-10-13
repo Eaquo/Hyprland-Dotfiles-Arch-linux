@@ -1,0 +1,25 @@
+# Quick-Bar — réglages généraux.
+# Enregistré = appliqué tout de suite (pas besoin de redémarrer).
+# Une valeur absente ou une erreur de syntaxe → la valeur par défaut est gardée.
+
+[touchpanel]
+# Zoom de toutes les pages du panneau tactile (1.0 = 100 %, 1.2 = 120 %…).
+# Tout grossit ensemble : textes, curseurs, boutons, vignettes.
+scale = 1.0
+
+# Zoom par page, multiplié par le zoom global ci-dessus.
+# Clés = celles des onglets : game home grid ws stats kanban files wall colors eq
+#        mixer discord deck games rgb
+[touchpanel.pages]
+wall   = 1.5  # réglages et vignettes de l'onglet Wall
+stats  = 1.15
+kanban = 1.15
+files  = 1.60
+
+[fonts]
+# Police et tailles de base du thème (barre, dashboard, textes qui suivent le thème).
+# Attention : beaucoup d'éléments ont une taille fixe ; pour tout agrandir sur le
+# panneau tactile, utiliser plutôt les zooms ci-dessus.
+family = "Cascadia Code Nerd Font"
+body   = 16
+small  = 14

@@ -20,6 +20,7 @@ Item {
     property bool   themeMenuOpen: false
     property string previewTheme:  ""    // thème survolé (preview), "" = thème courant
 
+    readonly property bool wide: width >= 1300      // TouchPanel (large) vs popup Dashboard (~900)
     readonly property string listScript: Quickshell.env("HOME") + "/.config/hypr/scripts/list-wallpapers.sh"
     property var items: []
 
@@ -158,127 +159,178 @@ Item {
         anchors.margins: 14
         spacing: 12
 
-        // ── En-tête : titre + toggles + thème ──
-        RowLayout {
+        // Réglages : 4 lignes dans le popup étroit, 2 lignes quand la page est large
+        // (TouchPanel) — chaque GridLayout met ses deux blocs côte à côte.
+        GridLayout {
             Layout.fillWidth: true
-            spacing: 10
+            columns: root.wide ? 2 : 1
+            uniformCellWidths: true
+            columnSpacing: 28; rowSpacing: 8
 
-            Rectangle { width: 7; height: 7; radius: 3.5; color: Appearance.colors.accent }
-            Text {
-                text: "Wallpaper FX"
-                font.family: Appearance.font.family
-                font.pixelSize: Appearance.font.body
-                font.weight: Font.Medium
-                color: Appearance.colors.fg
-            }
+            // ── En-tête : titre + toggles + thème ──
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 10
 
-            Item { Layout.fillWidth: true }
-
-            Toggle {
-                on: WallpaperState.glitchEnabled
-                label: "WALL FX"
-                onToggled: WallpaperState.glitchEnabled = !WallpaperState.glitchEnabled
-            }
-            Toggle {
-                on: WallpaperState.glitchContinuous
-                label: "CONTINU"
-                onToggled: WallpaperState.glitchContinuous = !WallpaperState.glitchContinuous
-            }
-            Toggle {
-                on: WallpaperState.wsFxEnabled
-                label: "WS FX"
-                onToggled: WallpaperState.wsFxEnabled = !WallpaperState.wsFxEnabled
-            }
-        }
-
-        // ── Thème + sliders ──
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 16
-
-            // Sélecteur de thème (déroulant + preview live au survol)
-            Rectangle {
-                id: themeBtn
-                implicitWidth: thSelRow.implicitWidth + 20
-                implicitHeight: 30
-                radius: 8
-                color: root.themeMenuOpen
-                       ? Qt.rgba(Appearance.colors.accent.r, Appearance.colors.accent.g, Appearance.colors.accent.b, 0.16)
-                       : Qt.rgba(1, 1, 1, 0.06)
-                border.color: Qt.rgba(1, 1, 1, 0.12)
-                border.width: 1
-                Behavior on color { ColorAnimation { duration: 120 } }
-                Row {
-                    id: thSelRow
-                    anchors.centerIn: parent
-                    spacing: 8
-                    Text { anchors.verticalCenter: parent.verticalCenter; text: "󰊹"; font.family: Appearance.font.family; font.pixelSize: 13; color: Appearance.colors.accent }
-                    Text { anchors.verticalCenter: parent.verticalCenter; text: WallpaperState.glitchTheme; font.pixelSize: Appearance.font.small - 1; font.family: Appearance.font.family; font.weight: Font.Medium; color: Appearance.colors.fg }
-                    Text { anchors.verticalCenter: parent.verticalCenter; text: root.themeMenuOpen ? "▴" : "▾"; font.pixelSize: 9; color: Appearance.colors.dim }
+                Rectangle { width: 7; height: 7; radius: 3.5; color: Appearance.colors.accent }
+                Text {
+                    text: "Wallpaper FX"
+                    font.family: Appearance.font.family
+                    font.pixelSize: Appearance.font.body
+                    font.weight: Font.Medium
+                    color: Appearance.colors.fg
                 }
-                MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.themeMenuOpen = !root.themeMenuOpen }
-            }
 
-            // Couleur de l'effet : tap = sélecteur ; ↺ = revenir à l'accent wallust
-            Rectangle {
-                implicitWidth: 30; implicitHeight: 30; radius: 8
-                color: WallpaperState.fxColor
-                border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.25)
-                MouseArea {
-                    anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
-                    onClicked: fxPicker.open(WallpaperState.fxColor, "Couleur de l'effet",
-                                             "Remplace l'accent wallust pour l'effet du wallpaper (" + WallpaperState.glitchTheme + ")", "")
+                Item { Layout.fillWidth: true }
+
+                Toggle {
+                    on: WallpaperState.glitchEnabled
+                    label: "WALL FX"
+                    onToggled: WallpaperState.glitchEnabled = !WallpaperState.glitchEnabled
+                }
+                Toggle {
+                    on: WallpaperState.glitchContinuous
+                    label: "CONTINU"
+                    onToggled: WallpaperState.glitchContinuous = !WallpaperState.glitchContinuous
+                }
+                Toggle {
+                    on: WallpaperState.wsFxEnabled
+                    label: "WS FX"
+                    onToggled: WallpaperState.wsFxEnabled = !WallpaperState.wsFxEnabled
                 }
             }
-            Text {
-                visible: WallpaperState.glitchColor !== ""
-                text: "󰑓"; font.family: Appearance.font.family; font.pixelSize: 16
-                color: Appearance.colors.dim
-                MouseArea { anchors.fill: parent; anchors.margins: -8; cursorShape: Qt.PointingHandCursor; onClicked: WallpaperState.glitchColor = "" }
+
+            // ── Rotation : aléatoire + changement automatique ──
+            RowLayout {
+                Layout.fillWidth: true
+                spacing: 16
+
+                Toggle {
+                    on: WallpaperState.autoChange
+                    label: "AUTO"
+                    onToggled: WallpaperState.autoChange = !WallpaperState.autoChange
+                }
+                MiniSlider {
+                    Layout.fillWidth: true
+                    label: "CHANGER TOUTES LES"
+                    // 1..120 min  →  0..1
+                    value: (WallpaperState.autoMinutes - 1) / 119
+                    valueText: WallpaperState.autoMinutes < 60 ? WallpaperState.autoMinutes + " min"
+                             : Math.floor(WallpaperState.autoMinutes / 60) + " h " + String(WallpaperState.autoMinutes % 60).padStart(2, "0")
+                    onMoved: (v) => WallpaperState.autoMinutes = Math.round(1 + v * 119)
+                }
+                Rectangle {
+                    implicitWidth: rndRow.implicitWidth + 24; implicitHeight: 30; radius: 8
+                    color: Qt.rgba(Appearance.colors.accent.r, Appearance.colors.accent.g, Appearance.colors.accent.b, 0.16)
+                    border.color: Qt.rgba(1, 1, 1, 0.12); border.width: 1
+                    Row {
+                        id: rndRow
+                        anchors.centerIn: parent; spacing: 8
+                        Text { anchors.verticalCenter: parent.verticalCenter; text: "󰒝"; font.family: Appearance.font.family; font.pixelSize: 14; color: Appearance.colors.accent }
+                        Text { anchors.verticalCenter: parent.verticalCenter; text: "Aléatoire"; font.family: Appearance.font.family; font.pixelSize: Appearance.font.small - 1; font.weight: Font.Medium; color: Appearance.colors.fg }
+                    }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: WallpaperState.randomWall() }
+                }
             }
 
-            MiniSlider {
-                Layout.fillWidth: true
-                label: "FRÉQUENCE (LATENCE)"
-                // 2000..10000 ms  →  0..1
-                value: (WallpaperState.glitchInterval - 2000) / 8000
-                valueText: (WallpaperState.glitchInterval / 1000).toFixed(1) + "s"
-                onMoved: (v) => WallpaperState.glitchInterval = Math.round(2000 + v * 8000)
-            }
-
-            MiniSlider {
-                Layout.fillWidth: true
-                label: "INTENSITÉ"
-                value: WallpaperState.glitchIntensity
-                valueText: Math.round(WallpaperState.glitchIntensity * 100) + "%"
-                onMoved: (v) => WallpaperState.glitchIntensity = Math.max(0.1, v)
-            }
         }
-
-        // ── Durée + vitesse ──
-        RowLayout {
+        GridLayout {
             Layout.fillWidth: true
-            spacing: 16
+            columns: root.wide ? 2 : 1
+            uniformCellWidths: true
+            columnSpacing: 28; rowSpacing: 8
 
-            MiniSlider {
+            // ── Thème + sliders ──
+            RowLayout {
                 Layout.fillWidth: true
-                label: "DURÉE DU BURST"
-                // 100..800 ms  →  0..1
-                // 0,1 s → 6 s (les effets longs comme le vol Matrix ont besoin de durée)
-                value: (WallpaperState.glitchDuration - 100) / 5900
-                valueText: WallpaperState.glitchDuration < 1000 ? WallpaperState.glitchDuration + "ms"
-                                                                 : (WallpaperState.glitchDuration / 1000).toFixed(1) + "s"
-                onMoved: (v) => WallpaperState.glitchDuration = Math.round((100 + v * 5900) / 50) * 50
+                spacing: 16
+
+                // Sélecteur de thème (déroulant + preview live au survol)
+                Rectangle {
+                    id: themeBtn
+                    visible: WallpaperState.themes.length > 1     // un seul thème → pas de sélecteur
+                    implicitWidth: thSelRow.implicitWidth + 20
+                    implicitHeight: 30
+                    radius: 8
+                    color: root.themeMenuOpen
+                           ? Qt.rgba(Appearance.colors.accent.r, Appearance.colors.accent.g, Appearance.colors.accent.b, 0.16)
+                           : Qt.rgba(1, 1, 1, 0.06)
+                    border.color: Qt.rgba(1, 1, 1, 0.12)
+                    border.width: 1
+                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Row {
+                        id: thSelRow
+                        anchors.centerIn: parent
+                        spacing: 8
+                        Text { anchors.verticalCenter: parent.verticalCenter; text: "󰊹"; font.family: Appearance.font.family; font.pixelSize: 13; color: Appearance.colors.accent }
+                        Text { anchors.verticalCenter: parent.verticalCenter; text: WallpaperState.glitchTheme; font.pixelSize: Appearance.font.small - 1; font.family: Appearance.font.family; font.weight: Font.Medium; color: Appearance.colors.fg }
+                        Text { anchors.verticalCenter: parent.verticalCenter; text: root.themeMenuOpen ? "▴" : "▾"; font.pixelSize: 9; color: Appearance.colors.dim }
+                    }
+                    MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.themeMenuOpen = !root.themeMenuOpen }
+                }
+
+                // Couleur de l'effet : tap = sélecteur ; ↺ = revenir à l'accent wallust
+                Rectangle {
+                    implicitWidth: 30; implicitHeight: 30; radius: 8
+                    color: WallpaperState.fxColor
+                    border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.25)
+                    MouseArea {
+                        anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
+                        onClicked: fxPicker.open(WallpaperState.fxColor, "Couleur de l'effet",
+                                                 "Remplace l'accent wallust pour l'effet du wallpaper (" + WallpaperState.glitchTheme + ")", "")
+                    }
+                }
+                Text {
+                    visible: WallpaperState.glitchColor !== ""
+                    text: "󰑓"; font.family: Appearance.font.family; font.pixelSize: 16
+                    color: Appearance.colors.dim
+                    MouseArea { anchors.fill: parent; anchors.margins: -8; cursorShape: Qt.PointingHandCursor; onClicked: WallpaperState.glitchColor = "" }
+                }
+
+                MiniSlider {
+                    Layout.fillWidth: true
+                    label: "FRÉQUENCE (LATENCE)"
+                    // 2000..10000 ms  →  0..1
+                    value: (WallpaperState.glitchInterval - 2000) / 8000
+                    valueText: (WallpaperState.glitchInterval / 1000).toFixed(1) + "s"
+                    onMoved: (v) => WallpaperState.glitchInterval = Math.round(2000 + v * 8000)
+                }
+
+                MiniSlider {
+                    Layout.fillWidth: true
+                    label: "INTENSITÉ"
+                    value: WallpaperState.glitchIntensity
+                    valueText: Math.round(WallpaperState.glitchIntensity * 100) + "%"
+                    onMoved: (v) => WallpaperState.glitchIntensity = Math.max(0.1, v)
+                }
             }
 
-            MiniSlider {
+            // ── Durée + vitesse ──
+            RowLayout {
                 Layout.fillWidth: true
-                label: "VITESSE"
-                // 0.2..3.0×  →  0..1
-                value: (WallpaperState.glitchSpeed - 0.2) / 2.8
-                valueText: WallpaperState.glitchSpeed.toFixed(1) + "×"
-                onMoved: (v) => WallpaperState.glitchSpeed = Math.max(0.2, 0.2 + v * 2.8)
+                spacing: 16
+
+                MiniSlider {
+                    Layout.fillWidth: true
+                    label: "DURÉE DU BURST"
+                    // 100..800 ms  →  0..1
+                    // 0,1 s → 6 s (les effets longs comme le vol Matrix ont besoin de durée)
+                    value: (WallpaperState.glitchDuration - 100) / 5900
+                    valueText: WallpaperState.glitchDuration < 1000 ? WallpaperState.glitchDuration + "ms"
+                                                                     : (WallpaperState.glitchDuration / 1000).toFixed(1) + "s"
+                    onMoved: (v) => WallpaperState.glitchDuration = Math.round((100 + v * 5900) / 50) * 50
+                }
+
+                MiniSlider {
+                    Layout.fillWidth: true
+                    label: "VITESSE"
+                    // 0.2..3.0×  →  0..1
+                    value: (WallpaperState.glitchSpeed - 0.2) / 2.8
+                    valueText: WallpaperState.glitchSpeed.toFixed(1) + "×"
+                    onMoved: (v) => WallpaperState.glitchSpeed = Math.max(0.2, 0.2 + v * 2.8)
+                }
             }
+
         }
 
         // ── Grille de wallpapers ──

@@ -26,6 +26,8 @@ QtObject {
     // Onglets du TouchPanel : [{ key, on }] dans l'ordre choisi (bouton config).
     // Vide = ordre/état par défaut du catalogue (TouchPanel.allTabs).
     property var  touchTabs:    []
+    // Mode veille du TouchPanel après N minutes sans toucher l'écran (0 = jamais).
+    property int  touchIdleMinutes: 5
 
     // ── Persistance disque (restaurée au reboot) ───────────────────────────────
     readonly property string _path:
@@ -44,6 +46,7 @@ QtObject {
             if (d.barMainOnly  !== undefined) root.barMainOnly  = d.barMainOnly
             if (d.touchPanelOn !== undefined) root.touchPanelOn = d.touchPanelOn
             if (Array.isArray(d.touchTabs))   root.touchTabs    = d.touchTabs
+            if (d.touchIdleMinutes !== undefined) root.touchIdleMinutes = d.touchIdleMinutes
             root._loading = false
         } catch (e) { root._loading = false }
     }
@@ -53,7 +56,8 @@ QtObject {
         var json = JSON.stringify({
             barMainOnly:  root.barMainOnly,
             touchPanelOn: root.touchPanelOn,
-            touchTabs:    root.touchTabs
+            touchTabs:    root.touchTabs,
+            touchIdleMinutes: root.touchIdleMinutes
         })
         saveProc.command = ["bash", "-c", "printf '%s' \"$1\" > \"$2\"", "_", json, root._path]
         saveProc.running = false
@@ -72,6 +76,7 @@ QtObject {
     onBarMainOnlyChanged:  _save()
     onTouchPanelOnChanged: _save()
     onTouchTabsChanged:    _save()
+    onTouchIdleMinutesChanged: _save()
 
     // WiFi — false quand la radio est coupée OU que le hotspot occupe l'interface
     property bool wifiOn: false
