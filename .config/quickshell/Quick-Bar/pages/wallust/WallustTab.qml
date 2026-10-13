@@ -32,7 +32,7 @@ Item {
         foreground: "Texte principal Quick-Bar · kitty · texte onglets hy3",
         cursor:     "Curseur kitty (pas utilisé par Quick-Bar)",
         color0:     "Dégradé fond des modules barre · jour du calendrier · bordure 1/5",
-        color1:     "Rouge : fermer, erreurs · onglet hy3 urgent",
+        color1:     "Rouge : fermer, erreurs",
         color2:     "Stats réseau (Dashboard, Grid) · bordure 2/5",
         color3:     "Stats disques · lanceur au repos",
         color4:     "Alerte stats barre (>80 %) · onglets · bordure 3/5",
@@ -42,9 +42,9 @@ Item {
         color8:     "Texte atténué (partout) · workspaces barre · bordure 5/5",
         color9:     "Onglets · bordure onglet hy3 urgent",
         color10:    "Icônes notifs / Bluetooth actifs · ombre inactive · onglets",
-        color11:    "ACCENT : bordures, sélection, élément actif · onglets",
-        color12:    "Stats barre (>50 %) · ombre fenêtre active · onglets",
-        color13:    "Workspace actif · icône CPU · onglet hy3 actif · onglets",
+        color11:    "ACCENT : bordures, sélection, élément actif · rofi · boutons Spotify · onglet hy3 actif",
+        color12:    "SURVOL / pressé (rofi, Spotify) · stats barre (>50 %) · ombre fenêtre active",
+        color13:    "FOCUS / URGENT (rofi, hy3) · workspace actif · icône CPU",
         color14:    "Icône disque barre · onglets · bordure onglet hy3 focus",
         color15:    "Horloge, valeurs, contour barre/dashboard, bordure popups"
     })

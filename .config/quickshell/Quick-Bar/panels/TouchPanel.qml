@@ -6,6 +6,9 @@ import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Widgets
+import Quickshell.Services.Mpris
+import qs.components
+import qs.services
 import qs.core
 import qs.core.functions
 
@@ -41,7 +44,7 @@ Scope {
     //   key    identifiant (sauvé dans user_data/shell_state.json)
     //   icon   glyphe Nerd Font · label  texte de la pastille
     //   src    page QML, chemin relatif à ce fichier
-    //   scale  zoom de la page (défaut 1.0 ; > 1 pour les pages pensées pour le popup ~900 px)
+    //   scale  zoom par défaut de la page (1.0) — remplacé par config.toml [touchpanel.pages]
     //   keep   true = reste chargée même cachée (page par défaut, ou scan coûteux)
     //   def    false = désactivé tant que l'utilisateur ne l'active pas (bouton ⚙)
     // L'ordre et l'activation réels viennent de ShellState.touchTabs (bouton ⚙) ;
@@ -62,6 +65,7 @@ Scope {
         { key: "deck",    icon: "󰀻", label: "Apps",    src: "../pages/apps/StreamDeck.qml" },
         { key: "games",   icon: "󰊴", label: "Games",   src: "../pages/games/GameTab.qml",   keep: true },   // évite le re-scan des jeux
         { key: "rgb",     icon: "󰌵", label: "RGB",     src: "../pages/rgb/RgbTab.qml" },
+        { key: "health",  icon: "󰓙", label: "Santé",   src: "../pages/health/HealthTab.qml" },
     ]
 
     // Catalogue fusionné avec la config sauvée : [{ key, icon, label, on }].
@@ -113,6 +117,21 @@ Scope {
     onVisibleTabsChanged: if (!visibleTabs.some(t => t.key === page) && visibleTabs.length) page = visibleTabs[0].key
 
     property bool configOpen: false
+
+    // ── Mode veille : horloge géante après N minutes sans toucher l'écran ───────
+    // Pas en jeu (la page Game doit rester lisible). Un tap réveille.
+    property bool idle: false
+    function wake() { idle = false; idleTimer.restart() }
+    Timer {
+        id: idleTimer
+        interval: Math.max(1, ShellState.touchIdleMinutes) * 60000
+        running: ShellState.touchPanelOn && ShellState.touchIdleMinutes > 0 && !GameMode.active && !root.idle
+        onTriggered: root.idle = true
+    }
+    readonly property var idlePlayer: {
+        const ps = Mpris.players.values
+        return ps.find(p => p.playbackState === MprisPlaybackState.Playing) || null
+    }
 
     // ── Transition entre onglets : la page arrive du côté de l'onglet choisi ──
     property int _lastIdx: 0
@@ -289,6 +308,14 @@ Scope {
                                     color: tab.isActive ? Appearance.colors.bg : Appearance.colors.fg
                                 }
                             }
+                            // Point d'alerte sur l'onglet Santé quand quelque chose ne répond pas
+                            Rectangle {
+                                visible: tab.modelData.key === "health" && Health.failCount > 0
+                                anchors { top: parent.top; right: parent.right; margins: 8 }
+                                width: 14; height: 14; radius: 7
+                                color: Appearance.colors.color13
+                                border.width: 2; border.color: Appearance.colors.bg
+                            }
                             // GameBreak.extend() : naviguer dans le panneau relance le
                             // compte à rebours de la pause jeu (sinon on est renvoyé
                             // au jeu en plein milieu d'une manip).
@@ -403,7 +430,7 @@ Scope {
                     delegate: ScaledPage {
                         required property var modelData
                         visible: root.page === modelData.key
-                        s: modelData.scale ?? 1.0
+                        s: Config.pageScale(modelData.key, modelData.scale ?? 1.0)   // config.toml > catalogue
                         Loader {
                             anchors.fill: parent
                             active: (modelData.keep ?? false) || root.page === modelData.key
@@ -530,6 +557,135 @@ Scope {
                         }
                     }
                     MouseArea { anchors.fill: parent; onClicked: ShellState.touchTabs = [] }
+                }
+
+                // Délai du mode veille (0 = jamais)
+                Row {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 14
+                    Text {
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: "󰒲  Veille après"
+                        font.family: Appearance.font.family; font.pixelSize: 17
+                        color: Appearance.colors.fg
+                    }
+                    Repeater {
+                        model: [ { g: "󰍴", d: -1 }, { g: "", d: 0 }, { g: "󰐕", d: 1 } ]
+                        delegate: Rectangle {
+                            required property var modelData
+                            readonly property bool isLabel: modelData.d === 0
+                            width: isLabel ? 120 : 56; height: 56; radius: 16
+                            color: isLabel ? "transparent" : ColorUtils.applyAlpha(Appearance.colors.bg, 0.7)
+                            border.width: isLabel ? 0 : 1; border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.15)
+                            Text {
+                                anchors.centerIn: parent
+                                text: parent.isLabel
+                                    ? (ShellState.touchIdleMinutes > 0 ? ShellState.touchIdleMinutes + " min" : "jamais")
+                                    : parent.modelData.g
+                                font.family: Appearance.font.family; font.pixelSize: parent.isLabel ? 19 : 22
+                                font.weight: parent.isLabel ? Font.Bold : Font.Normal
+                                color: parent.isLabel ? Appearance.colors.accent : Appearance.colors.fg
+                            }
+                            MouseArea {
+                                anchors.fill: parent; enabled: !parent.isLabel
+                                onClicked: ShellState.touchIdleMinutes = Math.max(0, Math.min(60, ShellState.touchIdleMinutes + parent.modelData.d))
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Toute pression sur l'écran repousse la veille (la pression continue vers
+        // l'élément dessous : on ne l'accepte pas).
+        MouseArea {
+            anchors.fill: parent
+            z: 900
+            onPressed: (m) => { root.wake(); m.accepted = false }
+        }
+
+        // ══ Écran de veille : horloge géante + musique en cours, très sombre ══
+        Rectangle {
+            id: idleScreen
+            anchors.fill: parent
+            z: 1000
+            color: "#000000"
+            opacity: root.idle ? 0.93 : 0
+            visible: opacity > 0.01
+            Behavior on opacity { NumberAnimation { duration: 900; easing.type: Easing.InOutQuad } }
+            MouseArea { anchors.fill: parent; onPressed: root.wake() }
+
+            CachedArt { id: idleArt; url: root.idlePlayer?.trackArtUrl ?? "" }
+
+            // Lente dérive du contenu : évite de marquer l'écran
+            Item {
+                id: idleDrift
+                width: parent.width; height: parent.height
+                SequentialAnimation on x {
+                    running: root.idle; loops: Animation.Infinite
+                    NumberAnimation { to: 60;  duration: 90000; easing.type: Easing.InOutSine }
+                    NumberAnimation { to: -60; duration: 90000; easing.type: Easing.InOutSine }
+                }
+                SequentialAnimation on y {
+                    running: root.idle; loops: Animation.Infinite
+                    NumberAnimation { to: 18;  duration: 70000; easing.type: Easing.InOutSine }
+                    NumberAnimation { to: -18; duration: 70000; easing.type: Easing.InOutSine }
+                }
+
+                Row {
+                    anchors.centerIn: parent
+                    spacing: 90
+
+                    Column {
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: -10
+                        Text {
+                            text: root.clockH
+                            font.family: "Fira Sans"; font.pixelSize: 330; font.weight: Font.ExtraLight
+                            color: Appearance.colors.fg
+                        }
+                        Text {
+                            text: root.clockDate
+                            font.family: "Fira Sans"; font.pixelSize: 30; font.weight: Font.Light
+                            font.capitalization: Font.Capitalize
+                            color: Appearance.colors.accent
+                        }
+                    }
+
+                    // Musique en cours (si quelque chose joue)
+                    Row {
+                        visible: root.idlePlayer !== null
+                        anchors.verticalCenter: parent.verticalCenter
+                        spacing: 28
+                        ClippingRectangle {
+                            width: 220; height: 220; radius: 22
+                            color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.06)
+                            Image {
+                                anchors.fill: parent
+                                source: idleArt.local
+                                sourceSize.width: 440
+                                fillMode: Image.PreserveAspectCrop
+                                asynchronous: true
+                            }
+                        }
+                        Column {
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 6
+                            width: 520
+                            Text {
+                                width: parent.width
+                                text: root.idlePlayer?.trackTitle || ""
+                                font.family: "Fira Sans"; font.pixelSize: 34; font.weight: Font.DemiBold
+                                color: Appearance.colors.fg; elide: Text.ElideRight
+                            }
+                            Text {
+                                width: parent.width
+                                text: root.idlePlayer?.trackArtist || ""
+                                font.family: "Fira Sans"; font.pixelSize: 24; font.weight: Font.Light
+                                color: Appearance.colors.dim; elide: Text.ElideRight
+                            }
+                        }
+                    }
                 }
             }
         }

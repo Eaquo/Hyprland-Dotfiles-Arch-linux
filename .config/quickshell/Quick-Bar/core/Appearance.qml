@@ -133,6 +133,7 @@ Singleton {
     property string trayMenuTitle:   ""
     property string trayMenuIcon:    ""
     property real   trayMenuX:       0
+    property string trayMenuScreen:  ""     // écran (nom) où le menu a été demandé
     property bool   trayMenuOpen:    false
 
     // ── EQ popup ─────────────────────────────────────────────────────────
@@ -166,9 +167,10 @@ Singleton {
 
     // ── Font ──────────────────────────────────────────────────────────────
     property QtObject font: QtObject {
-        property string family: "JetBrainsMono Nerd Font, sans-serif"
-        property int body:      16
-        property int small:     14
+        // Réglables dans config.toml ([fonts])
+        property string family: Config.get("fonts.family", "JetBrainsMono Nerd Font, sans-serif")
+        property int body:      Config.get("fonts.body", 16)
+        property int small:     Config.get("fonts.small", 14)
     }
 
     // ── Compat Dashboard Brain_Shell ────────────────────────────────────────

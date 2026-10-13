@@ -17,7 +17,7 @@ Quick-Bar/
 ├── bar/           la barre du haut et ses widgets (horloge, workspaces, audio, tray…)
 ├── panels/        les fenêtres : Dashboard, TouchPanel, SpotifyPanel, popups, PowerMenu
 ├── pages/         le contenu des onglets, un dossier par page (home/, game/, mixer/…)
-├── wallpaper/     Wallpaper.qml + shaders/ (effets : matrix, cyberpunk, rain…)
+├── wallpaper/     Wallpaper.qml + shaders/ (matrix, aurora, underwater, fireworks — portés des shaders du terminal kitty)
 ├── scripts/       scripts appelés par le QML : audio/ discord/ game/ hypr/ media/ rgb/ wallust/
 ├── assets/        icônes
 ├── user_data/     tes réglages et données (JSON) — jamais versionné
@@ -87,6 +87,12 @@ L'égaliseur passe par EasyEffects (`scripts/audio/eq_control.py`).
 `shaders/<thème>.frag.qsb`. Entrées communes à tous les shaders : `intensity`, `time`,
 `resolution`, `accent`, `source`.
 
+### Divers récents
+- **Veille du Xeneon** : `panels/TouchPanel.qml` (`idle`, `idleTimer`, `wake()`), délai `ShellState.touchIdleMinutes` (0 = jamais) ; grande horloge + titre en cours.
+- **Rotation du wallpaper** : `WallpaperState.autoChange` / `autoMinutes` / `randomWall()` ; en pause en mode vidéo et en jeu.
+- **En jeu** : les effets du wallpaper sont suspendus (`Wallpaper.qml`, `fxAllowed`).
+- **Rôles des couleurs wallust** : color11 = accent, color12 = survol, color13 = focus/urgent, color8 = atténué, color0 = surface. Notes par couleur dans `pages/wallust/WallustTab.qml` (`roles`).
+
 ## Liens avec l'extérieur
 
 | Qui | Pointe vers | Pour |
@@ -123,6 +129,16 @@ de pages de `panels/Dashboard.qml`.
 2. Compiler : `wallpaper/shaders/build.sh` (produit `<nom>.frag.qsb`).
 3. Ajouter `"<nom>"` à `themes` dans `core/WallpaperState.qml`.
 
+### Ajouter une vérification au bilan de santé
+Dans `scripts/health/check.sh` : une fonction `check_<id>` (qui appelle `row id "Libellé" 0|1 "détail"`),
+éventuellement `fix_<id>` (la ligne devient alors réparable au toucher), puis ajouter `<id>` à `CHECKS`.
+Rien à toucher côté QML : `services/Health.qml` lit le JSON, `pages/health/HealthTab.qml` l'affiche.
+
+### Régler les tailles (config.toml)
+`config.toml` à la racine, relu à chaud par `core/Config.qml` : `[touchpanel] scale` (zoom global des
+pages), `[touchpanel.pages] <clé d'onglet>` (zoom par page), `[fonts]` (police et tailles du thème).
+Dans le code : `Config.get("fonts.body", 16)`, `Config.pageScale("wall", 1.0)`.
+
 ### Ajouter un widget à la barre
 Créer `bar/<Nom>.qml` puis l'instancier dans une des trois pastilles de `bar/Bar.qml`.
 Les widgets `Bluetooth`, `Eq`, `MediaPlayer`, `Network` existent mais sont désactivés.
@@ -150,7 +166,7 @@ Un fichier QML enregistré recharge la configuration à chaud.
 - **Hyprland en config Lua** : les actions passent par `hyprctl eval "hl.dispatch(hl.dsp.…)"`,
   toutes dans un seul `eval`. Un workspace inexistant est créé sur l'écran qui a le focus.
 - **`pkill -f`** tue aussi un shell dont la ligne de commande contient le motif.
-- **Mipmaps** : le shader `rain` floute avec `textureLod` → `mipmap: true` sur l'image du wallpaper.
+- **Shaders du wallpaper** : portés depuis `/usr/lib/kitty/kitty/shaders/custom/*.slang` (Slang → GLSL 440). Pas de `uint` (qsb génère des variantes GLSL qui n'en ont pas) ; `mul(M, v)` de Slang = `v * M` en GLSL. Les thèmes retirés sont dans `~/Sdd_Windsurf/Sauvegarde/backups/shaders-retires/`.
 
 ## Fichiers à découper
 
@@ -181,6 +197,7 @@ Générée depuis le code. « Utilisé par » liste les fichiers qui instancient
 |---|---|---|
 | `Appearance.qml` (243 l. · singleton) | Thème : couleurs wallust (wal.json), polices, tailles, animations | AppLauncher, Audio, Bar, BarSeparator, Bluetooth … (+50) |
 | `ClockState.qml` (32 l. · singleton) | État des modules horloge (timer / chrono / alarmes) | ClockCard |
+| `Config.qml` (singleton) | Réglages généraux lus dans `config.toml` (zooms des pages, polices), rechargés à chaud | Appearance, TouchPanel |
 | `GameBreak.qml` (131 l. · singleton) | « pause tactile » pendant un jeu | GameBreakBar, GameModeTab, MixerTab, TouchPanel, WallustTab … (+1) |
 | `GameMode.qml` (182 l. · singleton) | Bascule automatique quand un jeu tourne | GameModeTab, TouchPanel |
 | `Popups.qml` (80 l. · singleton) | Quel popup/panneau est ouvert (dashboard, spotify, audio…) + closeAll() | Cava, Clock, Dashboard, EqDash, KanbanBoard … (+5) |
@@ -200,6 +217,7 @@ Générée depuis le code. « Utilisé par » liste les fichiers qui instancient
 |---|---|---|
 | `CavaService.qml` (56 l. · singleton) | Un seul processus cava partagé (32 barres, 30 fps) | EqDash, GridDash, PlayerCard |
 | `DiscordService.qml` (128 l. · singleton) | Pont vers le serveur Discord via scripts/discord/discord_bridge.py | DiscordChat |
+| `Health.qml` (singleton) | Bilan de santé : lance `scripts/health/check.sh` (démarrage, toutes les 5 min, à la demande) et ses réparations | HealthTab, TouchPanel |
 | `KeybindService.qml` (394 l. · singleton) | Lit et écrit les raccourcis Hyprland (page Keybinds) | KeybindsPage |
 | `Mixer.qml` (72 l. · singleton) | Audio PipeWire partagé : sorties, flux par appli, volumes | EqDash, GameModeTab, KeybindService, MixerTab, SpotifyPanel |
 | `NotificationService.qml` (59 l. · singleton) | Serveur de notifications (liste, DND) | GridDash |
@@ -322,6 +340,12 @@ Générée depuis le code. « Utilisé par » liste les fichiers qui instancient
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
 | `GridDash.qml` (1261 l.) | Page « Grid » : tableau de widgets déplaçables/redimensionnables | TouchPanel |
+
+### `pages/health/`
+
+| Fichier | Rôle | Utilisé par |
+|---|---|---|
+| `HealthTab.qml` | Onglet Santé : une ligne par dépendance, toucher une ligne en panne la répare | TouchPanel |
 
 ### `pages/home/`
 

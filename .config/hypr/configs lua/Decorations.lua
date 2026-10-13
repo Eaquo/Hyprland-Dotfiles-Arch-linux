@@ -49,7 +49,7 @@ hl.config({
  
     -- ── Groupes ───────────────────────────────────────────────────────────────
     group = {
-        ["col.border_active"] = c.color15,
+        ["col.border_active"] = c.color11,
         groupbar = {
             ["col.active"] = c.color0,
         },

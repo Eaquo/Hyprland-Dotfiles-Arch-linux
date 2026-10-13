@@ -11,7 +11,7 @@ configuration {
     background:             rgba(0,0,0,0.7);
     background-transparent: {{background}};
     text-color:             #D8DEE9;
-    primary:                {{color5}};
+    primary:                {{color11}};
     secondary:              {{color8}};
-    urgent:                 {{color15}};
+    urgent:                 {{color13}};
 }
