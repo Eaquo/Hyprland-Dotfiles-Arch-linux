@@ -30,13 +30,22 @@ hl.bind(mainMod .. " + Return", hl.dsp.exec_cmd(term))
 -- Pypr toggles
 hl.bind(mainMod .. " + SHIFT + Return", hl.dsp.exec_cmd("pypr toggle term"))
 hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("pypr toggle clock"))
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("pypr reload && pypr toggle spot"))
+-- Panneau Spotify de Quick-Bar (bord droit). La fenêtre Spotify (scratchpad pypr
+-- « spot ») s'ouvre depuis le bouton 󰏌 du panneau.
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs -p " .. os.getenv("HOME") .. "/.config/quickshell/Quick-Bar/shell.qml ipc call spotify toggle"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("pypr toggle ranger"))
 
--- ── Vues / Overview ───────────────────────────────────────────────────────────
-hl.bind(mainMod .. " + SHIFT + A", hl.dsp.exec_cmd(home .. "/.config/eww/dashboard/launch_dashboard"))
+-- ── JARVIS ────────────────────────────────────────────────────────────────────
+-- jarvis-panel bascule le scratchpad pypr ET accorde le casque Bluetooth:
+-- panneau visible = profil micro, panneau masque = profil musique. Le micro
+-- d'un casque Bluetooth n'existe que dans le profil headset, qui degrade le
+-- son: on n'y reste donc que le temps d'utiliser JARVIS.
+hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd(home .. "/.local/bin/jarvis-panel"))
 
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(scripts .. "/OverviewToggle.sh"), { description = "desktop overview" })
+-- ── Vues / Overview ───────────────────────────────────────────────────────────
+hl.bind(mainMod .. " + A", function()
+	hl.plugin.scrolloverview.overview("toggle")
+end)
 
 -- ── Performance / Utilitaires ─────────────────────────────────────────────────
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(userScripts .. "/Performance.sh"))
@@ -66,4 +75,3 @@ hl.define_submap("passthru", function()
 	-- Toujours actif pour pouvoir sortir
 	hl.bind(mainMod .. " + ALT + P", hl.dsp.submap("reset"), { submap_universal = true })
 end)
-

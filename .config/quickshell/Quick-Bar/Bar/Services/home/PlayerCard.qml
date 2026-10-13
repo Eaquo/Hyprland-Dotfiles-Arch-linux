@@ -77,23 +77,9 @@ Item {
         return vid !== "" ? ("https://i.ytimg.com/vi/" + vid + "/mqdefault.jpg") : ""
     }
 
-    // Pochettes http(s) téléchargées par curl dans /tmp puis affichées en file:// —
-    // le chargement HTTPS direct par Qt fait planter Quickshell (OpenSSL crash dans
-    // QSslCertificate::fromFile au 1er accès réseau). Même principe que music_info.sh.
-    property string artShown: ""
-    onArtUrlChanged: {
-        if (!/^https?:/.test(artUrl)) { artShown = artUrl; return }
-        const f = "/tmp/qs-art-card-" + Qt.md5(artUrl) + ".jpg"
-        artProc.target = "file://" + f
-        artProc.command = ["sh", "-c", "[ -s \"$2\" ] || curl -sfL --max-time 10 -o \"$2\" \"$1\"", "_", artUrl, f]
-        artProc.running = false
-        artProc.running = true
-    }
-    Process {
-        id: artProc
-        property string target: ""
-        onExited: (code) => root.artShown = code === 0 ? target : ""
-    }
+    // Pochette affichable sans HTTPS côté Qt (voir Components/CachedArt.qml).
+    CachedArt { id: artCache; url: root.artUrl }
+    readonly property string artShown: artCache.local
 
     function _ytId(url) {
         if (!url) return ""

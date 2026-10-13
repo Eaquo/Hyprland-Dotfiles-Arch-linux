@@ -5,6 +5,7 @@ import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Widgets
 import "../Common/"
+import "../Components/"
 import "../Common/functions/"
 
 // WallpaperTab — onglet dashboard : picker de wallpapers (vignettes) + contrôles
@@ -179,6 +180,11 @@ Item {
                 onToggled: WallpaperState.glitchEnabled = !WallpaperState.glitchEnabled
             }
             Toggle {
+                on: WallpaperState.glitchContinuous
+                label: "CONTINU"
+                onToggled: WallpaperState.glitchContinuous = !WallpaperState.glitchContinuous
+            }
+            Toggle {
                 on: WallpaperState.wsFxEnabled
                 label: "WS FX"
                 onToggled: WallpaperState.wsFxEnabled = !WallpaperState.wsFxEnabled
@@ -213,6 +219,24 @@ Item {
                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.themeMenuOpen = !root.themeMenuOpen }
             }
 
+            // Couleur de l'effet : tap = sélecteur ; ↺ = revenir à l'accent wallust
+            Rectangle {
+                implicitWidth: 30; implicitHeight: 30; radius: 8
+                color: WallpaperState.fxColor
+                border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.25)
+                MouseArea {
+                    anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor
+                    onClicked: fxPicker.open(WallpaperState.fxColor, "Couleur de l'effet",
+                                             "Remplace l'accent wallust pour l'effet du wallpaper (" + WallpaperState.glitchTheme + ")", "")
+                }
+            }
+            Text {
+                visible: WallpaperState.glitchColor !== ""
+                text: "󰑓"; font.family: Appearance.font.family; font.pixelSize: 16
+                color: Appearance.colors.dim
+                MouseArea { anchors.fill: parent; anchors.margins: -8; cursorShape: Qt.PointingHandCursor; onClicked: WallpaperState.glitchColor = "" }
+            }
+
             MiniSlider {
                 Layout.fillWidth: true
                 label: "FRÉQUENCE (LATENCE)"
@@ -240,9 +264,11 @@ Item {
                 Layout.fillWidth: true
                 label: "DURÉE DU BURST"
                 // 100..800 ms  →  0..1
-                value: (WallpaperState.glitchDuration - 100) / 700
-                valueText: WallpaperState.glitchDuration + "ms"
-                onMoved: (v) => WallpaperState.glitchDuration = Math.round(100 + v * 700)
+                // 0,1 s → 6 s (les effets longs comme le vol Matrix ont besoin de durée)
+                value: (WallpaperState.glitchDuration - 100) / 5900
+                valueText: WallpaperState.glitchDuration < 1000 ? WallpaperState.glitchDuration + "ms"
+                                                                 : (WallpaperState.glitchDuration / 1000).toFixed(1) + "s"
+                onMoved: (v) => WallpaperState.glitchDuration = Math.round((100 + v * 5900) / 50) * 50
             }
 
             MiniSlider {
@@ -428,4 +454,7 @@ Item {
             }
         }
     }
+
+    // Sélecteur de couleur de l'effet (Components/ColorPicker.qml)
+    ColorPicker { id: fxPicker; onPicked: (hex, tag) => WallpaperState.glitchColor = hex }
 }
