@@ -1,10 +1,10 @@
 //@ pragma UseQApplication
 //@ pragma Env QT_QUICK_CONTROLS_STYLE=Basic
 
-import "./Bar/Common/"
-import "./Bar/Common/functions/"
-import "./Bar/Widgets/"
-import "./Bar/Windows/"
+import qs.bar
+import qs.core.functions
+import qs.panels
+import qs.wallpaper
 
 
 import QtQuick
