@@ -22,9 +22,9 @@ Canvas {
 
     // Avance la phase ~30 fps quand le contour est visible (cycle ~5,5 s)
     Timer {
-        running:  gb.visible
+        running:  gb.visible && Appearance.borderSpeed > 0
         interval: 33; repeat: true
-        onTriggered: gb.phase = (gb.phase + 0.006) % 1.0
+        onTriggered: gb.phase = (gb.phase + 0.006 * Appearance.borderSpeed) % 1.0
     }
 
     // Couleur cyclique interpolée sur la palette wallust → string rgb()

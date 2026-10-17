@@ -4,3 +4,5 @@ graphify-out/
 user_data/
 .claude/
 __pycache__/
+backup-*/
+config.toml.bak

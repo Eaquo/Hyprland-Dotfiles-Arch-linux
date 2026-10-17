@@ -8,16 +8,49 @@ import Quickshell.Io
 Singleton {
     id: root
 
-    // ── Color file ────────────────────────────────────────────────────────
+    // ── Source des couleurs (Réglages › Couleurs, [theme] dans config.toml) ──
+    // « wallust » : ~/.cache/wal/wal.json, écrit par wallust à chaque wallpaper.
+    // « matugen » : couleurs Material You, même format JSON (modèle
+    //   ~/.config/matugen/templates/quickbar.json) ; Quick-Bar relance matugen
+    //   lui-même quand le wallpaper change, puisque set-wallpaper.sh ne lance que wallust.
+    readonly property string paletteSource: Config.get("theme.palette", "wallust") === "matugen" ? "matugen" : "wallust"
+    readonly property string paletteName: paletteSource === "matugen" ? "Matugen" : "Wallust"   // libellés de l'interface
+    function _expand(p) { return String(p).startsWith("~") ? Quickshell.env("HOME") + String(p).slice(1) : String(p) }
+    readonly property string palettePath: paletteSource === "matugen"
+        ? _expand(Config.get("theme.matugen_path", "~/.cache/matugen/quickbar_colors.json"))
+        : _expand(Config.get("theme.wallust_path", "~/.cache/wal/wal.json"))
+
     FileView {
         id: walFile
-        path: "file://" + Quickshell.env("HOME") + "/.cache/wal/wal.json"
+        path: "file://" + root.palettePath
         watchChanges: true
         onFileChanged: walFile.reload()
+        onPathChanged: walFile.reload()
         onLoaded: root._parse(walFile.text())
     }
 
     Component.onCompleted: walFile.reload()
+
+    // Matugen : régénère la palette à chaque wallpaper (et au passage sur matugen)
+    function regenerateMatugen() {
+        if (paletteSource !== "matugen" || WallpaperState.currentWall === "") return
+        // wallpaper vidéo : matugen ne lit pas les .mp4 → image fixe de la vidéo
+        const img = WallpaperState.videoMode ? Quickshell.env("HOME") + "/.curr_wall_static.jpg" : WallpaperState.currentWall
+        matugenProc.command = ["matugen", "image", img,
+                               "--prefer", String(Config.get("theme.matugen_prefer", "saturation")),
+                               "-m", String(Config.get("theme.matugen_mode", "dark"))]
+        matugenProc.running = false
+        matugenProc.running = true
+    }
+    onPaletteSourceChanged: regenerateMatugen()
+    property var _matugenWall: Connections {
+        target: WallpaperState
+        function onCurrentWallChanged() { root.regenerateMatugen() }
+    }
+    property var _matugenProc: Process {
+        id: matugenProc
+        stderr: StdioCollector { onStreamFinished: if (text.trim() !== "") console.warn("[Matugen]", text.trim().split("\n").slice(-3).join(" ")) }
+    }
 
     property var _special: ({})
     property var _palette: ({})
@@ -31,7 +64,7 @@ Singleton {
             var parsed = JSON.parse(rawText)
             _special = parsed.special || {}
             _palette = parsed.colors  || {}
-            console.log("[Wallust] loaded:", _special.background)
+            console.log("[" + paletteSource + "] loaded:", _special.background)
         } catch (e) {
             console.warn("[Wallust] parse error:", e)
         }
@@ -62,10 +95,11 @@ Singleton {
         property color fg:     _special.foreground || "#e8e8e8"
         property color cursor: _special.cursor     || "#e8e8e8"
         // ── semantic aliases ───────────────────────────────────────────
-        property color accent:  _palette.color11 || "#ffe066"
+        // Réglages › Apparence › Thème : quelle couleur de la palette sert d'accent ([theme] accent)
+        property color accent:  _palette[root.accentSlot] || _palette.color11 || "#ffe066"
         property color dim:     _palette.color8  || "#4a4a4a"
         property color surface: _palette.color0  || "#0f0f0f"
-        property color hi:      _palette.color11 || "#ffe066"
+        property color hi:      accent
         property color overlay: _palette.color8  || "#4a4a4a"
         property color red:     _palette.color1  || "#ff6b6b"
         property color green:   _palette.color2  || "#51cf66"
@@ -124,7 +158,11 @@ Singleton {
     }
 
     // ── UI state ──────────────────────────────────────────────────────────
-    property bool   animationsEnabled: true   // bordures dégradé animées (dashboard + barre)
+    // ── Thème ([theme] dans config.toml — Réglages › Apparence › Thème) ──────
+    readonly property string accentSlot: String(Config.get("theme.accent", "color11"))
+    readonly property bool animationsEnabled: Config.get("theme.animated_borders", true) !== false   // bordures dégradé animées (dashboard + barre)
+    readonly property real borderSpeed: Number(Config.get("theme.border_speed", 1))
+    readonly property string trayIcons: String(Config.get("theme.tray_icons", "color"))   // icônes de la zone de notification
     property bool   calendarVisible: false
     property real   calPopupX:       0
     property real   calPopupW:       0
@@ -145,8 +183,6 @@ Singleton {
     property bool   mediaPopupHeld:  false
     property real   mediaPopupX:     0
     property real   mediaPopupWidth: 0
-    property real   rightPillX:      0
-    property real   rightPillW:      0
     property string mediaTitle:      ""
     property string mediaArtist:     ""
     property string mediaStatus:     "Stopped"
@@ -155,13 +191,14 @@ Singleton {
 
     // ── Bar geometry ──────────────────────────────────────────────────────
     property QtObject bar: QtObject {
-        property int height:     34
-        property int topMargin:  3
-        property int sideMargin: 10
+        // Réglables dans config.toml ([bar]) — Réglages › Barre › Modules
+        property int height:     Config.get("bar.height", 34)
+        property int topMargin:  Config.get("bar.top_margin", 3)
+        property int sideMargin: Config.get("bar.side_margin", 10)
         property int padding:    5
-        property int pillPad:    8
-        property int gap:        5
-        property real radius:    16
+        property int pillPad:    Config.get("bar.pill_padding", 8)
+        property int gap:        Config.get("bar.gap", 5)
+        property real radius:    Config.get("bar.radius", 16)
         property real bgAlpha:   0.88
     }
 
@@ -193,7 +230,7 @@ Singleton {
     property color wsUrgent:     "#fa6b94"
 
     property int borderWidth:            6
-    property int cornerRadius:           17
+    property int cornerRadius:           Config.get("theme.radius", 17)
     property int notchRadius:            15
     property int notchHeight:            40
     property int exclusionGap:           34
@@ -208,8 +245,8 @@ Singleton {
     property int cNotchMaxWidth:         360
     property int rNotchMinWidth:         200
     property int rNotchMaxWidth:         360
-    property int dashboardWidth:         900
-    property int dashboardHeight:        520
+    property int dashboardWidth:         Config.get("dashboard.width", 900)
+    property int dashboardHeight:        Config.get("dashboard.height", 520)
     property int notificationsWidth:     400
     property int notificationToastWidth: notificationsWidth / 1.2
     property int networkPopupWidth:      480
@@ -223,7 +260,11 @@ Singleton {
     property int wsSpacing:              6
     property int wsPadding:              8
     property int wsRadius:               16
-    property int animDuration:           320
+    // Vitesse des animations ([theme] anim_speed : 1 normale, 0.6 rapide, 0.35 très rapide, 0 aucune).
+    // Plafonnée à 1 : les minuteurs de fermeture des panneaux sont calés sur la durée normale.
+    readonly property real animSpeed: Math.max(0, Math.min(1, Number(Config.get("theme.anim_speed", 1))))
+    function dur(ms) { return Math.round(ms * animSpeed) }
+    property int animDuration:           dur(320)
 
     // ── Spectre multicolore (dégradé cyclique animé, partagé par tous les cava) ─
     property real specPhase: 0

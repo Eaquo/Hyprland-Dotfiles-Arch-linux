@@ -58,7 +58,7 @@ Item {
                     height: Math.min(1, strip.vol) * parent.height
                     radius: 18
                     color: strip.muted ? ColorUtils.applyAlpha(strip.tint, 0.3) : strip.tint
-                    Behavior on height { NumberAnimation { duration: 80 } }
+                    Behavior on height { NumberAnimation { duration: Appearance.dur(80) } }
                 }
                 MouseArea {
                     anchors.fill: parent
@@ -184,7 +184,7 @@ Item {
                     color: active ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.9)
                                   : ColorUtils.applyAlpha(Appearance.colors.bg, 0.55)
                     border.width: 1; border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
-                    Behavior on color { ColorAnimation { duration: 140 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(140) } }
                     // Easy Effects Sink = chemin AVEC l'égaliseur ; une sortie
                     // physique choisie directement le contourne.
                     readonly property bool isEq: (modelData.name || "").toLowerCase().indexOf("easyeffects") !== -1

@@ -197,7 +197,7 @@ Item {
             color: gs.value > 0 ? Appearance.colors.accent
                  : gs.value < 0 ? Appearance.colors.red
                  : ColorUtils.applyAlpha(Appearance.colors.fg, 0.20)
-            Behavior on color { ColorAnimation { duration: 100 } }
+            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
         }
 
         Rectangle {
@@ -213,8 +213,8 @@ Item {
                 height: Math.max(0, (gs.value / 12.0) * (gsTrack.height / 2))
                 y: gsTrack.height / 2 - height
                 color: Appearance.colors.accent; opacity: 0.85
-                Behavior on height { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
-                Behavior on y      { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                Behavior on height { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
+                Behavior on y      { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
             }
             Rectangle {
                 visible: gs.value < 0
@@ -222,7 +222,7 @@ Item {
                 height: Math.max(0, (-gs.value / 12.0) * (gsTrack.height / 2))
                 y: gsTrack.height / 2
                 color: Appearance.colors.red; opacity: 0.75
-                Behavior on height { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                Behavior on height { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
             }
             Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -242,8 +242,8 @@ Item {
                     width: parent.width - 6; height: 3; radius: 1.5
                     color: ColorUtils.applyAlpha("#ffffff", 0.25)
                 }
-                Behavior on y     { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
-                Behavior on color { ColorAnimation  { duration: 120 } }
+                Behavior on y     { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
+                Behavior on color { ColorAnimation  { duration: Appearance.dur(120) } }
             }
         }
 
@@ -317,7 +317,7 @@ Item {
                                       ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.35)
                                       : ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
                         border.width: 1
-                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 
                         Row {
                             id: selRow
@@ -352,7 +352,7 @@ Item {
                         color: svHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.12) : "transparent"
                         border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
                         border.width: 1
-                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
                         Text {
                             anchors.centerIn: parent
                             text: "󰆓"
@@ -380,7 +380,7 @@ Item {
                         color: rstHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.12) : "transparent"
                         border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
                         border.width: 1
-                        Behavior on color { ColorAnimation { duration: 120 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
                         Text {
                             anchors.centerIn: parent
                             text: "󰜉"
@@ -459,7 +459,7 @@ Item {
                     Layout.fillWidth: true
                     implicitHeight: 56
                     opacity: CavaService.isPlaying ? 1 : 0.35
-                    Behavior on opacity { NumberAnimation { duration: 200 } }
+                    Behavior on opacity { NumberAnimation { duration: Appearance.dur(200) } }
 
                     readonly property int bw: 6
 
@@ -483,7 +483,7 @@ Item {
                                     radius: width / 2
                                     color: Appearance.specColor(sBar.index / CavaService.barCount + Appearance.specPhase)
                                     opacity: 0.30 + 0.70 * sBar.lvl
-                                    Behavior on height { NumberAnimation { duration: 60; easing.type: Easing.OutCubic } }
+                                    Behavior on height { NumberAnimation { duration: Appearance.dur(60); easing.type: Easing.OutCubic } }
                                 }
                             }
                         }
@@ -657,7 +657,7 @@ Item {
                     radius: 13
                     color: devHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.10)
                                           : ColorUtils.applyAlpha(Appearance.colors.fg, 0.05)
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
                     Row {
                         id: devRow
                         anchors.centerIn: parent
@@ -853,7 +853,7 @@ Item {
                 readonly property bool active: root.currentPreset === modelData
                 color: active ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.18)
                               : (itHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.07) : "transparent")
-                Behavior on color { ColorAnimation { duration: 90 } }
+                Behavior on color { ColorAnimation { duration: Appearance.dur(90) } }
 
                 Text {
                     anchors {
@@ -882,7 +882,7 @@ Item {
                     width: 20; height: 20; radius: 5
                     visible: root.presetDeletable(parent.modelData)
                     color: delHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.red, 0.20) : "transparent"
-                    Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                     Text {
                         anchors.centerIn: parent
                         text: "󰩺"; font.family: Appearance.font.family; font.pixelSize: 11
@@ -951,7 +951,7 @@ Item {
                 radius: 8
                 color: okHov.hovered ? Appearance.colors.accent
                                      : ColorUtils.applyAlpha(Appearance.colors.accent, 0.6)
-                Behavior on color { ColorAnimation { duration: 100 } }
+                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                 Text { anchors.centerIn: parent; text: "󰆓"; font.family: Appearance.font.family; font.pixelSize: 13; color: Appearance.colors.bg }
                 HoverHandler { id: okHov; cursorShape: Qt.PointingHandCursor }
                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.savePreset(saveField.text) }

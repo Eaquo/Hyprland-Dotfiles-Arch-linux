@@ -156,8 +156,8 @@ Scope {
                 opacity: Appearance.mediaPopupOpen ? 1.0 : 0.0
                 scale:   Appearance.mediaPopupOpen ? 1.0 : 0.97
                 transformOrigin: Item.Top
-                Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-                Behavior on scale   { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+                Behavior on opacity { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
+                Behavior on scale   { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
 
                 // ── Fond : pochette floutée + dégradé sombre + barres cava ──────
                 // Coupé aux coins arrondis de la carte.
@@ -219,7 +219,7 @@ Scope {
                                     height: Math.max(2, amp * 26)
                                     radius: width / 2
                                     color:  ColorUtils.applyAlpha(Appearance.specColor(index / win.cavaBars + Appearance.specPhase), 0.25 + amp * 0.60)
-                                    Behavior on height { NumberAnimation { duration: 60; easing.type: Easing.OutCubic } }
+                                    Behavior on height { NumberAnimation { duration: Appearance.dur(60); easing.type: Easing.OutCubic } }
                                 }
                             }
                         }
@@ -300,7 +300,7 @@ Scope {
                             width: Math.max(radius * 2, parent.width * Appearance.mediaPercent)
                             height: parent.height; radius: 4
                             color: Appearance.colors.accent
-                            Behavior on width { NumberAnimation { duration: 1200; easing.type: Easing.Linear } }
+                            Behavior on width { NumberAnimation { duration: Appearance.dur(1200); easing.type: Easing.Linear } }
                         }
                     }
 
@@ -314,14 +314,14 @@ Scope {
                         Rectangle {
                             width: 34; height: 34; radius: 17
                             color: prevMa.containsMouse ? ColorUtils.applyAlpha(Appearance.colors.bg, 0.90) : "transparent"
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             Text {
                                 anchors.centerIn: parent
                                 text: "󰒮"
                                 font.family:    Appearance.font.family
                                 font.pixelSize: Appearance.font.body + 2
                                 color: prevMa.containsMouse ? Appearance.colors.fg : ColorUtils.applyAlpha(Appearance.colors.fg, 0.72)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             }
                             MouseArea {
                                 id: prevMa; anchors.fill: parent
@@ -335,7 +335,7 @@ Scope {
                         Rectangle {
                             width: 46; height: 46; radius: Appearance.bar.radius
                             color: pauseMa.containsMouse ? Appearance.colors.accent : ColorUtils.applyAlpha(Appearance.colors.accent, 0.82)
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             Text {
                                 anchors.centerIn: parent
                                 text: Appearance.mediaStatus === "Playing" ? "󰏤" : "󰐊"
@@ -355,14 +355,14 @@ Scope {
                         Rectangle {
                             width: 34; height: 34; radius: 17
                             color: nextMa.containsMouse ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.10) : "transparent"
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             Text {
                                 anchors.centerIn: parent
                                 text: "󰒭"
                                 font.family:    Appearance.font.family
                                 font.pixelSize: Appearance.font.body + 2
                                 color: nextMa.containsMouse ? Appearance.colors.fg : ColorUtils.applyAlpha(Appearance.colors.fg, 0.72)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             }
                             MouseArea {
                                 id: nextMa; anchors.fill: parent

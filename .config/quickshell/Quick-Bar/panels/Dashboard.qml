@@ -29,26 +29,27 @@ PanelWindow {
     readonly property int animDuration: Appearance.animDuration
 
     property string page: "home"
+    Component.onCompleted: page = homeKey
 
-    // ── Per-page content widths ───────────────────────────────────────────────
-    readonly property var _pageWidths: ({
-        "home":   900,
-        "stats":  900,
-        "kanban": 900,
-        "files":  900,
-        "wall":   900,
-        "eq":     900,
-        "discord":900,
-        // "deck":   900,
-        "games":  900
-    })
-
-    function _applyPageWidth(p) {
-        var w = _pageWidths[p]
-        Popups.dashboardPageWidth = (w !== undefined) ? w : 900
+    // ── Onglets et taille : [dashboard] dans config.toml (Réglages › Panneaux › Dashboard) ──
+    readonly property var allTabs: [
+        { key: "home",   icon: "󰋜", label: "Home"   },
+        { key: "stats",  icon: "󰻠", label: "System" },
+        { key: "kanban", icon: "󰄬", label: "Tasks"  },
+        { key: "files",  icon: "󰉋", label: "Files"  },
+        { key: "wall",   icon: "󰸉", label: "Wall"   },
+        { key: "eq",     icon: "󰓃", label: "Eq"     },
+        { key: "discord",icon: "󰙯", label: "Discord"}
+    ]
+    readonly property var tabs: {
+        const keys = Config.get("dashboard.tabs", allTabs.map(t => t.key))
+        const out = (Array.isArray(keys) ? keys : []).map(k => allTabs.find(t => t.key === k)).filter(t => t)
+        return out.length ? out : [allTabs[0]]
     }
-
+    readonly property string homeKey: tabs[0].key   // page ouverte par défaut = 1er onglet
+    function _applyPageWidth(p) { Popups.dashboardPageWidth = Appearance.dashboardWidth }
     onPageChanged: _applyPageWidth(page)
+    Connections { target: Appearance; function onDashboardWidthChanged() { root._applyPageWidth(root.page) } }
 
     color:   "transparent"
     visible: windowVisible
@@ -86,14 +87,14 @@ PanelWindow {
             if(Popups.anyOpen && !Popups.dashboardOpen){
                 Popups.closeAll()
                 Popups.dashboardOpen = true
-                root.page = "home"
-            } else if(Popups.dashboardOpen && root.page != "home") {
-                root.page = "home"
-            } else if(Popups.dashboardOpen && root.page == "home") {
+                root.page = root.homeKey
+            } else if(Popups.dashboardOpen && root.page != root.homeKey) {
+                root.page = root.homeKey
+            } else if(Popups.dashboardOpen && root.page == root.homeKey) {
                 Popups.dashboardOpen = false
             } else {
                 Popups.dashboardOpen = !Popups.dashboardOpen
-                root.page = "home"
+                root.page = root.homeKey
             }
         }
     }
@@ -179,17 +180,7 @@ PanelWindow {
                     orientation: "horizontal"
                     width:       parent.width
                     currentPage: root.page
-                    model: [
-                        { key: "home",   icon: "󰋜", label: "Home"   },
-                        { key: "stats",  icon: "󰻠", label: "System" },
-                        { key: "kanban", icon: "󰄬", label: "Tasks"  },
-                        { key: "files",  icon: "󰉋", label: "Files"  },
-                        { key: "wall",   icon: "󰸉", label: "Wall"   },
-                        { key: "eq",     icon: "󰓃", label: "Eq"     },
-                        { key: "discord",icon: "󰙯", label: "Discord"},
-                        // { key: "deck",   icon: "󰀻", label: "Apps"   },
-                        // { key: "games",  icon: "󰊴", label: "Games"  },
-                    ]
+                    model: root.tabs
                     onPageChanged: function(key) { root.page = key }
                 }
 

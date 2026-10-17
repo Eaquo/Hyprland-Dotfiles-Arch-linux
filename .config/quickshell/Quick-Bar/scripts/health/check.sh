@@ -7,13 +7,14 @@
 # fix_<id>, puis l'ajouter à CHECKS.
 
 QB="$HOME/.config/quickshell/Quick-Bar"
-CHECKS="openrgb rgb easyeffects hy3 hyprpm wallust discord launcher instances"
+CHECKS="openrgb rgb easyeffects hy3 hyprpm wallust discord launcher instances proxmox custom"
 
 json_escape() { printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr '\n' ' '; }
 first=1
 row() {   # id label ok(0|1) detail
     local fix=false
     declare -F "fix_$1" >/dev/null && fix=true
+    [ -n "${CFIX[$1]}" ] && fix=true
     [ $first -eq 0 ] && printf ','
     first=0
     printf '{"id":"%s","label":"%s","ok":%s,"detail":"%s","fix":%s}' \
@@ -109,11 +110,70 @@ fix_instances() {
         while read -r p; do [ "$p" != "$mine" ] && kill -9 "$p"; done
 }
 
+# ── Proxmox : l'interface web répond (adresse dans config.toml, [health] proxmox) ─
+# Vide = pas de ligne. N'importe quelle réponse HTTP = hôte joignable.
+check_proxmox() {
+    local host; host=$(awk -F= '/^\[/{s=($0 ~ /^\[health\]/)} s && $1 ~ /^ *proxmox *$/ {sub(/#.*/, "", $2); gsub(/[ "\t]/, "", $2); print $2}' "$QB/config.toml")
+    [ -z "$host" ] && return
+    # Page d'accueil, pas /api2 : sans jeton, pveproxy attend 3 s avant de répondre 401
+    local code; code=$(curl -sk -m 3 -o /dev/null -w '%{http_code}' "https://$host:8006/")
+    if [ "$code" != "000" ]; then row proxmox "Proxmox" 1 "$host joignable"
+    else row proxmox "Proxmox" 0 "$host ne répond pas sur le port 8006"; fi
+}
+
+# ── Vérifications de l'utilisateur ([[health.custom]] dans config.toml, Réglages › Santé) ──
+# Health.qml les passe en JSON dans QB_HEALTH_CUSTOM : [{name, type, target, fix?}, …]
+declare -A CFIX
+custom_list() { [ -n "$QB_HEALTH_CUSTOM" ] && printf '%s' "$QB_HEALTH_CUSTOM" | jq -r '.[] | [.name, .type, .target, (.fix // "")] | @tsv' 2>/dev/null; }
+custom_test() {   # type cible → code 0 si ok
+    case "$1" in
+        process) pgrep -x "$2" >/dev/null || pgrep -f -- "$2" >/dev/null ;;
+        service) systemctl --user is-active -q "$2" 2>/dev/null || systemctl is-active -q "$2" 2>/dev/null ;;
+        url)     local c; c=$(curl -sk -m 4 -o /dev/null -w '%{http_code}' "$2"); [ "$c" != 000 ] && [ "$c" -lt 500 ] ;;
+        host)    ping -c1 -W2 "$2" >/dev/null 2>&1 ;;
+        port)    timeout 3 bash -c ">/dev/tcp/${2%:*}/${2##*:}" 2>/dev/null ;;
+        file)    [ -e "${2/#\~/$HOME}" ] ;;
+        mount)   mountpoint -q "${2/#\~/$HOME}" ;;
+        command) timeout 10 sh -c "$2" >/dev/null 2>&1 ;;
+        *)       return 1 ;;
+    esac
+}
+custom_label() {  # type ok(0|1) cible → détail lisible
+    case "$1" in
+        process) [ "$2" = 1 ] && echo "$3 tourne" || echo "$3 ne tourne pas" ;;
+        service) [ "$2" = 1 ] && echo "service $3 actif" || echo "service $3 inactif" ;;
+        url)     [ "$2" = 1 ] && echo "$3 répond" || echo "$3 ne répond pas" ;;
+        host)    [ "$2" = 1 ] && echo "$3 joignable" || echo "$3 injoignable" ;;
+        port)    [ "$2" = 1 ] && echo "port $3 ouvert" || echo "port $3 fermé" ;;
+        file)    [ "$2" = 1 ] && echo "$3 présent" || echo "$3 introuvable" ;;
+        mount)   [ "$2" = 1 ] && echo "$3 monté" || echo "$3 n'est pas monté" ;;
+        command) [ "$2" = 1 ] && echo "commande OK" || echo "la commande a échoué" ;;
+    esac
+}
+check_custom() {
+    local i=0 name type target fix
+    while IFS=$'\t' read -r name type target fix; do
+        i=$((i + 1))
+        [ -n "$fix" ] && CFIX[custom$i]=$fix
+        if custom_test "$type" "$target"; then row "custom$i" "$name" 1 "$(custom_label "$type" 1 "$target")"
+        else row "custom$i" "$name" 0 "$(custom_label "$type" 0 "$target")"; fi
+    done < <(custom_list)
+}
+
+# Réparation d'une vérification perso : sa commande « fix »
+if [ "$1" = "fix" ] && [[ "$2" == custom* ]]; then
+    n=${2#custom}
+    cmd=$(printf '%s' "$QB_HEALTH_CUSTOM" | jq -r --argjson i "$((n - 1))" '.[$i].fix // empty')
+    [ -n "$cmd" ] && timeout 60 sh -c "$cmd" >/dev/null 2>&1
+    exit 0
+fi
+
 if [ "$1" = "fix" ] && declare -F "fix_$2" >/dev/null; then
     "fix_$2"
     exit 0
 fi
 
 printf '['
-for c in $CHECKS; do "check_$c"; done
+# QB_HEALTH_SKIP = vérifications désactivées ([health] skip, Réglages › Système › Santé)
+for c in $CHECKS; do case " $QB_HEALTH_SKIP " in *" $c "*) continue ;; esac; "check_$c"; done
 printf ']\n'

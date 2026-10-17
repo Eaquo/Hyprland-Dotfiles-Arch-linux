@@ -1,4 +1,5 @@
 import QtQuick
+import qs.core
 import Quickshell.Io
 import qs.services
 
@@ -68,7 +69,7 @@ Item {
             id: profileCard
             anchors { left: parent.left; right: parent.right; top: parent.top }
             height: root.profileH
-            avatarPath: "/home/florian/Eaquo_Assets/Edited Image.jpg"
+            avatarPath: Config.avatar
         }
 
         CalendarCard {

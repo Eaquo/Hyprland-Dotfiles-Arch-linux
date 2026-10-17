@@ -60,7 +60,7 @@ Item {
     Process { id: shotProc }
     function screenshot() {
         // Écran principal seulement (le jeu), dossier des captures habituel.
-        const mon = Quickshell.screens.find(s => (s.model || "").toUpperCase().indexOf("XENEON") === -1)
+        const mon = Quickshell.screens.find(s => !Config.isTouch(s))
         shotProc.command = ["sh", "-c",
             "d=\"$(xdg-user-dir PICTURES)/Screenshots\"; mkdir -p \"$d\"; f=\"$d/$2_$(date +%Y%m%d_%H%M%S).png\"; " +
             "grim -o \"$1\" \"$f\" && notify-send -i \"$f\" 'Capture du jeu' \"$f\"",
@@ -118,7 +118,7 @@ Item {
             Rectangle {
                 width: parent.width * Math.max(0, Math.min(1, parent.parent.ratio)); height: parent.height; radius: 2
                 color: Appearance.colors.fg
-                Behavior on width { NumberAnimation { duration: 300 } }
+                Behavior on width { NumberAnimation { duration: Appearance.dur(300) } }
             }
         }
         Text {
@@ -138,7 +138,7 @@ Item {
         width: 56; height: 56; radius: 28
         color: on ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.85) : ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
         border.width: 1; border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.18)
-        Behavior on color { ColorAnimation { duration: 140 } }
+        Behavior on color { ColorAnimation { duration: Appearance.dur(140) } }
         Text {
             anchors.centerIn: parent; text: parent.glyph
             font.family: Appearance.font.family; font.pixelSize: 24
@@ -185,7 +185,7 @@ Item {
             Rectangle {
                 width: Math.max(parent.height, parent.width * Math.min(1, row.vol)); height: parent.height; radius: 13
                 color: ColorUtils.applyAlpha(Appearance.colors.fg, row.muted ? 0.25 : 0.8)
-                Behavior on width { NumberAnimation { duration: 80 } }
+                Behavior on width { NumberAnimation { duration: Appearance.dur(80) } }
             }
             MouseArea {
                 anchors.fill: parent; anchors.topMargin: -12; anchors.bottomMargin: -12

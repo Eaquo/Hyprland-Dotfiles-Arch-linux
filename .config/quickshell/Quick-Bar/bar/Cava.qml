@@ -67,7 +67,7 @@ Item {
         }
     }
     Timer {
-        interval: 2000; running: true; repeat: true; triggeredOnStart: true
+        interval: Config.ms("media", 2); running: true; repeat: true; triggeredOnStart: true
         onTriggered: mediaInfoProc.running = true
     }
 
@@ -163,8 +163,8 @@ Item {
                         color:  Appearance.specColor(barSlot.index / root.barCount + Appearance.specPhase)
                         opacity: 0.28 + 0.72 * barSlot.level
 
-                        Behavior on height  { NumberAnimation { duration: 50; easing.type: Easing.OutCubic } }
-                        Behavior on opacity { NumberAnimation { duration: 50 } }
+                        Behavior on height  { NumberAnimation { duration: Appearance.dur(50); easing.type: Easing.OutCubic } }
+                        Behavior on opacity { NumberAnimation { duration: Appearance.dur(50) } }
                     }
                 }
             }

@@ -25,12 +25,12 @@ QtObject {
     // ── Réglages ──────────────────────────────────────────────────────────────
     // Durée de la pause avant retour automatique au jeu. Toute interaction sur
     // la barre (ou un changement d'onglet du TouchPanel) la relance à zéro.
-    property int autoReturnMs: 20000
+    property int autoReturnMs: Config.get("game.break_seconds", 20) * 1000   // [game] break_seconds
     // Mis à false pour rester sur le tactile jusqu'au clic « Revenir au jeu ».
-    property bool autoReturn: true
+    property bool autoReturn: Config.get("game.break_auto_return", true) !== false
     // Ouvre le TouchPanel pendant la pause (et le referme au retour s'il était
     // fermé). À false si tu préfères te servir de ce qui tourne sur le ws 10.
-    property bool openTouchPanel: true
+    property bool openTouchPanel: Config.get("game.break_open_touchpanel", true) !== false
 
     // ── État ──────────────────────────────────────────────────────────────────
     property bool   active:      false
@@ -47,7 +47,7 @@ QtObject {
     readonly property string touchMonitor: {
         var all = Quickshell.screens
         for (var i = 0; i < all.length; i++)
-            if ((all[i].model || "").toUpperCase().indexOf("XENEON") !== -1) return all[i].name
+            if (Config.isTouch(all[i])) return all[i].name
         var n = "", best = 1e12
         for (var j = 0; j < all.length; j++) {
             var a = all[j].width * all[j].height

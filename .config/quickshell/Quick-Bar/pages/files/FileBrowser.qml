@@ -290,7 +290,7 @@ Item {
         onRunningChanged: if (!running) { root.refresh() }
     }
 
-    // Médias / binaires → appli système ; reste (texte, code, configs) → nvim dans kitty.
+    // Médias / binaires → appli système ; reste (texte, code, configs) → éditeur dans le terminal ([general]).
     readonly property var _xdgExts: [
         "png","jpg","jpeg","gif","webp","bmp","svg","avif",
         "mp4","mkv","webm","avi","mov","mp3","flac","wav","ogg","m4a","opus",
@@ -302,7 +302,7 @@ Item {
         if (root._xdgExts.indexOf(root.selSuffix) !== -1)
             openProc.command = ["setsid", "-f", "xdg-open", root.selPath]
         else
-            openProc.command = ["setsid", "-f", "kitty", "nvim", root.selPath]
+            openProc.command = ["setsid", "-f"].concat(Config.term("Éditeur", [String(Config.get("general.editor", "nvim")), root.selPath]))
         openProc.running = true
     }
     function doCopy()  { if (root.selPath === "") return; copyProc.command = ["wl-copy", root.selPath]; copyProc.running = true }
@@ -340,7 +340,7 @@ Item {
                     width: 24; height: 24; radius: 6
                     anchors.verticalCenter: parent.verticalCenter
                     color: upHov.hovered ? Qt.rgba(1, 1, 1, 0.10) : Qt.rgba(1, 1, 1, 0.05)
-                    Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                     Text {
                         anchors.centerIn: parent
                         text: "󰁞"; font.pixelSize: 14
@@ -355,7 +355,7 @@ Item {
                     width: 24; height: 24; radius: 6
                     anchors.verticalCenter: parent.verticalCenter
                     color: homeHov.hovered ? Qt.rgba(1, 1, 1, 0.10) : Qt.rgba(1, 1, 1, 0.05)
-                    Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                     Text {
                         anchors.centerIn: parent
                         text: "󰋜"; font.pixelSize: 13; color: Appearance.colors.fg
@@ -391,7 +391,7 @@ Item {
                           ? Qt.rgba(Appearance.colors.accent.r, Appearance.colors.accent.g, Appearance.colors.accent.b, 0.35)
                           : Qt.rgba(1, 1, 1, 0.07)
             border.width: 1
-            Behavior on color { ColorAnimation { duration: 120 } }
+            Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 
             Text {
                 id: searchIcon
@@ -442,7 +442,7 @@ Item {
                 width: 22; height: 22; radius: 6
                 visible: root.searchActive
                 color: clearHov.hovered ? Qt.rgba(1, 1, 1, 0.12) : "transparent"
-                Behavior on color { ColorAnimation { duration: 100 } }
+                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                 Text { anchors.centerIn: parent; text: "󰅖"; font.pixelSize: 12; color: Appearance.colors.fg }
                 HoverHandler { id: clearHov; cursorShape: Qt.PointingHandCursor }
                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: searchField.text = "" }
@@ -500,7 +500,7 @@ Item {
                                           ? Qt.rgba(Appearance.colors.accent.r, Appearance.colors.accent.g, Appearance.colors.accent.b, 0.35)
                                           : "transparent"
                             border.width: 1
-                            Behavior on color { ColorAnimation { duration: 90 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(90) } }
                         }
 
                         Row {
@@ -583,7 +583,7 @@ Item {
                                           ? Qt.rgba(Appearance.colors.accent.r, Appearance.colors.accent.g, Appearance.colors.accent.b, 0.35)
                                           : "transparent"
                             border.width: 1
-                            Behavior on color { ColorAnimation { duration: 90 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(90) } }
                         }
 
                         Row {
@@ -703,7 +703,7 @@ Item {
                                        ? (isDanger ? Qt.rgba(Appearance.colors.red.r, Appearance.colors.red.g, Appearance.colors.red.b, 0.20)
                                                    : Qt.rgba(1, 1, 1, 0.12))
                                        : Qt.rgba(1, 1, 1, 0.05)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                 Text {
                                     anchors.centerIn: parent
                                     text: parent.modelData.ic
@@ -815,7 +815,7 @@ Item {
                             Rectangle {
                                 width: 100; height: 32; radius: 8
                                 color: cancelHov.hovered ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(1, 1, 1, 0.06)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                 Text { anchors.centerIn: parent; text: "Annuler"; color: Appearance.colors.fg; font.pixelSize: 12; font.family: Appearance.font.family }
                                 HoverHandler { id: cancelHov; cursorShape: Qt.PointingHandCursor }
                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.deleting = false }
@@ -825,7 +825,7 @@ Item {
                                 color: confirmHov.hovered
                                        ? Appearance.colors.red
                                        : Qt.rgba(Appearance.colors.red.r, Appearance.colors.red.g, Appearance.colors.red.b, 0.55)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                 Text { anchors.centerIn: parent; text: "Supprimer"; color: Appearance.colors.bg; font.pixelSize: 12; font.weight: Font.Medium; font.family: Appearance.font.family }
                                 HoverHandler { id: confirmHov; cursorShape: Qt.PointingHandCursor }
                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.doTrash() }
@@ -880,7 +880,7 @@ Item {
                             Rectangle {
                                 width: 100; height: 32; radius: 8
                                 color: rCancelHov.hovered ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(1, 1, 1, 0.06)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                 Text { anchors.centerIn: parent; text: "Annuler"; color: Appearance.colors.fg; font.pixelSize: 12; font.family: Appearance.font.family }
                                 HoverHandler { id: rCancelHov; cursorShape: Qt.PointingHandCursor }
                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.renaming = false }
@@ -888,7 +888,7 @@ Item {
                             Rectangle {
                                 width: 100; height: 32; radius: 8
                                 color: rOkHov.hovered ? Appearance.colors.accent : Qt.rgba(Appearance.colors.accent.r, Appearance.colors.accent.g, Appearance.colors.accent.b, 0.6)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                 Text { anchors.centerIn: parent; text: "Renommer"; color: Appearance.colors.bg; font.pixelSize: 12; font.weight: Font.Medium; font.family: Appearance.font.family }
                                 HoverHandler { id: rOkHov; cursorShape: Qt.PointingHandCursor }
                                 MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.doRename(renameField.text.trim()) }

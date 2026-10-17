@@ -70,7 +70,7 @@ Scope {
                     width:  parent.width * GameBreak.progress
                     radius: 3
                     color:  Appearance.colors.accent
-                    Behavior on width { NumberAnimation { duration: 100 } }
+                    Behavior on width { NumberAnimation { duration: Appearance.dur(100) } }
                 }
             }
 

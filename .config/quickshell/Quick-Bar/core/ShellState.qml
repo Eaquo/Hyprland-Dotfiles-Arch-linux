@@ -6,7 +6,7 @@ import Quickshell.Io
 // État global du shell.
 // WiFi / Bluetooth / DND / Hotspot / Focus / ScreenRecord — écrits par QuickSettings.
 //
-// Les modes purement UI (barMainOnly, touchPanelOn, touchTabs) sont persistés sur disque
+// Les modes purement UI (barMainOnly, touchPanelOn, touchTabs, statsPrefs) sont persistés sur disque
 // (user_data/shell_state.json) et restaurés au démarrage / reboot.
 
 QtObject {
@@ -26,8 +26,10 @@ QtObject {
     // Onglets du TouchPanel : [{ key, on }] dans l'ordre choisi (bouton config).
     // Vide = ordre/état par défaut du catalogue (TouchPanel.allTabs).
     property var  touchTabs:    []
-    // Mode veille du TouchPanel après N minutes sans toucher l'écran (0 = jamais).
-    property int  touchIdleMinutes: 5
+    // Stats de la barre (clic droit) : RAM en %, disque en libre, seuils d'alerte
+    // des températures CPU (tempAlert), GPU junction et NVMe.
+    property string settingsTab: "general"   // dernier onglet ouvert des Réglages
+    property var  statsPrefs:   ({ ramPct: false, diskFree: false, tempAlert: 82, gpuAlert: 95, nvmeAlert: 70 })
 
     // ── Persistance disque (restaurée au reboot) ───────────────────────────────
     readonly property string _path:
@@ -46,7 +48,8 @@ QtObject {
             if (d.barMainOnly  !== undefined) root.barMainOnly  = d.barMainOnly
             if (d.touchPanelOn !== undefined) root.touchPanelOn = d.touchPanelOn
             if (Array.isArray(d.touchTabs))   root.touchTabs    = d.touchTabs
-            if (d.touchIdleMinutes !== undefined) root.touchIdleMinutes = d.touchIdleMinutes
+            if (d.statsPrefs)                 root.statsPrefs   = Object.assign({}, root.statsPrefs, d.statsPrefs)
+            if (d.settingsTab)                root.settingsTab  = d.settingsTab
             root._loading = false
         } catch (e) { root._loading = false }
     }
@@ -57,7 +60,8 @@ QtObject {
             barMainOnly:  root.barMainOnly,
             touchPanelOn: root.touchPanelOn,
             touchTabs:    root.touchTabs,
-            touchIdleMinutes: root.touchIdleMinutes
+            statsPrefs:   root.statsPrefs,
+            settingsTab:  root.settingsTab
         })
         saveProc.command = ["bash", "-c", "printf '%s' \"$1\" > \"$2\"", "_", json, root._path]
         saveProc.running = false
@@ -76,7 +80,10 @@ QtObject {
     onBarMainOnlyChanged:  _save()
     onTouchPanelOnChanged: _save()
     onTouchTabsChanged:    _save()
-    onTouchIdleMinutesChanged: _save()
+    onStatsPrefsChanged:   _save()
+    onSettingsTabChanged:  _save()
+    // « Ne pas déranger » suit aussi swaync (toasts du système)
+    onDndChanged: Quickshell.execDetached(["swaync-client", dnd ? "-dn" : "-df"])
 
     // WiFi — false quand la radio est coupée OU que le hotspot occupe l'interface
     property bool wifiOn: false

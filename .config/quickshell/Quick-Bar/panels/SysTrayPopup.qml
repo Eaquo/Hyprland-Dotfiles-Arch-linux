@@ -64,8 +64,8 @@ Scope {
                 opacity: Appearance.trayMenuOpen ? 1.0 : 0.0
                 scale:   Appearance.trayMenuOpen ? 1.0 : 0.94
                 transformOrigin: Item.Top
-                Behavior on opacity { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-                Behavior on scale   { NumberAnimation { duration: 180; easing.type: Easing.OutExpo  } }
+                Behavior on opacity { NumberAnimation { duration: Appearance.dur(180); easing.type: Easing.OutCubic } }
+                Behavior on scale   { NumberAnimation { duration: Appearance.dur(180); easing.type: Easing.OutExpo  } }
 
                 // ── HoverHandler — ne touche JAMAIS aux clics ─────────
                 HoverHandler {
@@ -214,7 +214,7 @@ Scope {
                                 color: rowHover.containsMouse && entry.modelData.enabled
                                     ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.12)
                                     : "transparent"
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
 
                                 Rectangle {
                                     anchors.fill: parent
@@ -224,7 +224,7 @@ Scope {
                                         ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.20)
                                         : "transparent"
                                     border.width: 1
-                                    Behavior on border.color { ColorAnimation { duration: 100 } }
+                                    Behavior on border.color { ColorAnimation { duration: Appearance.dur(100) } }
                                 }
 
                                 RowLayout {
@@ -261,8 +261,8 @@ Scope {
                                                 ? Appearance.colors.accent
                                                 : ColorUtils.applyAlpha(Appearance.colors.fg, 0.30)
                                             border.width: 1.5
-                                            Behavior on color        { ColorAnimation { duration: 120 } }
-                                            Behavior on border.color { ColorAnimation { duration: 120 } }
+                                            Behavior on color        { ColorAnimation { duration: Appearance.dur(120) } }
+                                            Behavior on border.color { ColorAnimation { duration: Appearance.dur(120) } }
                                             Text {
                                                 anchors.centerIn: parent
                                                 visible: entry.modelData.checkState === Qt.Checked
@@ -281,7 +281,7 @@ Scope {
                                                 ? Appearance.colors.accent
                                                 : ColorUtils.applyAlpha(Appearance.colors.fg, 0.30)
                                             border.width: 1.5
-                                            Behavior on border.color { ColorAnimation { duration: 120 } }
+                                            Behavior on border.color { ColorAnimation { duration: Appearance.dur(120) } }
                                             Rectangle {
                                                 anchors.centerIn: parent
                                                 visible: entry.modelData.checkState === Qt.Checked
@@ -301,7 +301,7 @@ Scope {
                                             ? Appearance.colors.fg
                                             : ColorUtils.applyAlpha(Appearance.colors.fg, 0.30)
                                         elide: Text.ElideRight
-                                        Behavior on color { ColorAnimation { duration: 100 } }
+                                        Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                     }
 
                                     Text {
@@ -311,7 +311,7 @@ Scope {
                                         color: rowHover.containsMouse
                                             ? Appearance.colors.accent
                                             : Appearance.colors.dim
-                                        Behavior on color { ColorAnimation { duration: 100 } }
+                                        Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                     }
                                 }
 

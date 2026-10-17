@@ -401,3 +401,14 @@ Générée depuis le code. « Utilisé par » liste les fichiers qui instancient
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
 | `WallustTab.qml` (270 l.) | Édition manuelle de la palette wallust (TouchPanel) | TouchPanel |
+
+## Réglages (SUPER+F1, tuile Config)
+
+- `panels/SettingsPanel.qml` : fenêtre, barre latérale (catalogue `tabs`), recherche ; pages dans `pages/settings/` chargées par `sourceComponent` (jamais `Loader.source` relatif).
+- Composants : `SetCard`, `SetRow`, `SetSwitch`, `SetSlider`, `SetSeg`, `SetInput`, `SetButton`, `SetOrderList`, `PageHeader`.
+- Écriture : `Config.set("section.cle", valeur)` → `scripts/config/config_set.py` (tomlkit, commentaires gardés, `null` = valeur par défaut).
+- Helpers : `Config.term(titre, argv)` (terminal choisi), `Config.isTouch(screen)`, `Config.ms(clé, s)` ([refresh]), `Appearance.dur(ms)` (vitesse d'animation), `Appearance.paletteName` (Wallust/Matugen).
+- Catalogues : `core/BarModules.qml` ([bar.layout]), `core/TouchTabs.qml` (onglets tactiles).
+- Stats : `services/SysData.qml` (démon `sysstats.py` unique, `SysData.want(id, on)` pour le mode détail) ; cartes dans `components/stats/` (barre au survol + `pages/stats/StatsBoard.qml` pour les pages System).
+- Icônes : `IconUtils.reload()` relit le thème GTK ; `scripts/system/icon_themes.py list|apply <id>`. Style de la zone de notification : `[theme] tray_icons`.
+- Santé : vérifications perso `[[health.custom]]` {name, type, target, fix?}, passées à `check.sh` en JSON (QB_HEALTH_CUSTOM).

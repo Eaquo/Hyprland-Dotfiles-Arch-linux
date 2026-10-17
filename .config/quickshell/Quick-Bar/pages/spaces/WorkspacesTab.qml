@@ -60,7 +60,7 @@ Item {
 
     // ── Actions ─────────────────────────────────────────────────────────────────
     readonly property string xeneonName: {
-        const m = monitors.find(m => ((m.model || "") + (m.description || "")).toUpperCase().indexOf("XENEON") !== -1)
+        const m = monitors.find(m => Config.isTouch(m))
         return m ? m.name : ""
     }
     Process { id: actionProc }
@@ -155,7 +155,7 @@ Item {
                     color: grid.hoverTarget === tile.wsId
                         ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.35)
                         : ColorUtils.applyAlpha(Appearance.colors.bg, tile.isActive ? 0.15 : 0.4)
-                    Behavior on color { ColorAnimation { duration: 120 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
                 }
                 Text {
                     anchors.centerIn: parent
@@ -204,7 +204,7 @@ Item {
                 height: Math.min(modelData.size[1] * s, root.tileH)
                 z: touchArea.dragging ? 1000 : 1 + index
                 scale: touchArea.dragging ? 1.05 : 1
-                Behavior on scale { NumberAnimation { duration: 100 } }
+                Behavior on scale { NumberAnimation { duration: Appearance.dur(100) } }
 
                 Rectangle {
                     anchors.fill: parent

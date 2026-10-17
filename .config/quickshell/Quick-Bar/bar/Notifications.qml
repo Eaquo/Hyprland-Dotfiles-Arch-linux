@@ -31,7 +31,7 @@ RowLayout {
     }
 
     Timer {
-        interval: 3000; running: true; repeat: true; triggeredOnStart: true
+        interval: Config.ms("notifications", 3); running: true; repeat: true; triggeredOnStart: true
         onTriggered: swayncQuery.running = true
     }
 

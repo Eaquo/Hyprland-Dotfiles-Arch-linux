@@ -16,9 +16,11 @@ QtObject {
     id: root
 
     // ── Réglages ──────────────────────────────────────────────────────────────
-    property bool   switchEq: true
-    property bool   syncRgb:  true      // LED = couleur dominante de la bannière du jeu
-    property string rgbMode:  ""        // repli sans couleurs de jeu (ex. "sequence_4") ; vide = inchangé
+    // [game] dans config.toml — Réglages › Jeu › Mode jeu
+    readonly property bool   switchEq: Config.get("game.switch_eq", true) !== false
+    readonly property string eqPreset: String(Config.get("game.eq_preset", ""))   // vide = auto (Bose-FPS / KZ-FPS)
+    readonly property bool   syncRgb:  Config.get("game.sync_rgb", true) !== false  // LED = couleur dominante de la bannière du jeu
+    readonly property string rgbMode:  String(Config.get("game.rgb_mode", ""))   // repli sans couleurs de jeu (ex. "sequence_4") ; vide = inchangé
 
     // ── État ──────────────────────────────────────────────────────────────────
     property bool   active:    false
@@ -59,7 +61,10 @@ QtObject {
         if (active) _enter(); else _exit()
     }
 
+    // « Ne pas déranger » pendant le jeu ([game] dnd), rendu à la sortie
+    property bool _dndBefore: false
     function _enter() {
+        if (Config.get("game.dnd", false) === true) { _dndBefore = ShellState.dnd; ShellState.dnd = true }
         startedAt = new Date()
         startProc.running = true                       // reprend l'heure de début si déjà en jeu
         if (switchEq) eqGet.running = true            // → _prevPreset (fichier sinon EQ) puis FPS
@@ -71,6 +76,7 @@ QtObject {
             _run(["python3", _scripts + "/game/game_sessions.py", "add", gameKey, gameTitle,
                   String(Math.floor(startedAt / 1000)), String(Math.floor(Date.now() / 1000))])
         startedAt = null
+        if (Config.get("game.dnd", false) === true) ShellState.dnd = _dndBefore
         if (switchEq && _prevPreset !== "") _run(["python3", _scripts + "/audio/eq_control.py", "load_preset", _prevPreset])
         if (_prevRgb !== "") _writeSeq(_prevRgb)
         _run(["rm", "-f", _prevFile, _rgbFile, _startFile])
@@ -160,7 +166,7 @@ QtObject {
         stdout: StdioCollector {
             onStreamFinished: {
                 root._prevPreset = text.trim()
-                const fps = root._prevPreset.indexOf("Bose") === 0 ? "Bose-FPS" : "KZ-FPS"
+                const fps = root.eqPreset !== "" ? root.eqPreset : (root._prevPreset.indexOf("Bose") === 0 ? "Bose-FPS" : "KZ-FPS")
                 if (root.active && root._prevPreset !== fps)
                     root._run(["python3", root._scripts + "/audio/eq_control.py", "load_preset", fps])
             }

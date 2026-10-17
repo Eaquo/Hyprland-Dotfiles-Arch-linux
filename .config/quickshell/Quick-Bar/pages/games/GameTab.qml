@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Effects
 import Quickshell
+import Quickshell.Widgets
 import Quickshell.Io
 import qs.core
 import qs.core.functions
@@ -159,24 +160,64 @@ Item {
             cellWidth:  Math.floor(width / Math.max(1, Math.floor(width / 380)))
             cellHeight: 210
             model: root.filteredGames
-            boundsBehavior: Flickable.StopAtBounds
+            boundsBehavior: Flickable.DragOverBounds
+            flickDeceleration: 2500
+            snapMode: GridView.SnapToRow          // le défilement s'arrête sur une rangée
             cacheBuffer: 1400
+            // Inclinaison liée à la vitesse du geste, lissée (même effet tambour que l'onglet Wall)
+            property real tilt: Math.max(-14, Math.min(14, verticalVelocity / 180))
+            Behavior on tilt { NumberAnimation { duration: Appearance.dur(260); easing.type: Easing.OutCubic } }
+            // Cascade d'entrée jouée une fois, au premier remplissage
+            property bool introDone: false
+            Timer { interval: 1200; running: grid.count > 0; onTriggered: grid.introDone = true }
 
             delegate: Item {
                 id: cell
                 required property var modelData
+                required property int index
                 width: grid.cellWidth; height: grid.cellHeight
 
-                Rectangle {
+                // Position dans la vue : -1 en haut, 0 au centre, 1 en bas ; edge = 1 contre un bord
+                readonly property real rel: Math.max(-1.6, Math.min(1.6,
+                    ((y - grid.contentY + height / 2) / Math.max(1, grid.height)) * 2 - 1))
+                readonly property real edge: Math.min(1, Math.max(0, Math.abs(rel) - 0.5) / 0.7)
+
+                property real lift: grid.introDone ? 0 : 28
+                opacity: grid.introDone ? 1 : 0
+                Component.onCompleted: if (!grid.introDone) intro.start()
+                SequentialAnimation {
+                    id: intro
+                    PauseAnimation { duration: Math.min(cell.index, 20) * 35 }
+                    ParallelAnimation {
+                        NumberAnimation { target: cell; property: "opacity"; to: 1; duration: Appearance.dur(380); easing.type: Easing.OutCubic }
+                        NumberAnimation { target: cell; property: "lift"; to: 0; duration: Appearance.dur(560); easing.type: Easing.OutBack; easing.overshoot: 1.6 }
+                    }
+                }
+
+                // ClippingRectangle : la jaquette suit les coins arrondis (clip: true coupe en carré)
+                ClippingRectangle {
                     id: card
                     anchors { fill: parent; margins: 12 }
                     radius: 26
-                    clip: true
                     color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.55)
                     border.color: tapArea.pressed ? Appearance.colors.accent : Qt.rgba(1, 1, 1, 0.08)
                     border.width: tapArea.pressed ? 2 : 1
-                    scale: tapArea.pressed ? 0.97 : 1
-                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+                    scale: tapArea.pressed ? 0.94 : 1
+                    Behavior on scale { NumberAnimation { duration: Appearance.dur(280); easing.type: Easing.OutBack; easing.overshoot: 2.4 } }
+                    // Bascule 3D près des bords + élan du geste
+                    transform: [
+                        Translate { y: cell.lift },
+                        Rotation {
+                            origin.x: card.width / 2; origin.y: card.height / 2
+                            axis { x: 1; y: 0; z: 0 }
+                            angle: -cell.rel * cell.edge * 34 - grid.tilt
+                        },
+                        Scale {
+                            origin.x: card.width / 2; origin.y: card.height / 2
+                            xScale: 1 - 0.14 * cell.edge; yScale: xScale
+                        }
+                    ]
+                    opacity: 1 - 0.6 * cell.edge
 
                     // Glow / ombre douce pour faire ressortir la carte (accent au tap).
                     layer.enabled: true
@@ -196,9 +237,13 @@ Item {
                             width: parent.width
                             height: Math.round(card.height * 0.74)
                             color: ColorUtils.applyAlpha(Appearance.colors.color4, 0.60)
+                            clip: true
 
                             Image {
-                                anchors.fill: parent
+                                // parallaxe : 24 % plus haute que le cadre, glisse à l'inverse du défilement
+                                width: parent.width
+                                height: parent.height * 1.24
+                                y: -parent.height * 0.12 - cell.rel * parent.height * 0.1
                                 source: cell.modelData.image || ""
                                 fillMode: Image.PreserveAspectCrop
                                 asynchronous: true

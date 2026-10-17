@@ -33,6 +33,8 @@ hl.bind(mainMod .. " + SHIFT + C", hl.dsp.exec_cmd("pypr toggle clock"))
 -- Panneau Spotify de Quick-Bar (bord droit). La fenêtre Spotify (scratchpad pypr
 -- « spot ») s'ouvre depuis le bouton 󰏌 du panneau.
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("qs -p " .. os.getenv("HOME") .. "/.config/quickshell/Quick-Bar/shell.qml ipc call spotify toggle"))
+-- Fenêtre Réglages de Quick-Bar
+hl.bind(mainMod .. " + F1", hl.dsp.exec_cmd("qs -p " .. os.getenv("HOME") .. "/.config/quickshell/Quick-Bar/shell.qml ipc call settings toggle"))
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("pypr toggle ranger"))
 
 -- ── JARVIS ────────────────────────────────────────────────────────────────────

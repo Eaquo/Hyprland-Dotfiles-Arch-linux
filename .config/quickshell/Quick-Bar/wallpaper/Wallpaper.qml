@@ -36,7 +36,11 @@ Scope {
     }
 
     Variants {
-        model: Quickshell.screens
+        // Sous le TouchPanel (opaque, plein écran), le fond du Xeneon ne se voit pas :
+        // pas de fenêtre ni de texture pour lui tant que le panneau est allumé.
+        model: ShellState.touchPanelOn
+            ? Quickshell.screens.filter(s => !Config.isTouch(s))
+            : Quickshell.screens
 
         PanelWindow {
             id: win
@@ -62,9 +66,6 @@ Scope {
                                    ? ("file://" + root.wallPath) : ""
                 fillMode:      Image.PreserveAspectCrop
                 smooth:        true
-                // Niveaux de détail de la texture : requis par les shaders qui floutent
-                // via textureLod (rain = pluie sur vitre embuée).
-                mipmap:        true
                 asynchronous:  true
                 cache:         false
             }

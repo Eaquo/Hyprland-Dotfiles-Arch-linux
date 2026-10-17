@@ -22,7 +22,7 @@ Item {
 
     implicitWidth:  hasContent ? mainRow.implicitWidth : 0
     implicitHeight: mainRow.implicitHeight
-    Behavior on implicitWidth { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+    Behavior on implicitWidth { NumberAnimation { duration: Appearance.dur(200); easing.type: Easing.OutCubic } }
 
     // ── Data ─────────────────────────────────────────────────────────────
     readonly property string scriptPath:
@@ -51,7 +51,7 @@ Item {
     }
 
     Timer {
-        interval: 2000; running: true; repeat: true; triggeredOnStart: true
+        interval: Config.ms("media", 2); running: true; repeat: true; triggeredOnStart: true
         onTriggered: infoProc.running = true
     }
 
@@ -118,7 +118,7 @@ Item {
                     font.family:    Appearance.font.family
                     font.pixelSize: 15
                     color: Appearance.colors.color13
-                    Behavior on color { ColorAnimation { duration: 150 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(150) } }
                     MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: pauseProc.running = true }
                 }
 
@@ -166,7 +166,7 @@ Item {
                     height: parent.height
                     radius: 6
                     color:  Appearance.colors.color15
-                    Behavior on width { NumberAnimation { duration: 1800; easing.type: Easing.Linear } }
+                    Behavior on width { NumberAnimation { duration: Appearance.dur(1800); easing.type: Easing.Linear } }
                 }
             }
         }

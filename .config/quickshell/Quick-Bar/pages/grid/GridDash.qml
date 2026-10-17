@@ -697,7 +697,7 @@ Item {
                         border.color: tapA.pressed ? Appearance.colors.accent : Qt.rgba(1, 1, 1, 0.08)
                         border.width: 1
                         scale: tapA.pressed ? 0.94 : 1
-                        Behavior on scale { NumberAnimation { duration: 90 } }
+                        Behavior on scale { NumberAnimation { duration: Appearance.dur(90) } }
                         Column {
                             anchors.centerIn: parent; spacing: 3
                             Image {
@@ -1234,7 +1234,7 @@ Item {
                     width: cur ? 24 : 10; height: 10; radius: 5
                     anchors.verticalCenter: parent.verticalCenter
                     color: cur ? Appearance.colors.accent : ColorUtils.applyAlpha(Appearance.colors.fg, 0.3)
-                    Behavior on width { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                    Behavior on width { NumberAnimation { duration: Appearance.dur(150); easing.type: Easing.OutCubic } }
                     MouseArea { anchors.fill: parent; anchors.margins: -7; onClicked: root.curPage = index }
                 }
             }

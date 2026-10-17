@@ -293,7 +293,7 @@ StatCard {
                            ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.15)
                            : Qt.rgba(1,1,1,0.06)
                     border.color: Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.2); border.width: 1
-                    Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                     Text {
                         anchors.centerIn: parent
                         text: root._addTimerOpen ? "x" : "+"
@@ -370,7 +370,7 @@ StatCard {
                             width: 36; height: 22; radius: 6
                             color: _pH.hovered ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.1) : Qt.rgba(1,1,1,0.05)
                             border.color: Qt.rgba(1,1,1,0.1); border.width: 1
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             Text {
                                 anchors.centerIn: parent
                                 text: modelData < 60 ? modelData+"m" : "1h"
@@ -418,7 +418,7 @@ StatCard {
                                    ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.18)
                                    : Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.1)
                             border.color: Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.25); border.width: 1
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             Text {
                                 anchors.centerIn: parent; text: "Set Timer"
                                 font.pixelSize: 11; font.weight: Font.Medium
@@ -458,7 +458,7 @@ StatCard {
                                ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.2)
                                : Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.12)
                         border.color: Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.22); border.width: 1
-                        Behavior on color { ColorAnimation { duration: 100 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                         Text {
                             anchors.centerIn: parent
                             text: root._timerRunning ? "Pause" : "Start"
@@ -484,7 +484,7 @@ StatCard {
                                ? Qt.rgba(1,1,1,0.1)
                                : Qt.rgba(1,1,1,0.05)
                         border.color: Qt.rgba(1,1,1,0.1); border.width: 1
-                        Behavior on color { ColorAnimation { duration: 100 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                         Text {
                             anchors.centerIn: parent; text: "Reset"
                             font.pixelSize: 10; font.weight: Font.Medium
@@ -539,7 +539,7 @@ StatCard {
                                    ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.15)
                                    : Qt.rgba(1,1,1,0.06)
                             border.color: Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.2); border.width: 1
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             Text {
                                 anchors.centerIn: parent
                                 text: root._addOpen ? "✕" : "+"
@@ -578,8 +578,8 @@ StatCard {
                     radius:  8
                     border.color: Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.1); border.width: 1
                     opacity: root._addOpen ? 1 : 0
-                    Behavior on height  { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-                    Behavior on opacity { NumberAnimation { duration: 150 } }
+                    Behavior on height  { NumberAnimation { duration: Appearance.dur(180); easing.type: Easing.OutCubic } }
+                    Behavior on opacity { NumberAnimation { duration: Appearance.dur(150) } }
 
                     Column {
                         anchors.centerIn: parent
@@ -598,7 +598,7 @@ StatCard {
                                    ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.18)
                                    : Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.1)
                             border.color: Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.25); border.width: 1
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             Text {
                                 anchors.centerIn: parent; text: "Set Alarm"
                                 font.pixelSize: 11; font.weight: Font.Medium
@@ -657,14 +657,14 @@ StatCard {
                             color: modelData.enabled
                                    ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.25)
                                    : Qt.rgba(1,1,1,0.1)
-                            Behavior on color { ColorAnimation { duration: 130 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(130) } }
                             Rectangle {
                                 width: 12; height: 12; radius: 6
                                 anchors.verticalCenter: parent.verticalCenter
                                 x: modelData.enabled ? parent.width - width - 3 : 3
                                 color: modelData.enabled ? Appearance.active : Qt.rgba(1,1,1,0.3)
-                                Behavior on x     { NumberAnimation { duration: 130; easing.type: Easing.OutCubic } }
-                                Behavior on color { ColorAnimation  { duration: 130 } }
+                                Behavior on x     { NumberAnimation { duration: Appearance.dur(130); easing.type: Easing.OutCubic } }
+                                Behavior on color { ColorAnimation  { duration: Appearance.dur(130) } }
                             }
                             MouseArea {
                                 anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -678,7 +678,7 @@ StatCard {
                             anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
                             width: 22; height: 22; radius: 6
                             color: _delH.hovered ? Qt.rgba(248/255,113/255,113/255,0.18) : "transparent"
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             Text { anchors.centerIn: parent; text: "✕"; font.pixelSize: 10; color: Qt.rgba(248/255,113/255,113/255,0.6) }
                             HoverHandler { id: _delH; cursorShape: Qt.PointingHandCursor }
                             MouseArea { anchors.fill: parent; onClicked: root._deleteAlarm(modelData.id) }
@@ -724,7 +724,7 @@ StatCard {
                                ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.2)
                                : Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.12)
                         border.color: Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b,0.22); border.width: 1
-                        Behavior on color { ColorAnimation { duration: 100 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                         Text {
                             anchors.centerIn: parent
                             text: root._swRunning ? "Stop" : "Start"
@@ -745,7 +745,7 @@ StatCard {
                                ? Qt.rgba(1,1,1,0.1)
                                : Qt.rgba(1,1,1,0.05)
                         border.color: Qt.rgba(1,1,1,0.1); border.width: 1
-                        Behavior on color { ColorAnimation { duration: 100 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                         Text {
                             anchors.centerIn: parent; text: "Reset"
                             font.pixelSize: 10; font.weight: Font.Medium

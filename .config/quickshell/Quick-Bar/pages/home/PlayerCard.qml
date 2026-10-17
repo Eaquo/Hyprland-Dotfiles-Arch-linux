@@ -189,7 +189,7 @@ Item {
             blur:         0.5
             blurMax:      32
             saturation:   0.2
-            Behavior on opacity { NumberAnimation { duration: 400 } }
+            Behavior on opacity { NumberAnimation { duration: Appearance.dur(400) } }
         }
 
         Rectangle {
@@ -275,7 +275,7 @@ Item {
                            : cH.hovered ? Qt.rgba(1,1,1,0.14) : Qt.rgba(1,1,1,0.06)
                     border.color: isPlay ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.3) : "transparent"
                     border.width: 1
-                    Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                     Text {
                         anchors.centerIn: parent
                         text: parent.dispIcon
@@ -327,7 +327,7 @@ Item {
                         anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
                         width:  Math.max(radius * 2, parent.width * root._progress)
                         radius: parent.radius; color: Appearance.active
-                        Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+                        Behavior on width { NumberAnimation { duration: Appearance.dur(200); easing.type: Easing.OutCubic } }
                     }
                 }
             }
@@ -378,7 +378,7 @@ Item {
             height: root._dropdownOpen
                     ? (_rowH * root.filteredPlayers.length)
                     : _rowH
-            Behavior on height { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
+            Behavior on height { NumberAnimation { duration: Appearance.dur(200); easing.type: Easing.OutCubic } }
 
             radius:       _rowH / 2
             clip:         true
@@ -387,7 +387,7 @@ Item {
                           ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.30)
                           : "transparent"
             border.width: 1
-            Behavior on border.color { ColorAnimation { duration: 150 } }
+            Behavior on border.color { ColorAnimation { duration: Appearance.dur(150) } }
 
             // Column anchored to pill bottom — children stack upward on expand
             Column {
@@ -413,8 +413,8 @@ Item {
                         height:  isCurrent ? 0 : (root._dropdownOpen ? pill._rowH : 0)
                         visible: !isCurrent
                         opacity: root._dropdownOpen ? 1 : 0
-                        Behavior on height  { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
-                        Behavior on opacity { NumberAnimation { duration: 140 } }
+                        Behavior on height  { NumberAnimation { duration: Appearance.dur(180); easing.type: Easing.OutCubic } }
+                        Behavior on opacity { NumberAnimation { duration: Appearance.dur(140) } }
 
                         Row {
                             anchors.centerIn: parent
@@ -427,7 +427,7 @@ Item {
                                 color:          rowH.hovered
                                                 ? Qt.rgba(1,1,1,0.90)
                                                 : Qt.rgba(1,1,1,0.55)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             }
                             Text {
                                 anchors.verticalCenter: parent.verticalCenter
@@ -436,7 +436,7 @@ Item {
                                 color:          rowH.hovered
                                                 ? Qt.rgba(1,1,1,0.90)
                                                 : Qt.rgba(1,1,1,0.55)
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             }
                         }
 
@@ -510,7 +510,7 @@ Item {
                             var c = Appearance.specColor(index / root._cavaBars + Appearance.specPhase)
                             return Qt.rgba(c.r, c.g, c.b, 0.25 + _amp * 0.65)
                         }
-                        Behavior on height { NumberAnimation { duration: 50; easing.type: Easing.OutCubic } }
+                        Behavior on height { NumberAnimation { duration: Appearance.dur(50); easing.type: Easing.OutCubic } }
                     }
                 }
             }

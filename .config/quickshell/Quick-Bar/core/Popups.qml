@@ -14,6 +14,9 @@ QtObject {
     property bool quickOpen:         false
     property bool clipboardOpen:     false
     property bool spotifyOpen:       false   // panneau Spotify (bord droit, SUPER+SHIFT+S)
+    property bool settingsOpen:      false   // fenêtre Réglages (tuile Config, SUPER+F1)
+    property string settingsPage:    ""      // page à ouvrir dans les Réglages ("" = dernière)
+    property string settingsHint:    ""      // sous-partie de la page à ouvrir (ex. "stats" dans Modules)
 
     // ── Dashboard — largeur de contenu par page (px) ───────────────────────
     property int dashboardPageWidth: 900
@@ -62,10 +65,11 @@ QtObject {
     readonly property bool anyOpen: audioOpen || networkOpen || batteryOpen
                                     || notificationsOpen || archMenuOpen
                                     || dashboardOpen || wallpaperOpen || quickOpen
-                                    || clipboardOpen || spotifyOpen
+                                    || clipboardOpen || spotifyOpen || settingsOpen
 
     function closeAll() {
         spotifyOpen       = false
+        settingsOpen      = false
         audioOpen         = false
         networkOpen       = false
         batteryOpen       = false

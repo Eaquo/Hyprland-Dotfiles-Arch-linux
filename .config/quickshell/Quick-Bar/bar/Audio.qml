@@ -46,7 +46,7 @@ RowLayout {
     }
 
     Timer {
-        interval: 2000; running: true; repeat: true; triggeredOnStart: true
+        interval: Config.ms("audio", 2); running: true; repeat: true; triggeredOnStart: true
         onTriggered: { spkQuery.running = true; micQuery.running = true }
     }
 
@@ -93,7 +93,7 @@ RowLayout {
         color: root.muted ? Appearance.color.color10 : Appearance.color.accent
         Layout.maximumWidth: root.muted ? 0 : 60
         clip: true
-        Behavior on Layout.maximumWidth { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+        Behavior on Layout.maximumWidth { NumberAnimation { duration: Appearance.dur(150); easing.type: Easing.OutCubic } }
     }
     
 
@@ -126,6 +126,6 @@ RowLayout {
         color: root.micMuted ? Appearance.color.color13 : Appearance.color.accent
         Layout.maximumWidth: root.micMuted ? 0 : 60
         clip: true
-        Behavior on Layout.maximumWidth { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+        Behavior on Layout.maximumWidth { NumberAnimation { duration: Appearance.dur(150); easing.type: Easing.OutCubic } }
     }
 }
