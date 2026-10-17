@@ -28,7 +28,9 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("bash -c 'sleep 12 && " .. home .. "/.config/quickshell/Quick-Bar/scripts/rgb/rgb_watch.sh ensure'")
 
 	-- Bar / Notifications
-	hl.exec_cmd("quickshell -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml")
+	-- MALLOC_MMAP_THRESHOLD_ : les gros tampons (décodage des wallpapers 5K…) sont
+	-- rendus au système une fois libérés au lieu de rester dans le tas (~80 Mo).
+	hl.exec_cmd("env MALLOC_MMAP_THRESHOLD_=131072 quickshell -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml")
 	hl.exec_cmd("swaync")
 
 	-- Système

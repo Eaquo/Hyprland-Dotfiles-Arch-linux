@@ -28,7 +28,7 @@ RowLayout {
     }
 
     Timer {
-        interval: 5000; running: true; repeat: true; triggeredOnStart: true
+        interval: Config.ms("bluetooth", 5); running: true; repeat: true; triggeredOnStart: true
         onTriggered: btQuery.running = true
     }
 

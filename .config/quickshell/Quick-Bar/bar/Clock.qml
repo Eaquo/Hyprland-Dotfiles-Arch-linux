@@ -7,8 +7,7 @@ Text {
 
     function update() {
         var d  = new Date()
-        var fr = Qt.locale("fr_FR")
-        text = "    " + Qt.formatTime(d, "HH:mm:ss")
+        text = "    " + d.toLocaleString(Qt.locale("fr_FR"), Config.get("bar.clock_format", "HH:mm:ss"))
     }
 
     color: Appearance.colors.color15
@@ -21,9 +20,12 @@ Text {
     }
 
     Timer {
-        interval: 1000; running: true; repeat: true; triggeredOnStart: true
+        // chaque seconde seulement si le format les affiche
+        interval: String(Config.get("bar.clock_format", "HH:mm:ss")).includes("s") ? 1000 : 15000; running: true; repeat: true; triggeredOnStart: true
         onTriggered: root.update()
     }
+
+    Connections { target: Config; function onDataChanged() { root.update() } }
 
     MouseArea {
         anchors.fill: parent

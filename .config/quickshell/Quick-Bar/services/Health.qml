@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick
+import qs.core
 import Quickshell
 import Quickshell.Io
 
@@ -34,10 +35,16 @@ QtObject {
         fixProc.running = true
     }
 
+    // Vérifications désactivées + vérifications de l'utilisateur ([health] skip · [[health.custom]])
+    readonly property var env: ({
+        QB_HEALTH_SKIP: (Config.get("health.skip", []) || []).join(" "),
+        QB_HEALTH_CUSTOM: JSON.stringify(Config.get("health.custom", []) || [])
+    })
     property bool _notified: false
     property var _check: Process {
         id: checkProc
         command: ["bash", root.script]
+        environment: root.env
         stdout: StdioCollector {
             onStreamFinished: {
                 try { root.rows = JSON.parse(text) } catch (e) {}
@@ -56,9 +63,10 @@ QtObject {
     }
     property var _fix: Process {
         id: fixProc
+        environment: root.env
         onExited: { root.fixing = ""; root.busy = false; root.refresh() }
     }
     // Premier bilan 25 s après le lancement (le temps que la session démarre), puis toutes les 5 min
     property var _boot: Timer { interval: 25000; running: true; onTriggered: root.refresh() }
-    property var _tick: Timer { interval: 300000; running: true; repeat: true; onTriggered: root.refresh() }
+    property var _tick: Timer { interval: Config.ms("health", 300); running: true; repeat: true; onTriggered: root.refresh() }
 }

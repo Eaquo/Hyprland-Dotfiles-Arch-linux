@@ -207,7 +207,7 @@ Item {
                         color: Qt.lighter(Appearance.colors.accent, 1.2)
                         border.color: Appearance.colors.bg; border.width: 2
                         scale: barArea.pressed ? 1.15 : 1
-                        Behavior on scale { NumberAnimation { duration: 90 } }
+                        Behavior on scale { NumberAnimation { duration: Appearance.dur(90) } }
                     }
                     MouseArea {
                         id: barArea
@@ -264,7 +264,7 @@ Item {
                     border.color: cell.isActive ? cell.mcol : Qt.rgba(1, 1, 1, 0.08)
                     border.width: cell.isActive ? 2 : 1
                     scale: tapArea.pressed ? 0.96 : 1
-                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutCubic } }
+                    Behavior on scale { NumberAnimation { duration: Appearance.dur(100); easing.type: Easing.OutCubic } }
 
                     Column {
                         anchors.fill: parent

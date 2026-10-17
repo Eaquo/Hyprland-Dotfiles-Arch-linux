@@ -11,7 +11,7 @@ scale = 1.0
 # Clés = celles des onglets : game home grid ws stats kanban files wall colors eq
 #        mixer discord deck games rgb
 [touchpanel.pages]
-wall   = 1.5  # réglages et vignettes de l'onglet Wall
+wall   = 1    # réglages et vignettes de l'onglet Wall
 stats  = 1.15
 kanban = 1.15
 files  = 1.60
@@ -20,6 +20,60 @@ files  = 1.60
 # Police et tailles de base du thème (barre, dashboard, textes qui suivent le thème).
 # Attention : beaucoup d'éléments ont une taille fixe ; pour tout agrandir sur le
 # panneau tactile, utiliser plutôt les zooms ci-dessus.
-family = "Cascadia Code Nerd Font"
+family = "CaskaydiaCove Nerd Font"
 body   = 16
 small  = 14
+
+[health]
+# Adresse du serveur Proxmox vérifiée par l'onglet Santé (vide = pas de vérification).
+proxmox = "192.168.1.200"
+skip = ["discord"]
+
+[[health.custom]]
+name = "Jellyfin"
+type = "url"
+target = "http://192.168.1.150:8096"
+
+[[health.custom]]
+name = "Hyprland"
+type = "process"
+target = "Hyprland"
+fix = "setsid -f Hyprland >/dev/null 2>&1"
+
+[[health.custom]]
+name = "start-hyprland"
+type = "process"
+target = "start-hyprland"
+fix = "setsid -f start-hyprland >/dev/null 2>&1"
+[wallpaper]
+# Dossier des wallpapers (galerie de l'onglet Wall, bouton Aléatoire, rotation auto).
+dir    = "~/Pictures/wallpapers"
+# Vidéos (gslapper). Par défaut : sous-dossier Video du dossier ci-dessus.
+videos = "~/Pictures/wallpapers/Video"
+
+[theme]
+palette = "matugen"
+matugen_prefer = "value"
+matugen_mode = "dark"
+accent = "color4"
+
+[bar]
+height = 34
+
+[bar.layout]
+left = ["launcher", "stats"]
+center = ["notifications", "cava", "clock", "workspaces", "layout", "localsend"]
+right = ["updates", "tray", "audio", "power"]
+
+[general]
+# Profil affiché dans l'accueil (nom vide = $USER, avatar par défaut ~/.face)
+avatar = "~/Eaquo_Assets/Edited Image.jpg"
+# Terminal des actions de la barre (kitty, foot, alacritty, ghostty, wezterm, konsole…)
+
+[refresh]
+health = 3600
+
+[dashboard]
+
+[game]
+eq_preset = "HP"

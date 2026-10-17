@@ -107,8 +107,8 @@ Scope {
                 opacity: Appearance.calendarVisible ? 1.0 : 0.0
                 scale:   Appearance.calendarVisible ? 1.0 : 0.96
                 transformOrigin: Item.Top
-                Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-                Behavior on scale   { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+                Behavior on opacity { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
+                Behavior on scale   { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
 
                 HoverHandler {
                     onHoveredChanged: hovered ? closeTimer.stop() : closeTimer.restart()
@@ -164,7 +164,7 @@ Scope {
                                 color: prevMo.containsMouse
                                     ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.08)
                                     : "transparent"
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                 Text {
                                     anchors.centerIn: parent
                                     text: "‹"
@@ -198,7 +198,7 @@ Scope {
                                 color: nextMo.containsMouse
                                     ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.08)
                                     : "transparent"
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                 Text {
                                     anchors.centerIn: parent
                                     text: "›"
@@ -274,7 +274,7 @@ Scope {
                                     : dayMa.containsMouse && !isEmpty
                                         ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.07)
                                         : "transparent"
-                                Behavior on color { ColorAnimation { duration: 80 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(80) } }
 
                                 // Point "aujourd'hui" dans les autres mois
                                 Rectangle {

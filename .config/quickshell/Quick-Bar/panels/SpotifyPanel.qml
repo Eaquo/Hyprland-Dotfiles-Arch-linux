@@ -24,13 +24,13 @@ PanelWindow {
     readonly property int fw: Appearance.notchRadius
     readonly property int fh: Appearance.notchRadius
     readonly property int animDuration: Appearance.animDuration
-    readonly property int panelWidth:  440
-    readonly property int panelHeight: 730
+    readonly property int panelWidth:  Config.get("spotify.width", 440)    // [spotify] dans config.toml
+    readonly property int panelHeight: Config.get("spotify.height", 730)
 
     // Écran principal = tout sauf le tactile Xeneon.
     screen: {
         const all = Quickshell.screens
-        return all.find(s => (s.model || "").toUpperCase().indexOf("XENEON") === -1) || all[0]
+        return all.find(s => !Config.isTouch(s)) || all[0]
     }
 
     color:   "transparent"
@@ -53,7 +53,8 @@ PanelWindow {
     // quelques dizaines de ms) : sinon le début de l'animation est perdu.
     property bool slid: false
     Timer { id: slideTimer; interval: 60; onTriggered: root.slid = true }
-    Timer { id: closeTimer; interval: root.animDuration + 20; onTriggered: root.windowVisible = false }
+    // La fenêtre reste affichée le temps de l'animation de fermeture (reveal.closeAnim)
+    Timer { id: closeTimer; interval: 1550; onTriggered: root.windowVisible = false }
 
     IpcHandler {
         target: "spotify"
@@ -117,18 +118,140 @@ PanelWindow {
             Keys.onDownPressed:   root.setVolume(root.volume - 0.05)
         }
 
-        // Glissement : le corps entier se déplace, de hors écran (à droite) vers
-        // sa place à l'ouverture, et repart vers la droite à la fermeture.
-        Item {
-            width: root.panelWidth
-            height: parent.height
-            x: root.slid ? 0 : root.panelWidth
-            Behavior on x {
-                NumberAnimation {
-                    duration: root.animDuration
-                    easing.type: root.slid ? Easing.OutCubic : Easing.InCubic
+        // Ouverture — la forme animée est une vraie PopupShape (trait du bord + raccords
+        // creux + corps, d'un seul tracé), donc toujours rattachée au bord comme le panneau fini :
+        //   1. le trait du bord droit pousse depuis le centre vers le haut et le bas
+        //   2. une demi-sphère naît contre ce trait, déjà raccordée par ses arrondis creux
+        //   3. elle s'étire à la verticale, moitié vers le haut, moitié vers le bas
+        //   4. elle s'élargit vers la gauche jusqu'aux dimensions exactes du panneau,
+        //      puis le contenu apparaît ; le vrai panneau (identique) prend le relais
+        // Fermeture : le même chemin à l'envers, jusqu'au trait qui se rétracte au centre.
+        //
+        // morphFill (dessous) : fond de la forme, raccords compris
+        // reveal (milieu)     : découpe le vrai panneau + son contenu à la taille du corps
+        // morphLine (dessus)  : bordure en dégradé de la forme
+        component MorphShape: PopupShape {
+            x: root.panelWidth - Math.max(reveal.rw, 2)
+            width: Math.max(reveal.rw, 2)
+            y: reveal.cy - reveal.lineH / 2
+            height: Math.max(reveal.lineH, 1)
+            attachedEdge: "right-full"
+            bodyY:      reveal.cy - reveal.rh / 2 - flareHeight - y
+            bodyHeight: reveal.rh + 2 * flareHeight
+            // le corps doit loger l'arrondi ET le raccord : rayon ≤ largeur − raccord
+            flareWidth:  Math.min(root.fw * reveal.flare, width)
+            radius:      Math.max(0, Math.min(reveal.mr, reveal.rh / 2, reveal.rw - flareWidth))
+            flareHeight: root.fh * reveal.flare
+            opacity: reveal.lineOp
+            visible: opacity > 0.01 && reveal.lineH > 0.5
+        }
+        MorphShape {
+            id: morphFill
+            color: Appearance.background
+        }
+
+        ClippingRectangle {
+            id: reveal
+            readonly property real cy: sizer.bodyY + sizer.bodyH / 2
+            readonly property real dot: 34
+            // Hauteur de l'ÉCRAN : la fenêtre vaut 0 un instant à l'ouverture (cf. sizer.bodyY)
+            readonly property real fullH: root.screen?.height ?? sizer.height
+            // Corps du panneau sans ses raccords : le déroulé s'arrête là
+            readonly property real bodyH: root.panelHeight
+            property real rw: root.panelWidth       // largeur du corps, comptée depuis le bord droit
+            property real rh: bodyH                 // hauteur du corps
+            property real mr: Appearance.cornerRadius   // rayon des coins de gauche
+            property real flare: 1                  // taille des raccords creux (0 → 1)
+            property real content: 1
+            property real lineH: fullH              // longueur du trait du bord droit
+            property real lineOp: 0                 // opacité de la forme animée (0 = vrai panneau)
+            property bool done: true                // animation finie : plus de découpe
+            // État final (aussi appliqué si l'animation est interrompue)
+            function finish() {
+                rw = Qt.binding(() => root.panelWidth); rh = Qt.binding(() => bodyH)
+                mr = Appearance.cornerRadius; flare = 1; content = 1
+                lineH = Qt.binding(() => fullH); done = true
+            }
+            // pendant l'animation : découpe au corps (le côté droit dépasse, hors écran) ;
+            // ensuite : toute la bande, pour laisser voir les raccords du vrai panneau
+            x: done ? 0 : root.panelWidth - rw
+            y: done ? 0 : cy - rh / 2
+            width: done ? root.panelWidth : rw + mr
+            height: done ? fullH : rh
+            radius: done ? 0 : Math.min(mr, rh / 2)
+            color: "transparent"
+
+            Connections {
+                target: root
+                function onSlidChanged() {
+                    if (root.slid) { closeAnim.stop(); openAnim.restart() }
+                    else { openAnim.stop(); closeAnim.restart() }
                 }
             }
+            SequentialAnimation {
+                id: openAnim
+                ScriptAction { script: {
+                    reveal.done = false
+                    reveal.rw = 0; reveal.rh = 0; reveal.mr = 0; reveal.flare = 0; reveal.content = 0
+                    reveal.lineH = 0; reveal.lineOp = 1
+                } }
+                // 1. le trait du bord pousse depuis le centre
+                NumberAnimation { target: reveal; property: "lineH"; to: reveal.fullH; duration: Appearance.dur(420); easing.type: Easing.OutCubic }
+                // 2. la demi-sphère naît, raccordée au trait
+                ParallelAnimation {
+                    NumberAnimation { target: reveal; property: "rw"; to: reveal.dot + root.fw; duration: Appearance.dur(340); easing.type: Easing.OutBack; easing.overshoot: 1.6 }
+                    NumberAnimation { target: reveal; property: "rh"; to: reveal.dot * 2; duration: Appearance.dur(340); easing.type: Easing.OutBack; easing.overshoot: 1.6 }
+                    NumberAnimation { target: reveal; property: "mr"; to: reveal.dot; duration: Appearance.dur(340); easing.type: Easing.OutBack; easing.overshoot: 1.6 }
+                    NumberAnimation { target: reveal; property: "flare"; to: 1; duration: Appearance.dur(340); easing.type: Easing.OutCubic }
+                }
+                // 3. déroulé vertical, centré (50 % en haut, 50 % en bas)
+                NumberAnimation { target: reveal; property: "rh"; to: reveal.bodyH; duration: Appearance.dur(480); easing.type: Easing.OutCubic }
+                // 4. élargissement vers la gauche, coins qui prennent le rayon du panneau
+                ParallelAnimation {
+                    NumberAnimation { target: reveal; property: "rw"; to: root.panelWidth; duration: Appearance.dur(460); easing.type: Easing.OutCubic }
+                    NumberAnimation { target: reveal; property: "mr"; to: Appearance.cornerRadius; duration: Appearance.dur(460); easing.type: Easing.InOutCubic }
+                    SequentialAnimation {
+                        PauseAnimation { duration: Appearance.dur(200) }
+                        NumberAnimation { target: reveal; property: "content"; to: 1; duration: Appearance.dur(340); easing.type: Easing.OutCubic }
+                    }
+                }
+                ScriptAction { script: reveal.finish() }
+                // le vrai panneau, identique, prend le relais de la forme animée
+                NumberAnimation { target: reveal; property: "lineOp"; to: 0; duration: Appearance.dur(220) }
+            }
+            // Fermeture : le chemin inverse
+            SequentialAnimation {
+                id: closeAnim
+                ScriptAction { script: {
+                    reveal.lineOp = 1; reveal.rw = root.panelWidth; reveal.rh = reveal.bodyH
+                    reveal.mr = Appearance.cornerRadius; reveal.flare = 1; reveal.lineH = reveal.fullH
+                    reveal.done = false
+                } }
+                NumberAnimation { target: reveal; property: "content"; to: 0; duration: Appearance.dur(180); easing.type: Easing.InCubic }
+                // 4⁻¹. resserrement vers le bord, coins qui s'arrondissent en demi-sphère
+                ParallelAnimation {
+                    NumberAnimation { target: reveal; property: "rw"; to: reveal.dot + root.fw; duration: Appearance.dur(360); easing.type: Easing.InOutCubic }
+                    NumberAnimation { target: reveal; property: "mr"; to: reveal.dot; duration: Appearance.dur(360); easing.type: Easing.OutCubic }
+                }
+                // 3⁻¹. la bande se replie en demi-sphère
+                NumberAnimation { target: reveal; property: "rh"; to: reveal.dot * 2; duration: Appearance.dur(380); easing.type: Easing.InOutCubic }
+                // 2⁻¹. la demi-sphère rentre dans le trait
+                ParallelAnimation {
+                    NumberAnimation { target: reveal; property: "rw"; to: 0; duration: Appearance.dur(260); easing.type: Easing.InBack; easing.overshoot: 1.4 }
+                    NumberAnimation { target: reveal; property: "rh"; to: 0; duration: Appearance.dur(260); easing.type: Easing.InCubic }
+                    NumberAnimation { target: reveal; property: "mr"; to: 0; duration: Appearance.dur(260); easing.type: Easing.InCubic }
+                    NumberAnimation { target: reveal; property: "flare"; to: 0; duration: Appearance.dur(260); easing.type: Easing.InCubic }
+                }
+                // 1⁻¹. le trait se rétracte vers le centre
+                NumberAnimation { target: reveal; property: "lineH"; to: 0; duration: Appearance.dur(300); easing.type: Easing.InCubic }
+            }
+
+        // Corps du panneau, pleine taille, recalé sous la zone révélée
+        Item {
+            x: -reveal.x
+            y: -reveal.y
+            width: root.panelWidth
+            height: reveal.fullH
 
             // Absorbe les clics sur le panneau seulement (au-dessus/en dessous,
             // un clic ferme comme partout ailleurs).
@@ -144,13 +267,16 @@ PanelWindow {
                 flareWidth:   root.fw
                 flareHeight:  root.fh
                 borderColor:    Appearance.outline
-                borderWidth:    2          // gardé pendant le glissement de fermeture
+                // masquée pendant l'animation : le contour animé la dessine à la même place,
+                // elle ne revient qu'à la fin (une seule ligne visible à tout moment)
+                borderWidth:    reveal.content >= 0.999 ? 2 : 0
                 borderAnimated: root.windowVisible && Appearance.animationsEnabled
             }
 
             ColumnLayout {
                 x: 22; width: parent.width - 44
-                y: sizer.bodyY + root.fh + 18
+                y: sizer.bodyY + root.fh + 18 + (1 - reveal.content) * 10
+                opacity: reveal.content
                 height: root.panelHeight - 36
                 spacing: 14
 
@@ -307,6 +433,17 @@ PanelWindow {
                 Item { Layout.fillHeight: true; visible: root.player !== null }
             }
         }
+        }
+
+        // Bordure de la forme animée (trait du bord + raccords + corps, un seul tracé),
+        // en dégradé animé comme celle du panneau fini
+        MorphShape {
+            id: morphLine
+            color: "transparent"
+            borderColor: Appearance.outline
+            borderWidth: 2
+            borderAnimated: Appearance.animationsEnabled && visible
+        }
     }
 
     // ── Bouton rond ───────────────────────────────────────────────────────────
@@ -322,7 +459,7 @@ PanelWindow {
         color: primary ? Appearance.colors.accent
              : hov.hovered ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.14)
              : on ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.25) : "transparent"
-        Behavior on color { ColorAnimation { duration: 120 } }
+        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
         Text {
             anchors.centerIn: parent; text: btn.glyph
             font.family: Appearance.font.family; font.pixelSize: btn.size * 0.5

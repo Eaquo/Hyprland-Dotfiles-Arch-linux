@@ -44,11 +44,11 @@ RowLayout {
     }
 
     Timer {
-        interval: 8000; running: true; repeat: true; triggeredOnStart: true
+        interval: Config.ms("network", 8); running: true; repeat: true; triggeredOnStart: true
         onTriggered: query.running = true
     }
 
-    Process { id: nmtui; command: ["kitty", "nmtui"] }
+    Process { id: nmtui; command: Config.term("Réseau", ["nmtui"]) }
 
     // ── Icon ─────────────────────────────────────────────────────────────
     Text {

@@ -1,5 +1,7 @@
 #!/bin/bash
-# Surcharge manuelle des couleurs wallust (onglet Wallust du TouchPanel).
+# Surcharge manuelle des couleurs de la palette (onglet Wallust/Matugen du TouchPanel).
+# QB_PALETTE=matugen + QB_PALETTE_FILE=<json> : la surcharge est écrite directement dans
+# le fichier matugen de Quick-Bar (wallust n'est pas touché).
 #
 #   apply '<json pywal>'  → sauve la palette de base (1re fois), applique la
 #                           palette modifiée via `wallust cs` (tous les templates)
@@ -9,8 +11,14 @@
 # Un nouveau `wallust run` (changement de wallpaper) écrase la surcharge : on le
 # détecte (wal.json ≠ override.json) et on jette la base devenue périmée.
 
-D="$HOME/.cache/quickbar-wallust"
-WAL="$HOME/.cache/wal/wal.json"
+SRC="${QB_PALETTE:-wallust}"
+if [ "$SRC" = matugen ]; then
+    D="$HOME/.cache/quickbar-matugen"
+    WAL="${QB_PALETTE_FILE:-$HOME/.cache/matugen/quickbar_colors.json}"
+else
+    D="$HOME/.cache/quickbar-wallust"
+    WAL="$HOME/.cache/wal/wal.json"
+fi
 mkdir -p "$D"
 
 colors_of() { jq -c '[.special, .colors] | walk(if type == "string" then ascii_downcase else . end)' "$1" 2>/dev/null; }
@@ -21,6 +29,11 @@ if [ -f "$D/override.json" ] && [ "$(colors_of "$D/override.json")" != "$(colors
 fi
 
 apply_scheme() {
+    if [ "$SRC" = matugen ]; then
+        # Quick-Bar relit le fichier tout seul ; écriture atomique
+        cp "$1" "$WAL.tmp" && mv "$WAL.tmp" "$WAL"
+        return
+    fi
     wallust cs -f pywal -s -q "$1" >/dev/null 2>&1
     pkill -USR1 -x kitty   # kitty recharge ses couleurs (comme set-wallpaper.sh)
     # Recharge le reste comme après un changement de wallpaper (thème GTK,

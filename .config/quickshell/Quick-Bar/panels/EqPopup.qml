@@ -137,8 +137,8 @@ Scope {
                 scale: Appearance.eqVisible ? 1 : 0.97
                 transformOrigin: Item.TopRight
 
-                Behavior on opacity { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
-                Behavior on scale { NumberAnimation { duration: 160; easing.type: Easing.OutCubic } }
+                Behavior on opacity { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
+                Behavior on scale { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
 
                 MouseArea {
                     anchors.fill: parent
@@ -191,7 +191,7 @@ Scope {
                                     ? "transparent"
                                     : ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
                                 border.width: 1
-                                Behavior on color { ColorAnimation { duration: 150 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(150) } }
 
                                 Text {
                                     id: pLbl
@@ -201,7 +201,7 @@ Scope {
                                     font.family:    Appearance.font.family
                                     font.weight:    Font.Medium
                                     color: parent.active ? Appearance.colors.color8 : Appearance.colors.color10
-                                    Behavior on color { ColorAnimation { duration: 150 } }
+                                    Behavior on color { ColorAnimation { duration: Appearance.dur(150) } }
                                 }
                                 MouseArea {
                                     anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -220,13 +220,13 @@ Scope {
                             color: closeArea.containsMouse
                                 ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
                                 : "transparent"
-                            Behavior on color { ColorAnimation { duration: 120 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
                             Text {
                                 anchors.centerIn: parent
                                 text: "✕"
                                 font.pixelSize: 10
                                 color: closeArea.containsMouse ? Appearance.colors.fg : Appearance.colors.dim
-                                Behavior on color { ColorAnimation { duration: 120 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
                             }
                             MouseArea {
                                 id: closeArea
@@ -310,7 +310,7 @@ Scope {
                                         color: band.gain > 0 ? Appearance.colors.accent
                                              : band.gain < 0 ? Appearance.colors.red
                                              : ColorUtils.applyAlpha(Appearance.colors.fg, 0.20)
-                                        Behavior on color { ColorAnimation { duration: 100 } }
+                                        Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                                     }
 
                                     // Track
@@ -330,8 +330,8 @@ Scope {
                                             y: track.height / 2 - height
                                             color: Appearance.colors.accent
                                             opacity: 0.85
-                                            Behavior on height { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
-                                            Behavior on y      { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                                            Behavior on height { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
+                                            Behavior on y      { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
                                         }
 
                                         // Negative fill
@@ -342,7 +342,7 @@ Scope {
                                             y: track.height / 2
                                             color: Appearance.colors.red
                                             opacity: 0.75
-                                            Behavior on height { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                                            Behavior on height { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
                                         }
 
                                         // 0 dB line
@@ -369,8 +369,8 @@ Scope {
                                                 color: ColorUtils.applyAlpha("#ffffff", 0.25)
                                             }
 
-                                            Behavior on y     { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
-                                            Behavior on color { ColorAnimation  { duration: 120 } }
+                                            Behavior on y     { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
+                                            Behavior on color { ColorAnimation  { duration: Appearance.dur(120) } }
                                         }
                                     }
 

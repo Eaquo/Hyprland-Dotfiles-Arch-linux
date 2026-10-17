@@ -298,10 +298,13 @@ QtObject {
 
     function _buildCmd() {
         var ts  = Qt.formatDateTime(new Date(), "yyyyMMdd_HHmmss")
-        root._currentFile = "$HOME/Videos/screen_recordings/" + ts + ".mp4"
-        var cmd = "mkdir -p $HOME/Videos/screen_recordings && " +
-                  "wf-recorder -c libx264rgb" +
-                  " -f " + root._currentFile
+        // [capture] dans config.toml — Réglages › Multimédia › Capture d'écran
+        const dir = Config.dir("capture.dir", "~/Videos/screen_recordings")
+        root._currentFile = dir + "/" + ts + "." + String(Config.get("capture.format", "mp4"))
+        var cmd = "mkdir -p '" + dir + "' && " +
+                  "wf-recorder -c " + String(Config.get("capture.codec", "libx264rgb")) +
+                  (Config.get("capture.fps", 0) > 0 ? " -r " + Config.get("capture.fps", 0) : "") +
+                  " -f '" + root._currentFile + "'"
         if (root._pendingGeometry !== "")
             cmd += " -g '" + root._pendingGeometry + "'"
         // Use --audio=DEVICE (matches wf-recorder working script convention)

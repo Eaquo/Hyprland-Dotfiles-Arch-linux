@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.DBusMenu
@@ -41,17 +42,19 @@ RowLayout {
                 color: hoverArea.containsMouse
                     ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.10)
                     : "transparent"
-                Behavior on color { ColorAnimation { duration: 130 } }
+                Behavior on color { ColorAnimation { duration: Appearance.dur(130) } }
             }
 
             // ── Icon ──────────────────────────────────────────────────
+            // Style : [theme] tray_icons — color · mono · accent · gray · symbolic (Réglages › Thème)
             Image {
                 id: iconImg
                 anchors.centerIn: parent
                 width:  trayItem.sz
                 height: trayItem.sz
+                visible: Appearance.trayIcons === "color"
 
-                source: IconUtils.resolve(trayItem.modelData.icon, "application-x-executable")
+                source: IconUtils.resolve(trayItem.modelData.icon, "application-x-executable", Appearance.trayIcons === "symbolic")
 
                 fillMode:   Image.PreserveAspectFit
                 sourceSize: Qt.size(trayItem.sz * 2, trayItem.sz * 2)
@@ -59,8 +62,19 @@ RowLayout {
                 mipmap:     true
 
                 opacity: hoverArea.containsMouse ? 1.0 : 0.75
-                Behavior on opacity { NumberAnimation { duration: 130 } }
+                Behavior on opacity { NumberAnimation { duration: Appearance.dur(130) } }
 
+            }
+            MultiEffect {
+                anchors.fill: iconImg
+                source: iconImg
+                visible: Appearance.trayIcons !== "color"
+                opacity: iconImg.opacity
+                // mono/accent/symbolic : silhouette d'une seule couleur ; gray : désaturé
+                saturation: Appearance.trayIcons === "gray" ? -1 : 0
+                brightness: Appearance.trayIcons === "gray" ? 0 : 1
+                colorization: Appearance.trayIcons === "gray" ? 0 : 1
+                colorizationColor: Appearance.trayIcons === "accent" ? Appearance.colors.accent : Appearance.colors.fg
             }
 
             // ── Tooltip ───────────────────────────────────────────────
@@ -82,7 +96,7 @@ RowLayout {
 
                 visible: opacity > 0
                 opacity: hoverArea.containsMouse ? 1.0 : 0.0
-                Behavior on opacity { NumberAnimation { duration: 120 } }
+                Behavior on opacity { NumberAnimation { duration: Appearance.dur(120) } }
 
                 color:        ColorUtils.applyAlpha(Appearance.colors.bg, 0.95)
                 border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.15)

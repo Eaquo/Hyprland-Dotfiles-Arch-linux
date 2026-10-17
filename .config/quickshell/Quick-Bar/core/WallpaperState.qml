@@ -2,6 +2,7 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 
 // État + config des effets wallpaper (glitch, screen shader).
 // Persisté dans user_data/wallpaper_fx.json. Partagé entre Wallpaper.qml
@@ -28,7 +29,7 @@ QtObject {
     property int    autoMinutes:     15
 
     // Thèmes disponibles (nom = fichier shaders/<nom>.frag.qsb)
-    readonly property var themes: ["matrix", "aurora", "underwater", "fireworks"]
+    readonly property var themes: ["matrix", "aurora", "underwater", "fireworks", "cyberpunk", "braindance", "neon"]
 
     // ── État courant (rempli par Wallpaper.qml / le picker) ────────────────────
     property string currentWall: ""
@@ -97,7 +98,7 @@ QtObject {
     onAutoMinutesChanged:     save()
 
     // ── Wallpaper aléatoire / rotation automatique ─────────────────────────────
-    // Tire une image au hasard dans ~/Pictures/wallpapers (pas la courante, pas
+    // Tire une image au hasard dans le dossier de config.toml [wallpaper] dir (pas la courante, pas
     // les vidéos) et l'applique par set-wallpaper.sh (→ wallust → couleurs).
     function randomWall() {
         randomProc.running = false
@@ -106,11 +107,11 @@ QtObject {
     property var _randomProc: Process {
         id: randomProc
         command: ["bash", "-c",
-            "f=$(find \"$HOME/Pictures/wallpapers\" -maxdepth 1 -type f " +
+            "f=$(find \"$2\" -maxdepth 1 -type f " +
             "\\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\) " +
             "! -path \"$1\" | shuf -n1); [ -n \"$f\" ] || exit 1; " +
             "pkill -x gslapper 2>/dev/null; \"$HOME/.config/hypr/scripts/set-wallpaper.sh\" \"$f\" >/dev/null; echo \"$f\"",
-            "_", root.currentWall]
+            "_", root.currentWall, Config.dir("wallpaper.dir", "~/Pictures/wallpapers")]
         stdout: StdioCollector {
             onStreamFinished: {
                 const f = text.trim()
@@ -119,10 +120,12 @@ QtObject {
         }
     }
     // En pause pendant un jeu (pas de recoloration en pleine partie) et en mode vidéo.
+    // Saute aussi le tour si une fenêtre est en plein écran : wallust réécrit
+    // hypr/wallust/colors.lua → autoreload de Hyprland → le plein écran saute.
     property var _autoTimer: Timer {
         interval: Math.max(1, root.autoMinutes) * 60000
         repeat: true
         running: root.autoChange && !root.videoMode && !GameMode.active
-        onTriggered: root.randomWall()
+        onTriggered: if (!Hyprland.workspaces.values.some(w => w.hasFullscreen)) root.randomWall()
     }
 }

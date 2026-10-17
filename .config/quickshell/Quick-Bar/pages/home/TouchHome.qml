@@ -1,4 +1,5 @@
 import QtQuick
+import qs.core
 import QtQuick.Layouts
 
 // TouchHome — variante tactile (ultra-large) de la page Home du Dashboard.
@@ -53,7 +54,7 @@ Item {
                 Layout.preferredHeight: 150
                 ProfileCard {
                     anchors.fill: parent
-                    avatarPath: "/home/florian/Eaquo_Assets/Edited Image.jpg"
+                    avatarPath: Config.avatar
                 }
             }
             ScaledBox {

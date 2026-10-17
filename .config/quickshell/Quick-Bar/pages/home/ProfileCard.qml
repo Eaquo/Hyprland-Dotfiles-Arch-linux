@@ -12,19 +12,9 @@ StatCard {
 
     property string avatarPath: ""
 
-    property string _user:   ""
     property string _wm:     ""
     property string _uptime: ""
 
-    Process {
-        command: ["bash", "-c", "echo $USER"]
-        running: true
-        stdout: SplitParser {
-            onRead: function(line) {
-                if (line.trim() !== "") root._user = line.trim()
-            }
-        }
-    }
 
     Process {
         command: ["bash", "-c", "echo ${XDG_CURRENT_DESKTOP:-Hyprland}"]
@@ -118,7 +108,7 @@ StatCard {
             spacing: 10
 
             Text {
-                text:           root._user
+                text:           Config.userName
                 font.pixelSize: 17; font.weight: Font.DemiBold
                 color:          Appearance.active
             }

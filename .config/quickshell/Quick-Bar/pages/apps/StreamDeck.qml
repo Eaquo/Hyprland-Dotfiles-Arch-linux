@@ -121,7 +121,7 @@ Item {
                                                        : ColorUtils.applyAlpha(wcol, 0.5)
                                 border.width: 1
                                 scale: tapArea.pressed ? 0.94 : 1
-                                Behavior on scale { NumberAnimation { duration: 90; easing.type: Easing.OutCubic } }
+                                Behavior on scale { NumberAnimation { duration: Appearance.dur(90); easing.type: Easing.OutCubic } }
 
                                 Column {
                                     anchors.centerIn: parent

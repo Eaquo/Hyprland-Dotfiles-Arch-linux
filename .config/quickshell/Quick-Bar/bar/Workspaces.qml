@@ -87,11 +87,11 @@ RowLayout {
                         ? Appearance.colors.color13
                         : ColorUtils.applyAlpha(Appearance.colors.color15, 0.80)
 
-                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
             }
 
-            Behavior on implicitWidth { NumberAnimation { duration: 200; easing.type: Easing.OutCubic } }
-            Behavior on color         { ColorAnimation  { duration: 150 } }
+            Behavior on implicitWidth { NumberAnimation { duration: Appearance.dur(200); easing.type: Easing.OutCubic } }
+            Behavior on color         { ColorAnimation  { duration: Appearance.dur(150) } }
 
             MouseArea {
                 anchors.fill: parent

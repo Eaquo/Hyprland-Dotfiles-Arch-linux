@@ -30,7 +30,7 @@ Scope {
     readonly property var targetScreen: {
         var all = Quickshell.screens
         for (var i = 0; i < all.length; i++)
-            if ((all[i].model || "").toUpperCase().indexOf("XENEON") !== -1) return all[i]
+            if (Config.isTouch(all[i])) return all[i]
         var s = null, best = 1e12
         for (var j = 0; j < all.length; j++) {
             var a = all[j].width * all[j].height
@@ -39,48 +39,10 @@ Scope {
         return s
     }
 
-    // ── Onglets : LE catalogue ──────────────────────────────────────────────────
-    // Ajouter un onglet = ajouter UNE ligne ici (et créer sa page dans pages/).
-    //   key    identifiant (sauvé dans user_data/shell_state.json)
-    //   icon   glyphe Nerd Font · label  texte de la pastille
-    //   src    page QML, chemin relatif à ce fichier
-    //   scale  zoom par défaut de la page (1.0) — remplacé par config.toml [touchpanel.pages]
-    //   keep   true = reste chargée même cachée (page par défaut, ou scan coûteux)
-    //   def    false = désactivé tant que l'utilisateur ne l'active pas (bouton ⚙)
-    // L'ordre et l'activation réels viennent de ShellState.touchTabs (bouton ⚙) ;
-    // un onglet ajouté ici apparaît automatiquement en fin de liste.
-    readonly property var allTabs: [
-        { key: "game",    icon: "󰮂", label: "Game",    src: "../pages/game/GameModeTab.qml" },   // visible seulement en jeu
-        { key: "home",    icon: "󰋜", label: "Home",    src: "../pages/home/TouchHome.qml",  keep: true },
-        { key: "grid",    icon: "󰕰", label: "Grid",    src: "../pages/grid/GridDash.qml" },
-        { key: "ws",      icon: "󱂬", label: "Spaces",  src: "../pages/spaces/WorkspacesTab.qml" },
-        { key: "stats",   icon: "󰻠", label: "System",  src: "../pages/stats/TouchStats.qml", keep: true, scale: 1.15 },
-        { key: "kanban",  icon: "󰄬", label: "Tasks",   src: "../pages/kanban/KanbanBoard.qml", scale: 1.15, def: false },
-        { key: "files",   icon: "󰉋", label: "Files",   src: "../pages/files/FileBrowser.qml", scale: 1.35 },
-        { key: "wall",    icon: "󰸉", label: "Wall",    src: "../pages/wall/WallpaperTab.qml" },
-        { key: "colors",  icon: "󰏘", label: "Wallust", src: "../pages/wallust/WallustTab.qml" },
-        { key: "eq",      icon: "󰓃", label: "Eq",      src: "../pages/eq/EqDash.qml" },
-        { key: "mixer",   icon: "󰕾", label: "Mixer",   src: "../pages/mixer/MixerTab.qml" },
-        { key: "discord", icon: "󰙯", label: "Discord", src: "../pages/discord/DiscordChat.qml" },
-        { key: "deck",    icon: "󰀻", label: "Apps",    src: "../pages/apps/StreamDeck.qml" },
-        { key: "games",   icon: "󰊴", label: "Games",   src: "../pages/games/GameTab.qml",   keep: true },   // évite le re-scan des jeux
-        { key: "rgb",     icon: "󰌵", label: "RGB",     src: "../pages/rgb/RgbTab.qml" },
-        { key: "health",  icon: "󰓙", label: "Santé",   src: "../pages/health/HealthTab.qml" },
-    ]
+    // ── Onglets : catalogue dans core/TouchTabs.qml (ordre/activation : ShellState.touchTabs) ──
+    readonly property var allTabs: TouchTabs.all
 
-    // Catalogue fusionné avec la config sauvée : [{ key, icon, label, on }].
-    readonly property var tabs: {
-        const byKey = {}, seen = {}, out = []
-        for (const t of allTabs) byKey[t.key] = t
-        for (const s of (ShellState.touchTabs || []))
-            if (byKey[s.key] && !seen[s.key]) {
-                seen[s.key] = true
-                out.push(Object.assign({}, byKey[s.key], { on: s.on !== false }))
-            }
-        for (const t of allTabs)
-            if (!seen[t.key]) out.push(Object.assign({}, t, { on: t.def !== false }))
-        return out
-    }
+    readonly property var tabs: TouchTabs.tabs
     readonly property var visibleTabs: tabs.filter(t => t.on && (t.key !== "game" || GameMode.active))
 
     // Mode jeu : bascule sur la page Game au lancement, revient après.
@@ -98,7 +60,7 @@ Scope {
         }
     }
 
-    function saveTabs(list) { ShellState.touchTabs = list.map(t => ({ key: t.key, on: t.on })) }
+    function saveTabs(list) { TouchTabs.save(list) }
     function toggleTab(i) {
         const l = tabs.slice()
         // Au moins un onglet reste actif.
@@ -117,21 +79,6 @@ Scope {
     onVisibleTabsChanged: if (!visibleTabs.some(t => t.key === page) && visibleTabs.length) page = visibleTabs[0].key
 
     property bool configOpen: false
-
-    // ── Mode veille : horloge géante après N minutes sans toucher l'écran ───────
-    // Pas en jeu (la page Game doit rester lisible). Un tap réveille.
-    property bool idle: false
-    function wake() { idle = false; idleTimer.restart() }
-    Timer {
-        id: idleTimer
-        interval: Math.max(1, ShellState.touchIdleMinutes) * 60000
-        running: ShellState.touchPanelOn && ShellState.touchIdleMinutes > 0 && !GameMode.active && !root.idle
-        onTriggered: root.idle = true
-    }
-    readonly property var idlePlayer: {
-        const ps = Mpris.players.values
-        return ps.find(p => p.playbackState === MprisPlaybackState.Playing) || null
-    }
 
     // ── Transition entre onglets : la page arrive du côté de l'onglet choisi ──
     property int _lastIdx: 0
@@ -287,7 +234,7 @@ Scope {
                                 : ColorUtils.applyAlpha(wbright, 0.16)
                             border.color: isActive ? "transparent" : ColorUtils.applyAlpha(wbright, 0.5)
                             border.width: 1
-                            Behavior on color { ColorAnimation { duration: 140 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(140) } }
 
                             Row {
                                 id: tabContent
@@ -341,7 +288,7 @@ Scope {
                         color: root.configOpen ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.9)
                                                : ColorUtils.applyAlpha(Appearance.colors.bg, 0.45)
                         border.color: Qt.rgba(1, 1, 1, 0.08); border.width: 1
-                        Behavior on color { ColorAnimation { duration: 140 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(140) } }
                         Text {
                             anchors.centerIn: parent; text: "󰒓"
                             font.family: Appearance.font.family; font.pixelSize: 26
@@ -373,7 +320,7 @@ Scope {
                         color: closeHov.hovered ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.9)
                                                 : ColorUtils.applyAlpha(Appearance.colors.bg, 0.45)
                         border.color: Qt.rgba(1, 1, 1, 0.08); border.width: 1
-                        Behavior on color { ColorAnimation { duration: 140 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(140) } }
                         Text {
                             anchors.centerIn: parent; text: "󰅖"
                             font.family: Appearance.font.family; font.pixelSize: 30
@@ -397,12 +344,12 @@ Scope {
                     NumberAnimation {
                         target: pageShift; property: "x"
                         from: root.slideDir * 90; to: 0
-                        duration: 280; easing.type: Easing.OutCubic
+                        duration: Appearance.dur(280); easing.type: Easing.OutCubic
                     }
                     NumberAnimation {
                         target: pageArea; property: "opacity"
                         from: 0.25; to: 1
-                        duration: 240; easing.type: Easing.OutQuad
+                        duration: Appearance.dur(240); easing.type: Easing.OutQuad
                     }
                 }
 
@@ -476,7 +423,7 @@ Scope {
                             border.width: modelData.on ? 2 : 1
                             border.color: modelData.on ? wcol : ColorUtils.applyAlpha(Appearance.colors.fg, 0.1)
                             opacity: modelData.on ? 1 : 0.55
-                            Behavior on color { ColorAnimation { duration: 140 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(140) } }
                             MouseArea { anchors.fill: parent }   // absorbe (ne ferme pas)
 
                             Column {
@@ -504,7 +451,7 @@ Scope {
                                         width: 32; height: 32; radius: 16
                                         y: 4; x: card.modelData.on ? parent.width - width - 4 : 4
                                         color: Appearance.colors.bg
-                                        Behavior on x { NumberAnimation { duration: 120 } }
+                                        Behavior on x { NumberAnimation { duration: Appearance.dur(120) } }
                                     }
                                     MouseArea { anchors.fill: parent; anchors.margins: -10; onClicked: { root.toggleTab(card.index); GameBreak.extend() } }
                                 }
@@ -559,135 +506,8 @@ Scope {
                     MouseArea { anchors.fill: parent; onClicked: ShellState.touchTabs = [] }
                 }
 
-                // Délai du mode veille (0 = jamais)
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 14
-                    Text {
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: "󰒲  Veille après"
-                        font.family: Appearance.font.family; font.pixelSize: 17
-                        color: Appearance.colors.fg
-                    }
-                    Repeater {
-                        model: [ { g: "󰍴", d: -1 }, { g: "", d: 0 }, { g: "󰐕", d: 1 } ]
-                        delegate: Rectangle {
-                            required property var modelData
-                            readonly property bool isLabel: modelData.d === 0
-                            width: isLabel ? 120 : 56; height: 56; radius: 16
-                            color: isLabel ? "transparent" : ColorUtils.applyAlpha(Appearance.colors.bg, 0.7)
-                            border.width: isLabel ? 0 : 1; border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.15)
-                            Text {
-                                anchors.centerIn: parent
-                                text: parent.isLabel
-                                    ? (ShellState.touchIdleMinutes > 0 ? ShellState.touchIdleMinutes + " min" : "jamais")
-                                    : parent.modelData.g
-                                font.family: Appearance.font.family; font.pixelSize: parent.isLabel ? 19 : 22
-                                font.weight: parent.isLabel ? Font.Bold : Font.Normal
-                                color: parent.isLabel ? Appearance.colors.accent : Appearance.colors.fg
-                            }
-                            MouseArea {
-                                anchors.fill: parent; enabled: !parent.isLabel
-                                onClicked: ShellState.touchIdleMinutes = Math.max(0, Math.min(60, ShellState.touchIdleMinutes + parent.modelData.d))
-                            }
-                        }
-                    }
-                }
             }
         }
 
-        // Toute pression sur l'écran repousse la veille (la pression continue vers
-        // l'élément dessous : on ne l'accepte pas).
-        MouseArea {
-            anchors.fill: parent
-            z: 900
-            onPressed: (m) => { root.wake(); m.accepted = false }
-        }
-
-        // ══ Écran de veille : horloge géante + musique en cours, très sombre ══
-        Rectangle {
-            id: idleScreen
-            anchors.fill: parent
-            z: 1000
-            color: "#000000"
-            opacity: root.idle ? 0.93 : 0
-            visible: opacity > 0.01
-            Behavior on opacity { NumberAnimation { duration: 900; easing.type: Easing.InOutQuad } }
-            MouseArea { anchors.fill: parent; onPressed: root.wake() }
-
-            CachedArt { id: idleArt; url: root.idlePlayer?.trackArtUrl ?? "" }
-
-            // Lente dérive du contenu : évite de marquer l'écran
-            Item {
-                id: idleDrift
-                width: parent.width; height: parent.height
-                SequentialAnimation on x {
-                    running: root.idle; loops: Animation.Infinite
-                    NumberAnimation { to: 60;  duration: 90000; easing.type: Easing.InOutSine }
-                    NumberAnimation { to: -60; duration: 90000; easing.type: Easing.InOutSine }
-                }
-                SequentialAnimation on y {
-                    running: root.idle; loops: Animation.Infinite
-                    NumberAnimation { to: 18;  duration: 70000; easing.type: Easing.InOutSine }
-                    NumberAnimation { to: -18; duration: 70000; easing.type: Easing.InOutSine }
-                }
-
-                Row {
-                    anchors.centerIn: parent
-                    spacing: 90
-
-                    Column {
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: -10
-                        Text {
-                            text: root.clockH
-                            font.family: "Fira Sans"; font.pixelSize: 330; font.weight: Font.ExtraLight
-                            color: Appearance.colors.fg
-                        }
-                        Text {
-                            text: root.clockDate
-                            font.family: "Fira Sans"; font.pixelSize: 30; font.weight: Font.Light
-                            font.capitalization: Font.Capitalize
-                            color: Appearance.colors.accent
-                        }
-                    }
-
-                    // Musique en cours (si quelque chose joue)
-                    Row {
-                        visible: root.idlePlayer !== null
-                        anchors.verticalCenter: parent.verticalCenter
-                        spacing: 28
-                        ClippingRectangle {
-                            width: 220; height: 220; radius: 22
-                            color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.06)
-                            Image {
-                                anchors.fill: parent
-                                source: idleArt.local
-                                sourceSize.width: 440
-                                fillMode: Image.PreserveAspectCrop
-                                asynchronous: true
-                            }
-                        }
-                        Column {
-                            anchors.verticalCenter: parent.verticalCenter
-                            spacing: 6
-                            width: 520
-                            Text {
-                                width: parent.width
-                                text: root.idlePlayer?.trackTitle || ""
-                                font.family: "Fira Sans"; font.pixelSize: 34; font.weight: Font.DemiBold
-                                color: Appearance.colors.fg; elide: Text.ElideRight
-                            }
-                            Text {
-                                width: parent.width
-                                text: root.idlePlayer?.trackArtist || ""
-                                font.family: "Fira Sans"; font.pixelSize: 24; font.weight: Font.Light
-                                color: Appearance.colors.dim; elide: Text.ElideRight
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }

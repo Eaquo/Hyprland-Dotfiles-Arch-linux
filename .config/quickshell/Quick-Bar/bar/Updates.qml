@@ -43,17 +43,15 @@ RowLayout {
 
     Process {
         id: upgradeProc
-        command: [
-            "kitty", "-T", "update",
-            "bash", "-c",
-            "cachy-update; notify-send 'Système mis à jour' -i /home/florian/.config/swaync/icons/hyprland.png -e; echo; read -n1 -rp 'Appuie sur une touche pour fermer...'"
-        ]
+        command: Config.term("update", ["bash", "-c",
+            Config.get("general.update_command", "cachy-update") + "; notify-send 'Système mis à jour' -i $HOME/.config/swaync/icons/hyprland.png -e; echo; read -n1 -rp 'Appuie sur une touche pour fermer...'"
+        ])
         onRunningChanged: if (!running) refreshTimer.start()
     }
 
     // Poll toutes les 30 min (+ au démarrage)
     Timer {
-        interval: 1800000; running: true; repeat: true; triggeredOnStart: true
+        interval: Config.ms("updates", 1800); running: true; repeat: true; triggeredOnStart: true
         onTriggered: updateQuery.running = true
     }
     Timer {
@@ -69,7 +67,7 @@ RowLayout {
         color: root.updates > 0
             ? (hov.hovered ? Appearance.colors.color13 : Appearance.colors.color5)
             : Appearance.colors.dim
-        Behavior on color { ColorAnimation { duration: 120 } }
+        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
     }
 
     Text {
@@ -77,6 +75,6 @@ RowLayout {
         text:    root.updates.toString()
         font.pixelSize: Appearance.font.small
         color: hov.hovered ? Appearance.colors.color13 : Appearance.colors.color5
-        Behavior on color { ColorAnimation { duration: 120 } }
+        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
     }
 }

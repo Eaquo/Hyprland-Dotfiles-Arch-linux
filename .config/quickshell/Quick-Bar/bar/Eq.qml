@@ -13,7 +13,7 @@ Item {
 
     // Animation fluide
     Behavior on implicitWidth {
-        NumberAnimation { duration: 200; easing.type: Easing.OutCubic }
+        NumberAnimation { duration: Appearance.dur(200); easing.type: Easing.OutCubic }
     }
 
     // L'icône reste toujours au centre

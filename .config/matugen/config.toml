@@ -1,0 +1,20 @@
+[config]
+# Matugen strictly requires this block to exist at the top.
+reload_apps = false
+
+[templates.quickshell]
+# If the tilde (~) ever gives you trouble, replace it with /home/yourusername/
+input_path = "~/.config/matugen/templates/quickshell.qml"
+output_path = "/tmp/qs_colors.qml"
+
+[templates.game_launcher]
+# Colors for the Quickshell Game Launcher (wallust-compatible JSON format)
+input_path  = "~/.config/matugen/templates/game_launcher.json"
+output_path = "~/.cache/matugen/game_launcher_colors.json"
+
+
+[templates.quickbar]
+# Couleurs de Quick-Bar (même format JSON que wallust) — Réglages › Couleurs › Palette Matugen
+# color11 = accent (primary), color8 = texte atténué (outline), color4 = alertes (error)
+input_path  = "~/.config/matugen/templates/quickbar.json"
+output_path = "~/.cache/matugen/quickbar_colors.json"

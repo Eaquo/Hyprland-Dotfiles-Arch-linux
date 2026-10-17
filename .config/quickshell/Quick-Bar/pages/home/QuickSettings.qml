@@ -680,7 +680,7 @@ StatCard {
                             anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
                             width: Math.max(parent.radius * 2, parent.width * root._brightVal)
                             radius: parent.radius; color: Appearance.active
-                            Behavior on width { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                            Behavior on width { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
                         }
                         MouseArea {
                             anchors.fill: parent; cursorShape: Qt.PointingHandCursor
@@ -703,7 +703,7 @@ StatCard {
                         width: btw.thumbD; height: btw.thumbD; radius: btw.thumbD / 2
                         color: "#ffffff"; anchors.verticalCenter: parent.verticalCenter
                         x: Math.max(0, Math.min(btw.width - width, root._brightVal * (btw.width - width)))
-                        Behavior on x { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                        Behavior on x { NumberAnimation { duration: Appearance.dur(80); easing.type: Easing.OutCubic } }
                     }
                 }
 
@@ -732,19 +732,19 @@ StatCard {
                 color: Appearance.animationsEnabled
                     ? Appearance.active
                     : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.18)
-                Behavior on color { ColorAnimation { duration: 150 } }
+                Behavior on color { ColorAnimation { duration: Appearance.dur(150) } }
 
                 Rectangle {
                     width: 16; height: 16; radius: 8
                     anchors.verticalCenter: parent.verticalCenter
                     x: Appearance.animationsEnabled ? parent.width - width - 2 : 2
                     color: "#ffffff"
-                    Behavior on x { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+                    Behavior on x { NumberAnimation { duration: Appearance.dur(150); easing.type: Easing.OutCubic } }
                 }
 
                 MouseArea {
                     anchors.fill: parent; cursorShape: Qt.PointingHandCursor
-                    onClicked: Appearance.animationsEnabled = !Appearance.animationsEnabled
+                    onClicked: Config.set("theme.animated_borders", !Appearance.animationsEnabled)
                 }
             }
         }
@@ -794,14 +794,14 @@ StatCard {
                         ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.30)
                         : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.10)
                     border.width: 1
-                    Behavior on color        { ColorAnimation { duration: 130 } }
-                    Behavior on border.color { ColorAnimation { duration: 130 } }
+                    Behavior on color        { ColorAnimation { duration: Appearance.dur(130) } }
+                    Behavior on border.color { ColorAnimation { duration: Appearance.dur(130) } }
 
                     Rectangle {
                         anchors { top: parent.top; right: parent.right; margins: 8 }
                         width: 6; height: 6; radius: 3
                         color: btn.on ? Appearance.active : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.18)
-                        Behavior on color { ColorAnimation { duration: 130 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(130) } }
                     }
 
                     Column {
@@ -810,12 +810,12 @@ StatCard {
                         Text {
                             text: btn.icon; font.pixelSize: 17
                             color: btn.on ? Appearance.active : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.40)
-                            Behavior on color { ColorAnimation { duration: 130 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(130) } }
                         }
                         Text {
                             text: btn.label; font.pixelSize: 9; font.weight: Font.Medium
                             color: btn.on ? Appearance.text : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.45)
-                            Behavior on color { ColorAnimation { duration: 130 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(130) } }
                         }
                         Text {
                             visible: btn.sublabel !== ""
@@ -916,6 +916,12 @@ StatCard {
                         sublabel: root.currentFilter !== "" ? root.currentFilter : ""
                         onToggled: root._filterOpen()
                     }
+                    TglBtn {
+                        width: tileGrid.btnW; height: tileGrid.btnH
+                        on: Popups.settingsOpen
+                        icon: "󰒓"; label: "Config"; sublabel: "Réglages"
+                        onToggled: { Popups.closeAll(); Popups.settingsOpen = true }
+                    }
                 }
             }
         }
@@ -965,8 +971,8 @@ StatCard {
         // Subtle entrance scale + fade
         opacity: root.filterPickerOpen ? 1 : 0
         scale:   root.filterPickerOpen ? 1 : 0.95
-        Behavior on opacity { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
-        Behavior on scale   { NumberAnimation { duration: 140; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: Appearance.dur(140); easing.type: Easing.OutCubic } }
+        Behavior on scale   { NumberAnimation { duration: Appearance.dur(140); easing.type: Easing.OutCubic } }
         transformOrigin: Item.BottomRight
 
         // Dismiss when clicking outside the picker
@@ -1007,7 +1013,7 @@ StatCard {
                     color: isActive
                         ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.14)
                         : offH.hovered ? Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.07) : "transparent"
-                    Behavior on color { ColorAnimation { duration: 100 } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
 
                     Row {
                         anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
@@ -1017,14 +1023,14 @@ StatCard {
                             font.pixelSize: 9
                             color: parent.parent.isActive ? Appearance.active : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.30)
                             anchors.verticalCenter: parent.verticalCenter
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                         }
                         Text {
                             text:           "Off"
                             font.pixelSize: 12
                             color: parent.parent.isActive ? Appearance.active : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.65)
                             anchors.verticalCenter: parent.verticalCenter
-                            Behavior on color { ColorAnimation { duration: 100 } }
+                            Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                         }
                     }
                     HoverHandler { id: offH; cursorShape: Qt.PointingHandCursor }
@@ -1050,7 +1056,7 @@ StatCard {
                         color: isActive
                             ? Qt.rgba(Appearance.active.r, Appearance.active.g, Appearance.active.b, 0.14)
                             : itemH.hovered ? Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.07) : "transparent"
-                        Behavior on color { ColorAnimation { duration: 100 } }
+                        Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
 
                         Row {
                             anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
@@ -1060,7 +1066,7 @@ StatCard {
                                 font.pixelSize: 9
                                 color: parent.parent.isActive ? Appearance.active : Qt.rgba(Appearance.text.r, Appearance.text.g, Appearance.text.b, 0.30)
                                 anchors.verticalCenter: parent.verticalCenter
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             }
                             Text {
                                 text:           modelData
@@ -1069,7 +1075,7 @@ StatCard {
                                 anchors.verticalCenter: parent.verticalCenter
                                 elide: Text.ElideRight
                                 width: pickerCol.width - 38
-                                Behavior on color { ColorAnimation { duration: 100 } }
+                                Behavior on color { ColorAnimation { duration: Appearance.dur(100) } }
                             }
                         }
                         HoverHandler { id: itemH; cursorShape: Qt.PointingHandCursor }

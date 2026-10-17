@@ -103,7 +103,7 @@ Item {
 					? Qt.rgba(hTab.wcol.r, hTab.wcol.g, hTab.wcol.b, 0.18)
 					: (hHov.hovered ? Qt.rgba(hTab.wcol.r, hTab.wcol.g, hTab.wcol.b, 0.10) : "transparent")
 
-					Behavior on color { ColorAnimation { duration: 120 } }
+					Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 				}
 
 				// Icon + label — couleur wallust de l'onglet (atténuée si inactif)
@@ -119,7 +119,7 @@ Item {
 						color: (hTab.isActive || hHov.hovered)
 						? hTab.wbright
 						: Qt.rgba(hTab.wbright.r, hTab.wbright.g, hTab.wbright.b, 0.8)
-						Behavior on color { ColorAnimation { duration: 120 } }
+						Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 					}
 
 					Text {
@@ -132,7 +132,7 @@ Item {
 						color: (hTab.isActive || hHov.hovered)
 						? hTab.wbright
 						: Qt.rgba(hTab.wbright.r, hTab.wbright.g, hTab.wbright.b, 0.8)
-						Behavior on color { ColorAnimation { duration: 120 } }
+						Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 					}
 				}
 
@@ -187,7 +187,7 @@ Item {
 	                    ? Appearance.active
 	                    : (vHov.hovered ? Qt.rgba(1, 1, 1, 0.08) : "transparent")
 	
-	                Behavior on color { ColorAnimation { duration: 120 } }
+	                Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 	
 	                // Icon-only (no label)
 	                Text {
@@ -196,7 +196,7 @@ Item {
 	                    text:             modelData.icon
 	                    font.pixelSize:   16
 	                    color: vTab.isActive ? Appearance.background : Appearance.text
-	                    Behavior on color { ColorAnimation { duration: 120 } }
+	                    Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 	                }
 	
 	                // Icon + label row
@@ -216,7 +216,7 @@ Item {
 	                        color: vTab.isActive
 	                            ? Appearance.background
 	                            : (vHov.hovered ? Qt.rgba(1, 1, 1, 0.80) : Qt.rgba(1, 1, 1, 0.42))
-	                        Behavior on color { ColorAnimation { duration: 120 } }
+	                        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 	                    }
 	
 	                    Text {
@@ -227,7 +227,7 @@ Item {
 	                        color: vTab.isActive
 	                            ? Appearance.background
 	                            : (vHov.hovered ? Qt.rgba(1, 1, 1, 0.80) : Qt.rgba(1, 1, 1, 0.42))
-	                        Behavior on color { ColorAnimation { duration: 120 } }
+	                        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 	                    }
 	                }
 	

@@ -39,7 +39,7 @@ Item {
     }
 
     Timer {
-        interval: 3000; running: true; repeat: true; triggeredOnStart: true
+        interval: Config.ms("localsend", 3); running: true; repeat: true; triggeredOnStart: true
         onTriggered: checkProc.running = true
     }
 
@@ -82,7 +82,7 @@ Item {
                 colorizationColor: Appearance.colors.color15
             }
 
-            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on opacity { NumberAnimation { duration: Appearance.dur(200) } }
         }
 
         // pulse dot when active

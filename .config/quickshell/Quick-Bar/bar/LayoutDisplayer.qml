@@ -17,7 +17,7 @@ Item {
 
     implicitWidth:  expanded ? selRow.implicitWidth + 8 : 26
     implicitHeight: 26
-    Behavior on implicitWidth { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
+    Behavior on implicitWidth { NumberAnimation { duration: Appearance.dur(180); easing.type: Easing.OutCubic } }
 
     // ── State ────────────────────────────────────────────────────────────────
     property string configProvider: ShellState.configProvider
@@ -119,7 +119,7 @@ Item {
     }
 
     Timer {
-        interval: 4000; running: true; repeat: true
+        interval: Config.ms("layout", 4); running: true; repeat: true
         onTriggered: root.refresh()
     }
 
@@ -176,7 +176,7 @@ Item {
         radius: 6
         visible: !root.expanded
         color: mouseArea.containsMouse ? Qt.rgba(1, 1, 1, 0.08) : "transparent"
-        Behavior on color { ColorAnimation { duration: 120 } }
+        Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 
         MouseArea {
             id: mouseArea
@@ -207,8 +207,8 @@ Item {
 
             Behavior on text {
                 SequentialAnimation {
-                    NumberAnimation { target: icon; property: "scale"; to: 0.6; duration: 80;  easing.type: Easing.InQuad }
-                    NumberAnimation { target: icon; property: "scale"; to: 1.0; duration: 120; easing.type: Easing.OutBack }
+                    NumberAnimation { target: icon; property: "scale"; to: 0.6; duration: Appearance.dur(80);  easing.type: Easing.InQuad }
+                    NumberAnimation { target: icon; property: "scale"; to: 1.0; duration: Appearance.dur(120); easing.type: Easing.OutBack }
                 }
             }
         }
@@ -231,11 +231,11 @@ Item {
 
             height: 22; radius: 5
             width: apHov.hovered ? apTxt.implicitWidth + 16 : 24
-            Behavior on width { NumberAnimation { duration: 150; easing.type: Easing.OutCubic } }
+            Behavior on width { NumberAnimation { duration: Appearance.dur(150); easing.type: Easing.OutCubic } }
 
             color: ap.active ? Appearance.colors.accent
                  : (apHov.hovered ? Qt.rgba(1, 1, 1, 0.14) : Qt.rgba(1, 1, 1, 0.05))
-            Behavior on color { ColorAnimation { duration: 120 } }
+            Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
 
             Text {
                 id: apTxt

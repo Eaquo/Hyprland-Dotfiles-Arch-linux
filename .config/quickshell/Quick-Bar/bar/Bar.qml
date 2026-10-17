@@ -44,177 +44,88 @@ Scope {
             Item {
                 anchors.fill: parent
 
-                // ── LEFT PILL ──────────────────────────────────────────────
-                Rectangle {
-                    id: leftPill
-                    anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-                    height: Appearance.bar.height
-                    width:  leftRow.implicitWidth + Appearance.bar.pillPad * 2
-                    radius: Appearance.bar.radius
-                    border.color: Appearance.outline
-                    border.width: 1
-                    Behavior on border.color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
+                Pill { side: "left"; anchors { left: parent.left; verticalCenter: parent.verticalCenter } }
+                Pill { side: "center"; anchors.centerIn: parent }
+                Pill { side: "right"; anchors { right: parent.right; verticalCenter: parent.verticalCenter } }
+            }
+        }
+    }
 
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0.7
-                            color: Appearance.colors.bg
-                            Behavior on color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-                        }
-                        GradientStop {
-                            position: 1.0
-                            color: ColorUtils.applyAlpha(Appearance.colors.color0, 0.80)
-                            Behavior on color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-                        }
-                    }
+    // Une pilule de la barre : les modules de [bar.layout].<side>, séparés par des traits.
+    // Masquée si elle est vide.
+    component Pill: Rectangle {
+        id: pill
+        required property string side
+        readonly property var keys: BarModules.layout(side)
+        visible: keys.length > 0
+        height: Appearance.bar.height
+        width:  row.implicitWidth + Appearance.bar.pillPad * 2
+        radius: Appearance.bar.radius
+        border.color: Appearance.outline
+        border.width: 1
+        Behavior on border.color { ColorAnimation { duration: Appearance.dur(600); easing.type: Easing.InOutQuad } }
 
-                    RowLayout {
-                        id: leftRow
-                        anchors { centerIn: parent }
-                        spacing: Appearance.bar.gap
+        // Composants des modules, par clé de BarModules
+        readonly property var mods: ({
+            launcher: launcherC, stats: statsC, notifications: notifC, cava: cavaC, clock: clockC,
+            workspaces: wsC, layout: layoutC, localsend: lsC, updates: updC, media: mediaC, eq: eqC,
+            tray: trayC, network: netC, bluetooth: btC, audio: audioC, power: powerC
+        })
+        Component { id: launcherC; AppLauncher {} }
+        Component { id: statsC; SysStats {} }
+        Component { id: notifC; Notifications {} }
+        Component { id: cavaC; Cava {} }
+        Component { id: clockC; Clock {} }
+        Component { id: wsC; Workspaces {} }
+        Component { id: layoutC; LayoutDisplayer {} }
+        Component { id: lsC; LocalSend {} }
+        Component { id: updC; Updates {} }
+        Component { id: mediaC; MediaPlayer {} }
+        Component { id: eqC; Eq {} }
+        Component { id: trayC; SysTray {} }
+        Component { id: netC; Network {} }
+        Component { id: btC; Bluetooth {} }
+        Component { id: audioC; Audio {} }
+        Component { id: powerC; PowerButtons {} }
 
-                        AppLauncher {}
-                        BarSeparator {}
-                        SysStats {}
-                    }
+        gradient: Gradient {
+            GradientStop {
+                position: 0.7
+                color: Appearance.colors.bg
+                Behavior on color { ColorAnimation { duration: Appearance.dur(600); easing.type: Easing.InOutQuad } }
+            }
+            GradientStop {
+                position: 1.0
+                color: ColorUtils.applyAlpha(Appearance.colors.color0, 0.80)
+                Behavior on color { ColorAnimation { duration: Appearance.dur(600); easing.type: Easing.InOutQuad } }
+            }
+        }
 
-                    GradientBorder {
-                        anchors.fill: parent
-                        radius:       parent.radius
-                        borderWidth:  2
-                        visible:      Appearance.animationsEnabled
-                        z:            5
-                    }
-                }
-
-                // ── CENTER PILL ────────────────────────────────────────────
-                Rectangle {
-                    id: centerPill
-                    anchors { centerIn: parent }
-                    height: Appearance.bar.height
-                    width:  centerRow.implicitWidth + Appearance.bar.pillPad * 2
-                    radius: Appearance.bar.radius
-                    border.color: Appearance.outline
-                    border.width: 1
-                    Behavior on border.color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-
-                    onXChanged: updateRightPill()
-                    onWidthChanged: updateRightPill()
-                    Component.onCompleted: updateRightPill()
-
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0.7
-                            color: Appearance.colors.bg
-                            Behavior on color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-                        }
-                        GradientStop {
-                            position: 1.0
-                            color: ColorUtils.applyAlpha(Appearance.colors.color0, 0.80)
-                            Behavior on color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-                        }
-                    }
-
-                    function updateRightPill() {
-                        var g = mapToGlobal(0, 0)
-                        Appearance.rightPillX = g.x
-                        Appearance.rightPillW = width
-                    }
-
-                    RowLayout {
-                        id: centerRow
-                        anchors { centerIn: parent }
-                        spacing: Appearance.bar.gap
-
-                        Notifications {}
-                        BarSeparator {}
-                        Cava {}
-                        BarSeparator {}
-                        Clock {}
-                        BarSeparator {}
-                        Workspaces {}
-                        BarSeparator {}
-                        LayoutDisplayer {}
-                        BarSeparator {}
-                        LocalSend {}
-                    }
-
-                    GradientBorder {
-                        anchors.fill: parent
-                        radius:       parent.radius
-                        borderWidth:  2
-                        visible:      Appearance.animationsEnabled
-                        z:            5
-                    }
-                }
-
-                // ── RIGHT PILL ─────────────────────────────────────────────
-                Rectangle {
-                    id: rightPill
-                    anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-                    height: Appearance.bar.height
-                    width:  rightRow.implicitWidth + Appearance.bar.pillPad * 2
-                    radius: Appearance.bar.radius
-                    border.color: Appearance.outline
-                    border.width: 1
-                    Behavior on border.color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-
-                    gradient: Gradient {
-                        GradientStop {
-                            position: 0.7
-                            color: Appearance.colors.bg
-                            Behavior on color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-                        }
-                        GradientStop {
-                            position: 1.0
-                            color: ColorUtils.applyAlpha(Appearance.colors.color0, 0.80)
-                            Behavior on color { ColorAnimation { duration: 600; easing.type: Easing.InOutQuad } }
-                        }
-                    }
-
-                    onXChanged: {
-                        var g = mapToGlobal(0, 0)
-                        Appearance.rightPillX = g.x
-                        Appearance.rightPillW = width
-                    }
-                    onWidthChanged: {
-                        var g = mapToGlobal(0, 0)
-                        Appearance.rightPillX = g.x
-                        Appearance.rightPillW = width
-                    }
-                    Component.onCompleted: {
-                        var g = mapToGlobal(0, 0)
-                        Appearance.rightPillX = g.x
-                        Appearance.rightPillW = width
-                    }
-
-                    RowLayout {
-                        id: rightRow
-                        anchors { centerIn: parent }
-                        spacing: Appearance.bar.gap
-
-                        Updates { id: upd }
-                        BarSeparator {}
-                        // MediaPlayer { id: mp }
-                        // BarSeparator { visible: mp.hasContent }
-                        // Eq { visible: mp.hasContent }
-                        // BarSeparator { visible: mp.hasContent }
-                        SysTray {}
-                        BarSeparator {}
-                        Audio {}
-                        BarSeparator {}
-                        PowerButtons {}
-                    }
-
-                    GradientBorder {
-                        anchors.fill: parent
-                        radius:       parent.radius
-                        borderWidth:  2
-                        visible:      Appearance.animationsEnabled
-                        z:            5
-                    }
+        RowLayout {
+            id: row
+            anchors.centerIn: parent
+            spacing: Appearance.bar.gap
+            Repeater {
+                model: pill.keys
+                delegate: RowLayout {
+                    id: slot
+                    required property string modelData
+                    required property int index
+                    spacing: Appearance.bar.gap
+                    // un module vide (lecteur sans musique…) ne laisse pas de trait orphelin
+                    visible: ld.implicitWidth > 0
+                    BarSeparator { visible: slot.index > 0 && BarModules.separators }
+                    Loader { id: ld; sourceComponent: pill.mods[slot.modelData] }
                 }
             }
+        }
+
+        GradientBorder {
+            anchors.fill: parent
+            radius:       parent.radius
+            borderWidth:  2
+            visible:      Appearance.animationsEnabled
+            z:            5
         }
     }
 }
