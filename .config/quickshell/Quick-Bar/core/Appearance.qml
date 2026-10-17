@@ -162,26 +162,34 @@ Singleton {
     readonly property string accentSlot: String(Config.get("theme.accent", "color11"))
     readonly property bool animationsEnabled: Config.get("theme.animated_borders", true) !== false   // bordures dégradé animées (dashboard + barre)
     readonly property real borderSpeed: Number(Config.get("theme.border_speed", 1))
+    // Ouverture des onglets (panneau tactile) : morph · slide · fade · zoom · rise · curtain · none
+    // morph = goutte → pilule → déroulé ; les cartes System/Apps s'ouvrent alors en cascade.
+    readonly property string pageAnim: String(Config.get("theme.page_anim", "morph"))
+    readonly property bool morphPages: pageAnim === "morph"
     readonly property string trayIcons: String(Config.get("theme.tray_icons", "color"))   // icônes de la zone de notification
     property bool   calendarVisible: false
     property real   calPopupX:       0
+    property real   calPopupY:       0      // centre vertical du module (barre verticale)
     property real   calPopupW:       0
     property bool   eqVisible:       false
     property var    trayMenuHandle:  null
     property string trayMenuTitle:   ""
     property string trayMenuIcon:    ""
     property real   trayMenuX:       0
+    property real   trayMenuY:       0
     property string trayMenuScreen:  ""     // écran (nom) où le menu a été demandé
     property bool   trayMenuOpen:    false
 
     // ── EQ popup ─────────────────────────────────────────────────────────
     property real   eqPopupX:     0
+    property real   eqPopupY:     0
     property real   eqPopupW:     0
 
     // ── Media player popup ────────────────────────────────────────────────
     property bool   mediaPopupOpen:  false
     property bool   mediaPopupHeld:  false
     property real   mediaPopupX:     0
+    property real   mediaPopupY:     0
     property real   mediaPopupWidth: 0
     property string mediaTitle:      ""
     property string mediaArtist:     ""
@@ -198,8 +206,38 @@ Singleton {
         property int padding:    5
         property int pillPad:    Config.get("bar.pill_padding", 8)
         property int gap:        Config.get("bar.gap", 5)
-        property real radius:    Config.get("bar.radius", 16)
+        // arrondi borné à la demi-épaisseur : au-delà, la bordure en dégradé déborde (trait parasite)
+        readonly property real maxRadius: Math.floor((vertical ? thickness : height) / 2)
+        property real radius:    Math.min(Config.get("bar.radius", 16), maxRadius)
         property real bgAlpha:   0.88
+        // Position et forme : [bar] position (top · bottom) et style (pills = 3 barres,
+        // split = 2 barres, full = 1 barre pleine largeur) — Réglages › Barre › Modules
+        readonly property string position: ["top", "bottom", "left", "right"].indexOf(String(Config.get("bar.position", "top"))) >= 0 ? String(Config.get("bar.position", "top")) : "top"
+        readonly property bool   atBottom: position === "bottom"
+        readonly property bool   vertical: position === "left" || position === "right"
+        // Épaisseur d'une barre verticale (largeur), [bar] thickness
+        readonly property int    thickness: vertical ? Config.get("bar.thickness", 46) : height
+        // Tailles des modules, proportionnelles à la barre (hauteur 34 px, ou largeur 46 px en vertical = 100 %) :
+        // un seul réglage (hauteur / épaisseur) fait grandir icônes et textes ensemble.
+        readonly property real   k:     vertical ? thickness / 46 : height / 34
+        readonly property int    icon:  Math.round(16 * k)
+        readonly property int    text:  Math.round((vertical ? 12 : 16) * k)
+        readonly property int    small: Math.round((vertical ? 11 : 14) * k)
+        readonly property string style: ["pills", "split", "full"].indexOf(String(Config.get("bar.style", "pills"))) >= 0 ? String(Config.get("bar.style", "pills")) : "pills"
+        // Distance entre le bord de l'écran et le bord intérieur de la barre
+        readonly property real edge: topMargin + thickness
+        // y d'une carte de hauteur h qui s'ouvre depuis la barre, dans une fenêtre plein écran de hauteur winH.
+        // Barre verticale : la carte s'aligne sur le module (anchorY = centre du module), bornée à l'écran.
+        function popupY(winH, h, anchorY) {
+            if (vertical) return Math.max(8, Math.min((anchorY ?? winH / 2) - h / 2, winH - h - 8))
+            return atBottom ? winH - edge - 6 - h : edge + 5
+        }
+        // x d'une carte de largeur w (anchorX = centre du module, barre horizontale)
+        function popupX(winW, w, anchorX) {
+            if (position === "left")  return edge + 6
+            if (position === "right") return winW - edge - 6 - w
+            return Math.max(8, Math.min(anchorX - w / 2, winW - w - 8))
+        }
     }
 
     // ── Font ──────────────────────────────────────────────────────────────

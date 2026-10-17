@@ -87,8 +87,22 @@ Scope {
         const i = visibleTabs.findIndex(t => t.key === page)
         slideDir = i >= _lastIdx ? 1 : -1
         _lastIdx = i
-        pageSlide.restart()
+        playPageAnim()
     }
+    // Style choisi dans Réglages › Animations ([theme] page_anim)
+    function playPageAnim() {
+        switch (Appearance.pageAnim) {
+        case "none":    return
+        case "slide":   pageSlide.restart(); return
+        case "fade":    pageFade.restart(); return
+        case "zoom":    pageZoom.restart(); return
+        case "rise":    pageRise.restart(); return
+        case "curtain": pageCurtain.restart(); return
+        // morph : les onglets à cartes (System, Apps) ouvrent déjà leurs cartes une à une
+        default:        if (selfAnimated.indexOf(page) < 0) pageMorph.restart()
+        }
+    }
+    readonly property var selfAnimated: ["stats", "deck"]
     function stepTab(d) {
         const i = visibleTabs.findIndex(t => t.key === page)
         const j = Math.max(0, Math.min(visibleTabs.length - 1, i + d))
@@ -118,16 +132,39 @@ Scope {
     // moniteur tactile focalisé, les taps 1 doigt cliquent nativement (sinon il
     // faut le tap 2 doigts hyprgrass juste pour prendre le focus). `silent` des
     // lancements d'apps → le focus reste sur le Xeneon pendant la session.
+    // Demande d'ouverture d'un onglet précis (ex. Réglages › Apps › « Voir l'onglet Apps »)
+    function takeTouchPage() {
+        if (Popups.touchPage === "") return
+        const k = Popups.touchPage
+        Popups.touchPage = ""
+        if (root.visibleTabs.some(t => t.key === k)) root.page = k
+    }
+    Connections {
+        target: Popups
+        function onTouchPageChanged() { Qt.callLater(root.takeTouchPage) }
+    }
     Process { id: focusProc }
+    // valeur de cursor:no_warps de la config Hyprland, remise après le focus
+    property string noWarps: "false"
+    Process {
+        running: true
+        command: ["hyprctl", "getoption", "cursor:no_warps", "-j"]
+        stdout: StdioCollector { onStreamFinished: { try { root.noWarps = JSON.parse(text).bool ? "true" : "false" } catch (e) {} } }
+    }
     Connections {
         target: ShellState
         function onTouchPanelOnChanged() {
             if (ShellState.touchPanelOn) {
                 root.page = root.visibleTabs.length ? root.visibleTabs[0].key : "home"
+                Qt.callLater(root.takeTouchPage)
                 root.configOpen = false
                 if (root.targetScreen) {
+                    // no_warps coupé le temps du focus : le curseur reste où il est
+                    // (Hyprland le ramènerait sinon sur le tactile), puis valeur de la config remise
                     focusProc.command = ["hyprctl", "eval",
-                        "hl.dispatch(hl.dsp.focus({ monitor = [[" + root.targetScreen.name + "]] }))"]
+                        "hl.config({ cursor = { no_warps = true } }); "
+                        + "hl.dispatch(hl.dsp.focus({ monitor = [[" + root.targetScreen.name + "]] })); "
+                        + "hl.config({ cursor = { no_warps = " + root.noWarps + " } })"]
                     focusProc.running = false
                     focusProc.running = true
                 }
@@ -370,6 +407,70 @@ Scope {
                     }
                 }
 
+                // ── Ouverture d'onglet : la page sort d'une goutte qui s'étire puis se déroule ──
+                readonly property real dot: 26
+                property real mw: width
+                property real mh: height
+                property real my: 0
+                property real frame: 0           // fond + contour de la forme pendant l'animation
+                property real shown: 1
+                SequentialAnimation {
+                    id: pageMorph
+                    ScriptAction { script: { pageArea.mw = pageArea.dot; pageArea.mh = pageArea.dot; pageArea.my = -pageArea.dot; pageArea.frame = 1; pageArea.shown = 0 } }
+                    NumberAnimation { target: pageArea; property: "my"; to: 0; duration: Appearance.dur(260); easing.type: Easing.OutCubic }
+                    NumberAnimation { target: pageArea; property: "mw"; to: pageArea.width; duration: Appearance.dur(340); easing.type: Easing.OutCubic }
+                    ParallelAnimation {
+                        NumberAnimation { target: pageArea; property: "mh"; to: pageArea.height; duration: Appearance.dur(480); easing.type: Easing.OutBack; easing.overshoot: 1.05 }
+                        SequentialAnimation {
+                            PauseAnimation { duration: Appearance.dur(180) }
+                            NumberAnimation { target: pageArea; property: "shown"; to: 1; duration: Appearance.dur(320); easing.type: Easing.OutCubic }
+                        }
+                    }
+                    NumberAnimation { target: pageArea; property: "frame"; to: 0; duration: Appearance.dur(260) }
+                    ScriptAction { script: { pageArea.mw = Qt.binding(() => pageArea.width); pageArea.mh = Qt.binding(() => pageArea.height) } }
+                }
+
+                // fondu
+                NumberAnimation { id: pageFade; target: pageArea; property: "shown"; from: 0; to: 1; duration: Appearance.dur(320); easing.type: Easing.OutQuad }
+                // zoom : la page grossit depuis 92 %
+                ParallelAnimation {
+                    id: pageZoom
+                    NumberAnimation { target: pageContent; property: "scale"; from: 0.92; to: 1; duration: Appearance.dur(380); easing.type: Easing.OutBack; easing.overshoot: 1.3 }
+                    NumberAnimation { target: pageArea; property: "shown"; from: 0; to: 1; duration: Appearance.dur(260) }
+                }
+                // montée : la page arrive du bas
+                ParallelAnimation {
+                    id: pageRise
+                    NumberAnimation { target: riseShift; property: "y"; from: 60; to: 0; duration: Appearance.dur(380); easing.type: Easing.OutCubic }
+                    NumberAnimation { target: pageArea; property: "shown"; from: 0; to: 1; duration: Appearance.dur(300) }
+                }
+                // rideau : la page se déroule de haut en bas sur toute la largeur
+                SequentialAnimation {
+                    id: pageCurtain
+                    ScriptAction { script: { pageArea.mw = pageArea.width; pageArea.mh = 0; pageArea.my = 0; pageArea.frame = 1; pageArea.shown = 1 } }
+                    NumberAnimation { target: pageArea; property: "mh"; to: pageArea.height; duration: Appearance.dur(520); easing.type: Easing.OutCubic }
+                    NumberAnimation { target: pageArea; property: "frame"; to: 0; duration: Appearance.dur(220) }
+                    ScriptAction { script: { pageArea.mh = Qt.binding(() => pageArea.height) } }
+                }
+
+                ClippingRectangle {
+                    id: morphBox
+                    x: (pageArea.width - pageArea.mw) / 2
+                    y: pageArea.my
+                    width: pageArea.mw; height: pageArea.mh
+                    radius: pageArea.frame > 0 ? Math.min(22, Math.min(width, height) / 2) : 0
+                    color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.85 * pageArea.frame)
+                    border.width: pageArea.frame > 0 ? 1 : 0
+                    border.color: ColorUtils.applyAlpha(Appearance.colors.accent, 0.6 * pageArea.frame)
+
+                    // le contenu reste en place pendant que la forme grandit autour de lui
+                    Item {
+                        id: pageContent
+                        x: -morphBox.x; y: -morphBox.y
+                        width: pageArea.width; height: pageArea.height
+                        opacity: pageArea.shown
+                        transform: Translate { id: riseShift }
+
                 // Une page par entrée du catalogue. Chargée à la demande (Loader) et
                 // libérée quand l'onglet n'est pas affiché, sauf `keep: true`.
                 Repeater {
@@ -383,6 +484,8 @@ Scope {
                             active: (modelData.keep ?? false) || root.page === modelData.key
                             source: Qt.resolvedUrl(modelData.src)
                         }
+                    }
+                }
                     }
                 }
             }

@@ -20,6 +20,8 @@ ColumnLayout {
     }
     SetCard {
         title: "Alertes de température"
+        canReset: true
+        onResetRequested: { page.setPref("tempAlert", 82); page.setPref("gpuAlert", 95); page.setPref("nvmeAlert", 70) }
         Text { text: "La puce passe à l'orange 10–12° avant le seuil, au rouge au seuil."
                font.family: Appearance.font.family; font.pixelSize: Appearance.font.small - 3; color: Appearance.colors.dim }
         SetRow { title: "Processeur"; SetSlider { implicitWidth: 300; from: 60; to: 100; suffix: "°"; value: page.prefs.tempAlert || 82; onMoved: (v) => page.setPref("tempAlert", v) } }

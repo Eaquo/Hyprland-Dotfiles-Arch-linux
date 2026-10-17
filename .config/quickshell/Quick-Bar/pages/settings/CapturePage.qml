@@ -14,6 +14,7 @@ ColumnLayout {
 
     SetCard {
         title: "Fichiers"
+        resetKeys: ["capture.format", "capture.codec", "capture.fps"]
         SetRow {
             title: "Dossier"; wide: true
             RowLayout {

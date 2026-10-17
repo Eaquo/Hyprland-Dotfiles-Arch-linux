@@ -270,6 +270,7 @@ ColumnLayout {
 
     SetCard {
         title: "Bordures animées"
+        resetKeys: ["theme.animated_borders", "theme.border_speed"]
         SetRow {
             title: "Contour en dégradé"
             desc: "le contour coloré qui défile autour de la barre et des panneaux"
@@ -285,9 +286,10 @@ ColumnLayout {
 
     SetCard {
         title: "Formes"
+        resetKeys: ["theme.radius"]
         SetRow { title: "Arrondi des panneaux"; desc: "dashboard, réglages, popups"
             SetSlider { implicitWidth: 300; from: 0; to: 30; suffix: " px"; value: Appearance.cornerRadius; onMoved: (v) => Config.set("theme.radius", v === 17 ? null : v) } }
-        SetRow { title: "Arrondi de la barre"
-            SetSlider { implicitWidth: 300; from: 0; to: 24; suffix: " px"; value: Appearance.bar.radius; onMoved: (v) => Config.set("bar.radius", v === 16 ? null : v) } }
+        SetRow { title: "Arrondi de la barre"; desc: "réglé avec la forme de la barre"
+                 SetButton { label: "󰍜  Barre › Modules"; onTap: Popups.settingsPage = "bar" } }
     }
 }

@@ -9,15 +9,18 @@ import Quickshell.Services.SystemTray
 import qs.core
 import qs.core.functions
 
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 2
+    rowSpacing: 2; columnSpacing: 2
 
     Repeater {
         model: SystemTray.items
 
         Item {
             id: trayItem
+            Layout.alignment: Qt.AlignCenter
             required property SystemTrayItem modelData
 
             readonly property int sz:  Appearance.bar.height - 12
@@ -130,7 +133,7 @@ RowLayout {
                         if (t2 !== "") return t2
                         return trayItem.modelData.icon
                     }
-                    font.pixelSize: Appearance.font.small - 1
+                    font.pixelSize: Appearance.bar.small - 1
                     font.family:    Appearance.font.family
                     color:          Appearance.colors.fg
                 }
@@ -161,6 +164,7 @@ RowLayout {
                                     : "Menu"
                             Appearance.trayMenuIcon   = trayItem.modelData.icon
                             Appearance.trayMenuX      = pos.x
+                            Appearance.trayMenuY      = trayItem.mapToGlobal(0, trayItem.height / 2).y
                             // Le menu ne s'ouvre que sur l'écran de la barre cliquée
                             Appearance.trayMenuScreen = trayItem.QsWindow.window?.screen?.name ?? ""
                             Qt.callLater(() => { Appearance.trayMenuOpen = true })

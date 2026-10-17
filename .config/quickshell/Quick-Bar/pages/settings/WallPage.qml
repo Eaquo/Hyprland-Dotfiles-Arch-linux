@@ -27,6 +27,8 @@ ColumnLayout {
 
     SetCard {
         title: "Rotation"
+        canReset: true
+        onResetRequested: WallpaperState.autoMinutes = 15
         SetRow {
             title: "Changer automatiquement"; desc: "un fond au hasard du dossier"
             SetSwitch { on: WallpaperState.autoChange; onToggled: WallpaperState.autoChange = !WallpaperState.autoChange }
@@ -39,6 +41,9 @@ ColumnLayout {
 
     SetCard {
         title: "Effet animé"
+        canReset: true
+        onResetRequested: { WallpaperState.glitchContinuous = false; WallpaperState.glitchIntensity = 1; WallpaperState.glitchSpeed = 1
+                             WallpaperState.glitchInterval = 4000; WallpaperState.glitchDuration = 280; WallpaperState.glitchColor = "" }
         SetRow {
             title: "Effet sur le fond"
             SetSwitch { on: WallpaperState.glitchEnabled; onToggled: WallpaperState.glitchEnabled = !WallpaperState.glitchEnabled }

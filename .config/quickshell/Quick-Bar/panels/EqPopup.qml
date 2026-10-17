@@ -78,17 +78,21 @@ Scope {
                 }
             }
             MouseArea {
-                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                y: Appearance.bar.topMargin + Appearance.bar.height
+                // tout l'écran sauf la bande de la barre
+                x: Appearance.bar.position === "left" ? Appearance.bar.edge : 0
+                y: Appearance.bar.position === "top" ? Appearance.bar.edge : 0
+                width: parent.width - (Appearance.bar.vertical ? Appearance.bar.edge : 0)
+                height: parent.height - (Appearance.bar.vertical ? 0 : Appearance.bar.edge)
                 onClicked: Appearance.eqVisible = false
             }
 
             // Hotspot zone du widget MediaPlayer dans la barre → switch vers MP popup
             MouseArea {
                 x: Appearance.mediaPopupX - eqWin.screen.x - Appearance.mediaPopupWidth / 2 - 6
-                y: 0
+                y: Appearance.bar.atBottom ? parent.height - Appearance.bar.edge : 0
                 width:  Appearance.mediaPopupWidth + 12
-                height: Appearance.bar.topMargin + Appearance.bar.height
+                height: Appearance.bar.edge
+                enabled: !Appearance.bar.vertical
                 hoverEnabled: true
                 acceptedButtons: Qt.NoButton
                 onEntered: {
@@ -121,8 +125,8 @@ Scope {
             Rectangle {
                 id: eqCard
 
-                x: Math.max(8, Math.min(Appearance.eqPopupX - width / 2, eqWin.width - width - 8))
-                y: eqWin.cardY + 6
+                x: Appearance.bar.popupX(eqWin.width, width, Appearance.eqPopupX)
+                y: Appearance.bar.popupY(eqWin.height, height, Appearance.eqPopupY - eqWin.screen.y)
 
                 width: cardCol.implicitWidth + 48
                 height: cardCol.implicitHeight + 36
@@ -135,7 +139,7 @@ Scope {
 
                 opacity: Appearance.eqVisible ? 1 : 0
                 scale: Appearance.eqVisible ? 1 : 0.97
-                transformOrigin: Item.TopRight
+                transformOrigin: Appearance.bar.atBottom ? Item.BottomRight : Item.TopRight
 
                 Behavior on opacity { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
                 Behavior on scale { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }

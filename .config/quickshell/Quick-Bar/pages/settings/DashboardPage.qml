@@ -25,6 +25,7 @@ ColumnLayout {
 
     SetCard {
         title: "Taille"
+        resetKeys: ["dashboard.width", "dashboard.height"]
         SetRow { title: "Largeur"; SetSlider { implicitWidth: 300; from: 700; to: 1400; step: 20; suffix: " px"; value: Appearance.dashboardWidth
                  onMoved: (v) => Config.set("dashboard.width", v === 900 ? null : v) } }
         SetRow { title: "Hauteur"; SetSlider { implicitWidth: 300; from: 400; to: 900; step: 20; suffix: " px"; value: Appearance.dashboardHeight

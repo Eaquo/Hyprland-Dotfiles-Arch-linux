@@ -22,7 +22,7 @@ Item {
         anchors.centerIn: parent          // ← important
         text: " 󰓃 "
         font.family: Appearance.font.family
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: Appearance.eqVisible ? Appearance.colors.accent : Appearance.colors.dim
     }
 
@@ -37,6 +37,7 @@ Item {
             // Mise à jour de la position avec la nouvelle largeur
             var globalPos = root.mapToGlobal(0, 0)
             Appearance.eqPopupX = globalPos.x
+            Appearance.eqPopupY = root.mapToGlobal(0, root.height / 2).y
             Appearance.eqPopupW = root.implicitWidth
 
             Appearance.eqVisible = true

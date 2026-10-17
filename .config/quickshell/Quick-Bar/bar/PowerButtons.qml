@@ -6,18 +6,21 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 5
+    rowSpacing: 5; columnSpacing: 5
 
     Process { id: lockProc;   command: ["hyprlock"] }
     Process { id: logoutProc; command: ["wlogout"]  }
 
     // ── Power ─────────────────────────────────────────────────────────────
     Text {
+        Layout.alignment: Qt.AlignCenter
         id: powerBtn
         text: " ⏻ "
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: Appearance.colors.dim
 
         MouseArea {
@@ -32,9 +35,10 @@ RowLayout {
     
     // ── Lock ─────────────────────────────────────────────────────────────
     Text {
+        Layout.alignment: Qt.AlignCenter
         id: lockBtn
         text: " 󰌾 "
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: Appearance.colors.dim
 
         MouseArea {

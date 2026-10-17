@@ -93,17 +93,21 @@ Scope {
             Process { id: nextProc;  command: ["playerctl", "next"];       onRunningChanged: if (!running) infoProc.running = true }
 
             MouseArea {
-                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                y: Appearance.bar.topMargin + Appearance.bar.height
+                // tout l'écran sauf la bande de la barre
+                x: Appearance.bar.position === "left" ? Appearance.bar.edge : 0
+                y: Appearance.bar.position === "top" ? Appearance.bar.edge : 0
+                width: parent.width - (Appearance.bar.vertical ? Appearance.bar.edge : 0)
+                height: parent.height - (Appearance.bar.vertical ? 0 : Appearance.bar.edge)
                 onClicked: Appearance.mediaPopupOpen = false
             }
 
             // Hotspot zone du bouton EQ dans la barre → switch vers EQ popup
             MouseArea {
                 x: Appearance.eqPopupX - win.screen.x - Appearance.eqPopupW / 2 - 6
-                y: 0
+                y: Appearance.bar.atBottom ? parent.height - Appearance.bar.edge : 0
                 width:  Appearance.eqPopupW + 12
-                height: Appearance.bar.topMargin + Appearance.bar.height
+                height: Appearance.bar.edge
+                enabled: !Appearance.bar.vertical
                 hoverEnabled: true
                 acceptedButtons: Qt.NoButton
                 onEntered: {
@@ -126,7 +130,7 @@ Scope {
             // ── Shared geometry ───────────────────────────────────────────
             readonly property real cardW: Math.max(260, Appearance.mediaPopupWidth)
             // Centré exactement sous le widget MediaPlayer
-            readonly property real cardX: Math.max(8, Math.min(Appearance.mediaPopupX - cardW / 2, win.width - cardW - 8))
+            readonly property real cardX: Appearance.bar.popupX(win.width, cardW, Appearance.mediaPopupX)
             readonly property real cardY: Appearance.bar.topMargin + Appearance.bar.height - 1
 
             // ── Card ──────────────────────────────────────────────────
@@ -137,7 +141,7 @@ Scope {
                 height: cardCol.implicitHeight + 20 + 22   // +22 = bande visualiseur cava
 
                 x: win.cardX
-                y: win.cardY + 6
+                y: Appearance.bar.popupY(win.height, height, Appearance.mediaPopupY - win.screen.y)
 
                 radius: Appearance.bar.radius
 
@@ -155,7 +159,7 @@ Scope {
 
                 opacity: Appearance.mediaPopupOpen ? 1.0 : 0.0
                 scale:   Appearance.mediaPopupOpen ? 1.0 : 0.97
-                transformOrigin: Item.Top
+                transformOrigin: Appearance.bar.atBottom ? Item.Bottom : Item.Top
                 Behavior on opacity { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
                 Behavior on scale   { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
 

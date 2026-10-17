@@ -35,6 +35,7 @@ ColumnLayout {
             id: g
             required property var modelData
             title: modelData[0]
+            resetKeys: modelData[1].map(r => "refresh." + r[0])
             Repeater {
                 model: g.modelData[1]
                 delegate: SetRow {

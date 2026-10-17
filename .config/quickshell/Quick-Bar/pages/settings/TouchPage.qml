@@ -12,6 +12,7 @@ ColumnLayout {
 
     SetCard {
         title: "Affichage"
+        resetKeys: ["touchpanel.scale"]
         SetRow {
             title: "Panneau tactile"; desc: "plein écran sur l'écran tactile (choix de l'écran : Général)"
             SetSwitch { on: ShellState.touchPanelOn; onToggled: ShellState.touchPanelOn = !ShellState.touchPanelOn }
@@ -36,6 +37,7 @@ ColumnLayout {
 
     SetCard {
         title: "Zoom par page"
+        resetKeys: ["touchpanel.pages"]
         Repeater {
             model: TouchTabs.all
             delegate: SetRow {
@@ -51,6 +53,15 @@ ColumnLayout {
 
     SetCard {
         title: "Pause en jeu (SUPER+T)"
+        resetKeys: ["game.break_seconds", "game.break_auto_return", "game.break_open_touchpanel", "game.break_corner"]
+        SetRow {
+            title: "Emplacement de la pastille"; desc: "le compte à rebours et les boutons, sur l'écran tactile"
+            SetSeg {
+                options: [["top-left", "Haut gauche"], ["top", "Haut"], ["top-right", "Haut droite"], ["bottom-left", "Bas gauche"], ["bottom", "Bas"], ["bottom-right", "Bas droite"]]
+                current: String(Config.get("game.break_corner", "top-left"))
+                onPicked: (v) => Config.set("game.break_corner", v === "top-left" ? null : v)
+            }
+        }
         SetRow {
             title: "Retour automatique au jeu"; desc: "relancé à chaque interaction"
             SetSwitch { on: GameBreak.autoReturn; onToggled: Config.set("game.break_auto_return", on ? false : null) }

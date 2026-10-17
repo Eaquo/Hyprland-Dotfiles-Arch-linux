@@ -23,11 +23,21 @@ PanelWindow {
     }
     color: "transparent"
     visible: windowVisible
-    anchors { top: true; left: true; right: true; bottom: true }
+    // Fenêtre flottante de la taille du panneau (plus de voile plein écran) : le reste de l'écran
+    // reste utilisable pour voir les changements ; fermeture par la croix, Échap ou SUPER+F1.
+    // Déplaçable en glissant le titre « Réglages ».
+    anchors { top: true; left: true }
+    margins { left: Math.round(posX); top: Math.round(posY) }
+    implicitWidth:  fullW + 8
+    implicitHeight: fullH + 8
     exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.layer: WlrLayer.Top
     WlrLayershell.namespace: "quickshell:settings"
-    WlrLayershell.keyboardFocus: (windowVisible && Popups.settingsOpen) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: (windowVisible && Popups.settingsOpen) ? WlrKeyboardFocus.OnDemand : WlrKeyboardFocus.None
+    readonly property real scrW: screen ? screen.width : 1920
+    readonly property real scrH: screen ? screen.height : 1080
+    property real posX: (scrW - implicitWidth) / 2
+    property real posY: (scrH - implicitHeight) / 2
 
     // ── Pages ─────────────────────────────────────────────────────────────
     // src = page construite (voir pageLoader.pages) ; sinon PlannedPage avec `plan`.
@@ -36,11 +46,12 @@ PanelWindow {
         { key: "theme", group: "Apparence", ic: "󰏘", name: "Thème", kw: "thèmes préréglages presets accent bordures animées contour vitesse arrondi rayon formes", src: "theme" },
         { key: "colors", group: "Apparence", ic: "󰸌", name: "Couleurs", kw: "palette wallust matugen material you chemin", src: "colors" },
         { key: "fonts", group: "Apparence", ic: "󰛖", name: "Police", kw: "police famille taille texte nerd font", src: "fonts" },
-        { key: "anim", group: "Apparence", ic: "󰑓", name: "Animations", kw: "durée vitesse ouverture rapide instantané aucune animation", src: "anim" },
+        { key: "anim", group: "Apparence", ic: "󰑓", name: "Animations", kw: "durée vitesse ouverture rapide instantané aucune animation onglets transition goutte rideau zoom montée glissement fondu", src: "anim" },
         { key: "bar", group: "Barre", ic: "󰍜", name: "Modules", kw: "barre modules ordre gauche centre droite masquer options géométrie hauteur séparateurs horloge format", src: "bar" },
         { key: "barint", group: "Barre", ic: "󰔛", name: "Rafraîchissement", kw: "intervalles mises à jour réseau bluetooth stats volume santé secondes cpu", src: "refresh" },
         { key: "dash", group: "Panneaux", ic: "󰕮", name: "Dashboard", kw: "taille onglets accueil", src: "dashboard" },
         { key: "touch", group: "Panneaux", ic: "󰦧", name: "Panneau tactile", kw: "zoom onglets pause jeu xeneon", src: "touch" },
+        { key: "apps", group: "Panneaux", ic: "󰀻", name: "Apps", kw: "applications lanceurs deck tuiles sections raccourcis apps", src: "apps" },
         { key: "spotify", group: "Panneaux", ic: "󰓇", name: "Spotify et média", kw: "spotify lecteur pochette", src: "spotify" },
         { key: "notif", group: "Panneaux", ic: "󰂚", name: "Notifications", kw: "toasts swaync durée position ne pas déranger", src: "notif" },
         { key: "wall", group: "Multimédia", ic: "󰸉", name: "Fond d'écran", kw: "dossiers rotation effets shaders", src: "wall" },
@@ -103,18 +114,10 @@ PanelWindow {
         Keys.onEscapePressed: Popups.settingsOpen = false
     }
 
-    // Voile : un clic à côté de la fenêtre la ferme
-    Rectangle {
-        anchors.fill: parent
-        color: "#000000"
-        opacity: Popups.settingsOpen ? 0.35 : 0
-        Behavior on opacity { NumberAnimation { duration: Appearance.dur(260) } }
-        MouseArea { anchors.fill: parent; onClicked: Popups.settingsOpen = false }
-    }
 
     // ── Fenêtre : forme animée (ligne → pilule → déroulé) ─────────────────
-    readonly property real fullW: Math.min(1180, width - 80)
-    readonly property real fullH: Math.min(780, height - 100)
+    readonly property real fullW: Math.min(1180, scrW - 80)
+    readonly property real fullH: Math.min(780, scrH - 100)
     property real mw: fullW
     property real mh: fullH
     property real mr: Appearance.cornerRadius
@@ -193,7 +196,22 @@ PanelWindow {
                             spacing: 10
                             Rectangle { width: 30; height: 30; radius: 10; color: Appearance.colors.accent
                                 Text { anchors.centerIn: parent; text: "󰒓"; font.family: Appearance.font.family; font.pixelSize: 16; color: Appearance.textOn(Appearance.colors.accent) } }
-                            Text { text: "Réglages"; font.family: Appearance.font.family; font.pixelSize: 20; font.weight: Font.Bold; color: Appearance.colors.fg }
+                            Text {
+                                text: "Réglages"; font.family: Appearance.font.family; font.pixelSize: 20; font.weight: Font.Bold; color: Appearance.colors.fg
+                                // glisser le titre = déplacer la fenêtre
+                                MouseArea {
+                                    anchors.fill: parent; anchors.margins: -8
+                                    cursorShape: pressed ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                                    property point start
+                                    onPressed: (e) => start = mapToGlobal(e.x, e.y)
+                                    onPositionChanged: (e) => {
+                                        const g = mapToGlobal(e.x, e.y)
+                                        root.posX = Math.max(0, Math.min(root.scrW - root.implicitWidth, root.posX + g.x - start.x))
+                                        root.posY = Math.max(0, Math.min(root.scrH - root.implicitHeight, root.posY + g.y - start.y))
+                                        start = g
+                                    }
+                                }
+                            }
                         }
                         SetInputLite {
                             id: search
@@ -289,7 +307,7 @@ PanelWindow {
                         }
                         Component.onCompleted: tabChanged()
                         onLoaded: if (item) item.width = Qt.binding(() => pageLoader.width)
-                        readonly property var pages: ({ colors: colorsC, fonts: fontsC, deps: depsC, bar: barC, theme: themeC, general: generalC, anim: animC, refresh: refreshC, dashboard: dashboardC, touch: touchC, spotify: spotifyC, notif: notifC, wall: wallC, audio: audioC, capture: captureC, game: gameC, stats: statsC, health: healthC, keys: keysC, data: dataC, plan: planC })
+                        readonly property var pages: ({ colors: colorsC, fonts: fontsC, deps: depsC, bar: barC, theme: themeC, general: generalC, anim: animC, refresh: refreshC, dashboard: dashboardC, touch: touchC, spotify: spotifyC, notif: notifC, wall: wallC, audio: audioC, capture: captureC, game: gameC, stats: statsC, health: healthC, keys: keysC, data: dataC, apps: appsC, plan: planC })
                         Component { id: colorsC; ColorsPage {} }
                         Component { id: fontsC; FontsPage {} }
                         Component { id: depsC; DepsPage {} }
@@ -310,6 +328,7 @@ PanelWindow {
                         Component { id: healthC; HealthPage {} }
                         Component { id: keysC; KeysPage {} }
                         Component { id: dataC; DataPage {} }
+                        Component { id: appsC; AppsPage {} }
                         Component { id: planC; PlannedPage { title: pageLoader.tab.name; items: pageLoader.tab.plan } }
                         opacity: status === Loader.Ready ? 1 : 0
                         Behavior on opacity { NumberAnimation { duration: Appearance.dur(180) } }

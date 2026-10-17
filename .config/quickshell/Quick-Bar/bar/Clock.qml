@@ -7,16 +7,20 @@ Text {
 
     function update() {
         var d  = new Date()
-        text = "    " + d.toLocaleString(Qt.locale("fr_FR"), Config.get("bar.clock_format", "HH:mm:ss"))
+        // barre verticale : heures et minutes l'une sous l'autre
+        text = Appearance.bar.vertical ? d.toLocaleString(Qt.locale("fr_FR"), "HH\nmm")
+                                       : "    " + d.toLocaleString(Qt.locale("fr_FR"), Config.get("bar.clock_format", "HH:mm:ss"))
     }
 
     color: Appearance.colors.color15
-    font.pixelSize: 14
+    font.pixelSize: Appearance.bar.vertical ? Appearance.bar.text + 3 : Appearance.bar.small
+    horizontalAlignment: Text.AlignHCenter
     font.family: "Cascadia Code"
 
     Component.onCompleted: {
         var pos = root.mapToGlobal(root.implicitWidth / 2, 0)
         Appearance.calPopupX = pos.x
+        Appearance.calPopupY = root.mapToGlobal(0, root.height / 2).y
     }
 
     Timer {

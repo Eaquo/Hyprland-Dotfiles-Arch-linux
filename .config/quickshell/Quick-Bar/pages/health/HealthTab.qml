@@ -5,8 +5,8 @@ import qs.core
 import qs.core.functions
 import qs.services
 
-// HealthTab — bilan de santé (TouchPanel). Une ligne par dépendance de Quick-Bar :
-// état, détail, et réparation au toucher de la ligne quand elle existe.
+// HealthTab — bilan de santé (TouchPanel), 4 colonnes × 5 lignes. Toucher une ligne ouvre ce
+// qu'elle surveille (site, appli, service…) ; « Réparer » quand elle est en panne.
 // Données et réparations : services/Health.qml → scripts/health/check.sh.
 Item {
     id: root
@@ -52,74 +52,110 @@ Item {
             }
         }
 
-        // Deux colonnes de lignes (l'écran est large et bas)
-        GridLayout {
+        // 4 colonnes visibles, 5 lignes par colonne : la 6ᵉ vérification ouvre une nouvelle
+        // colonne (défilement horizontal au-delà de 20)
+        Flickable {
+            id: grid
             Layout.fillWidth: true
             Layout.fillHeight: true
-            columns: 2
-            columnSpacing: 16; rowSpacing: 12
+            readonly property int rowsPer: 5
+            readonly property int gap: 14
+            readonly property real colW: (width - gap * 3) / 4
+            readonly property real cellH: (height - gap * (rowsPer - 1)) / rowsPer
+            contentWidth: Math.max(width, Math.ceil(Health.rows.length / rowsPer) * (colW + gap) - gap)
+            contentHeight: height
+            flickableDirection: Flickable.HorizontalFlick
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
 
             Repeater {
                 model: Health.rows
                 delegate: Rectangle {
+                    id: cell
                     required property var modelData
+                    required property int index
                     readonly property color tint: modelData.ok ? Appearance.colors.accent : Appearance.colors.color13
                     readonly property bool fixable: modelData.fix && !modelData.ok
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Layout.maximumHeight: 96
+                    readonly property var action: Health.openAction(modelData.id)
+                    x: Math.floor(index / grid.rowsPer) * (grid.colW + grid.gap)
+                    y: (index % grid.rowsPer) * (grid.cellH + grid.gap)
+                    width: grid.colW; height: grid.cellH
                     radius: 18
-                    color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.55)
+                    color: tap.pressed && cell.action ? ColorUtils.applyAlpha(cell.tint, 0.16) : ColorUtils.applyAlpha(Appearance.colors.bg, 0.55)
                     border.width: modelData.ok ? 1 : 2
                     border.color: ColorUtils.applyAlpha(tint, modelData.ok ? 0.25 : 0.9)
+                    scale: tap.pressed && cell.action ? 0.97 : 1
+                    Behavior on scale { NumberAnimation { duration: Appearance.dur(110) } }
+                    Behavior on color { ColorAnimation { duration: Appearance.dur(110) } }
 
-                    // Toute la ligne en panne est le bouton de réparation
+                    // Toucher la ligne = ouvrir ce qu'elle surveille (site, appli, service…)
                     MouseArea {
+                        id: tap
                         anchors.fill: parent
-                        enabled: parent.fixable
-                        onClicked: { Health.fix(modelData.id); GameBreak.extend() }
+                        enabled: !!cell.action
+                        onClicked: { Health.open(cell.modelData.id); GameBreak.extend() }
                     }
 
                     RowLayout {
-                        anchors.fill: parent; anchors.leftMargin: 20; anchors.rightMargin: 14
-                        spacing: 16
-                        Rectangle {
-                            width: 16; height: 16; radius: 8
-                            color: parent.parent.tint
-                        }
+                        anchors.fill: parent; anchors.leftMargin: 18; anchors.rightMargin: 12
+                        spacing: 14
+                        Rectangle { width: 14; height: 14; radius: 7; color: cell.tint }
                         Column {
                             Layout.fillWidth: true
                             spacing: 3
                             Text {
                                 width: parent.width
-                                text: modelData.label
-                                font.family: Appearance.font.family; font.pixelSize: 19; font.weight: Font.Medium
+                                text: cell.modelData.label
+                                font.family: Appearance.font.family; font.pixelSize: 18; font.weight: Font.Medium
                                 color: Appearance.colors.fg; elide: Text.ElideRight
                             }
                             Text {
                                 width: parent.width
-                                text: modelData.detail
-                                font.family: Appearance.font.family; font.pixelSize: 14
-                                color: modelData.ok ? Appearance.colors.dim : Appearance.colors.fg
+                                text: cell.modelData.detail
+                                font.family: Appearance.font.family; font.pixelSize: 13
+                                color: cell.modelData.ok ? Appearance.colors.dim : Appearance.colors.fg
                                 elide: Text.ElideRight
-                                wrapMode: modelData.ok ? Text.NoWrap : Text.WordWrap; maximumLineCount: 2
                             }
                         }
+                        // Réparer (en panne) sinon l'action d'ouverture
                         Rectangle {
-                            visible: parent.parent.fixable
-                            implicitWidth: fx.implicitWidth + 32; implicitHeight: 52; radius: 14
+                            visible: cell.fixable
+                            implicitWidth: fx.implicitWidth + 26; implicitHeight: 46; radius: 13
                             color: Appearance.colors.accent
                             opacity: Health.fixing !== "" ? 0.5 : 1
                             Text {
                                 id: fx
                                 anchors.centerIn: parent
-                                text: Health.fixing === modelData.id ? "En cours…"
-                                    : Health.lastTried === modelData.id ? "Réessayer" : "Réparer"
-                                font.family: Appearance.font.family; font.pixelSize: 16; font.weight: Font.Bold
+                                text: Health.fixing === cell.modelData.id ? "En cours…"
+                                    : Health.lastTried === cell.modelData.id ? "Réessayer" : "Réparer"
+                                font.family: Appearance.font.family; font.pixelSize: 15; font.weight: Font.Bold
                                 color: Appearance.textOn(Appearance.colors.accent)
                             }
+                            MouseArea { anchors.fill: parent; onClicked: { Health.fix(cell.modelData.id); GameBreak.extend() } }
+                        }
+                        Text {
+                            visible: !cell.fixable && !!cell.action
+                            text: cell.action ? cell.action.icon : ""
+                            font.family: Appearance.font.family; font.pixelSize: 20
+                            color: Appearance.colors.dim
                         }
                     }
+                }
+            }
+        }
+        // indicateur de colonnes quand elles dépassent l'écran
+        Row {
+            Layout.alignment: Qt.AlignHCenter
+            visible: grid.contentWidth > grid.width + 1
+            spacing: 6
+            Repeater {
+                model: Math.max(1, Math.ceil(Health.rows.length / grid.rowsPer) - 3)
+                delegate: Rectangle {
+                    required property int index
+                    readonly property bool on: Math.round(grid.contentX / (grid.colW + grid.gap)) === index
+                    width: on ? 22 : 8; height: 8; radius: 4
+                    color: on ? Appearance.colors.accent : ColorUtils.applyAlpha(Appearance.colors.fg, 0.25)
+                    Behavior on width { NumberAnimation { duration: Appearance.dur(160) } }
                 }
             }
         }

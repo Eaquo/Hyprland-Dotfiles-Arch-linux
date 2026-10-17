@@ -4,6 +4,7 @@ import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Services.Pipewire
+import qs.components.stats
 import qs.core
 import qs.core.functions
 import qs.pages.home
@@ -151,9 +152,22 @@ Item {
         { type: "disks", cat: "Système", label: "Disques", icon: "󰋊", w: 4, h: 4, col: Appearance.colors.color3  },
         { type: "fan",   cat: "Système", label: "Ventilo", icon: "󰈐", w: 3, h: 2, col: Appearance.colors.color12 },
         { type: "temp",  cat: "Système", label: "Temp CPU",    icon: "󰔏", w: 3, h: 2, col: "#fab387" },
-        { type: "temp",  cat: "Système", label: "Temp GPU",    icon: "󰔏", w: 3, h: 2, col: "#fab387" },
+        { type: "tgpu",  cat: "Système", label: "Temp GPU",    icon: "󰢮", w: 3, h: 2, col: "#fab387" },
+        { type: "tnvme", cat: "Système", label: "Temp NVMe",   icon: "󰆼", w: 3, h: 2, col: Appearance.colors.color14 },
+        { type: "gpupow",cat: "Système", label: "Conso GPU",   icon: "󰚥", w: 3, h: 2, col: Appearance.colors.color12 },
+        { type: "freq",  cat: "Système", label: "Fréquence",   icon: "󰓅", w: 3, h: 2, col: Appearance.colors.color13 },
+        { type: "swap",  cat: "Système", label: "Swap",        icon: "󰾴", w: 3, h: 2, col: Appearance.colors.color6 },
         { type: "load",  cat: "Système", label: "Charge",  icon: "󰬢", w: 3, h: 2, col: Appearance.colors.color13 },
         { type: "uptime",cat: "Système", label: "Uptime",  icon: "󰔟", w: 3, h: 2, col: Appearance.colors.color6  },
+
+        // Cartes détaillées : les mêmes que la page System et le survol de la barre
+        { type: "sys_cpu",  cat: "Cartes système", label: "Processeur",      icon: "󰍛", w: 4, h: 4, col: Appearance.colors.color13 },
+        { type: "sys_ram",  cat: "Cartes système", label: "Mémoire",         icon: "󰾆", w: 4, h: 4, col: Appearance.colors.color6 },
+        { type: "sys_tcpu", cat: "Cartes système", label: "Température CPU", icon: "󰔏", w: 4, h: 3, col: Appearance.colors.color15 },
+        { type: "sys_gpu",  cat: "Cartes système", label: "Carte graphique", icon: "󰢮", w: 4, h: 4, col: Appearance.colors.color15 },
+        { type: "sys_nvme", cat: "Cartes système", label: "SSD NVMe",        icon: "󰆼", w: 4, h: 3, col: Appearance.colors.color15 },
+        { type: "sys_disk", cat: "Cartes système", label: "Disques",         icon: "󰋊", w: 4, h: 4, col: Appearance.colors.color14 },
+        { type: "sys_net",  cat: "Cartes système", label: "Réseau",          icon: "󰛳", w: 4, h: 3, col: Appearance.colors.color14 },
 
         { type: "media",  cat: "Média", label: "Media",  icon: "󰎈", w: 5, h: 2, col: Appearance.colors.color13 },
         { type: "cava",   cat: "Média", label: "Cava",   icon: "󰝚", w: 5, h: 2, col: Appearance.colors.color11 },
@@ -284,7 +298,10 @@ Item {
         "apps": cApps, "volume": cVolume, "uptime": cUptime,
         "load": cLoad, "temp": cTemp,
         "disks": cDisks, "pomodoro": cPomodoro, "notif": cNotif,
-        "analog": cAnalog, "palette": cPalette, "wall": cWall, "note": cNote, "power": cPower
+        "analog": cAnalog, "palette": cPalette, "wall": cWall, "note": cNote, "power": cPower,
+        "tgpu": cTgpu, "tnvme": cTnvme, "gpupow": cGpuPow, "freq": cFreq, "swap": cSwap,
+        "sys_cpu": cSysCpu, "sys_ram": cSysRam, "sys_tcpu": cSysTcpu, "sys_gpu": cSysGpu,
+        "sys_nvme": cSysNvme, "sys_disk": cSysDisk, "sys_net": cSysNet
     })
 
     // Catégories de la palette (ordre d'apparition dans le catalogue)
@@ -298,8 +315,30 @@ Item {
     }
     property string palCat: "Système"
 
-    // Widget métrique stylé : icône + label, gros chiffre + unité, waveform neon en
-    // fond, min/max ▲▼ (ou `sub`), détail en haut-droite, couleur d'accent.
+    // Couleur lisible sur le fond des cartes : une teinte de la palette trop sombre est éclaircie
+    function legible(c) {
+        let k = c
+        for (let i = 0; i < 4 && Appearance.contrastRatio(k, Appearance.colors.bg) < 3.2; i++) k = Qt.lighter(k, 1.35)
+        return k
+    }
+
+    // En-tête commun des widgets (même style que les cartes de survol de la barre) :
+    // icône colorée + titre en petites capitales, sur toute la largeur.
+    component CardHead: RowLayout {
+        property string icon: ""
+        property string label: ""
+        property color  col: Appearance.colors.accent
+        readonly property color lcol: root.legible(col)
+        anchors { top: parent.top; left: parent.left; right: parent.right }
+        spacing: 8
+        Text { visible: parent.icon !== ""; text: parent.icon; font.family: Appearance.font.family; font.pixelSize: 14; color: parent.lcol }
+        Text { Layout.fillWidth: true; text: parent.label; elide: Text.ElideRight
+               font.family: Appearance.font.family; font.pixelSize: 10; font.weight: Font.Bold; font.letterSpacing: 1.5
+               font.capitalization: Font.AllUppercase; color: Appearance.colors.dim }
+    }
+
+    // Widget métrique, dans le style des cartes de survol de la barre : en-tête, gros chiffre
+    // coloré, détails en mono à droite, courbe avec grille et point final.
     component Metric: Item {
         id: mc
         property string icon: ""
@@ -309,10 +348,11 @@ Item {
         property string unit: ""
         property int    decimals: 0
         property string valueText: ""      // remplace le gros chiffre (RGB, débit…)
-        property string rightText: ""      // détail haut-droite (temp, VRAM…)
-        property string sub: ""            // ligne du bas (remplace min/max)
-        property color  valueColor: Appearance.colors.fg
-        property bool   spark: true        // waveform de fond
+        property string rightText: ""      // détail à droite (temp, VRAM…)
+        property string sub: ""            // 2e ligne de détail (remplace min/max)
+        readonly property color lcol: root.legible(col)   // couleur lisible sur le fond de la carte
+        property color  valueColor: lcol
+        property bool   spark: true        // courbe sous le chiffre
         property var    hist: []
         property int    maxPts: 40
         readonly property real vmin: hist.length ? Math.min.apply(Math, hist) : value
@@ -326,68 +366,119 @@ Item {
                 mc.hist = h; sparkC.requestPaint()
             }
         }
+        CardHead { id: mHead; icon: mc.icon; label: mc.label; col: mc.col }
+        Text {
+            id: bigNum
+            anchors { left: parent.left; top: mHead.bottom; topMargin: 6 }
+            text: (mc.valueText !== "" ? mc.valueText : mc.value.toFixed(mc.decimals).replace(".", ",")) + (mc.unit !== "" ? " " + mc.unit : "")
+            font.family: Appearance.font.family; font.pixelSize: 30; font.weight: Font.Bold
+            color: mc.valueColor
+            Behavior on color { ColorAnimation { duration: Appearance.dur(250) } }
+        }
+        Text {
+            anchors { right: parent.right; top: bigNum.top; topMargin: 4; left: bigNum.right; leftMargin: 10 }
+            horizontalAlignment: Text.AlignRight
+            elide: Text.ElideLeft
+            text: [mc.rightText, mc.sub !== "" ? mc.sub
+                   : (mc.spark ? "▲ " + mc.vmax.toFixed(mc.decimals) + "  ▼ " + mc.vmin.toFixed(mc.decimals) : "")].filter(x => x !== "").join("\n")
+            font.family: "JetBrains Mono"; font.pixelSize: 11; color: Appearance.colors.dim
+        }
         Canvas {
             id: sparkC
-            anchors.fill: parent
-            visible: mc.spark
+            visible: mc.spark && height > 12
+            anchors { left: parent.left; right: parent.right; top: bigNum.bottom; topMargin: 6; bottom: parent.bottom }
             onPaint: {
-                var ctx = getContext("2d"); ctx.reset()
-                var W = width, H = height, pts = mc.hist
+                var g = getContext("2d"), W = width, H = height, pts = mc.hist
+                g.clearRect(0, 0, W, H)
+                g.strokeStyle = ColorUtils.applyAlpha(Appearance.colors.fg, 0.07); g.lineWidth = 1
+                for (var y = 16; y < H; y += 16) { g.beginPath(); g.moveTo(0, y); g.lineTo(W, y); g.stroke() }
                 if (pts.length < 2) return
                 var lo = mc.vmin, hi = mc.vmax; if (hi - lo < 1) hi = lo + 1
-                var gy = H * 0.99, gh = H * 0.5
-                ctx.beginPath()
+                var step = W / (mc.maxPts - 1), off = mc.maxPts - pts.length
+                var yOf = function (v) { return H - 4 - (v - lo) / (hi - lo) * (H - 10) }
+                g.beginPath()
                 for (var i = 0; i < pts.length; i++) {
-                    var xx = W * i / (mc.maxPts - 1)
-                    var yy = gy - gh * ((pts[i] - lo) / (hi - lo))
-                    if (i === 0) ctx.moveTo(xx, yy); else ctx.lineTo(xx, yy)
+                    if (i === 0) g.moveTo((i + off) * step, yOf(pts[i])); else g.lineTo((i + off) * step, yOf(pts[i]))
                 }
-                ctx.lineWidth = 2; ctx.lineCap = "round"; ctx.lineJoin = "round"
-                ctx.strokeStyle = Qt.rgba(mc.col.r, mc.col.g, mc.col.b, 0.7); ctx.stroke()
-                var lastX = W * (pts.length - 1) / (mc.maxPts - 1)
-                ctx.lineTo(lastX, gy); ctx.lineTo(0, gy); ctx.closePath()
-                var g = ctx.createLinearGradient(0, gy - gh, 0, gy)
-                g.addColorStop(0, Qt.rgba(mc.col.r, mc.col.g, mc.col.b, 0.16))
-                g.addColorStop(1, Qt.rgba(mc.col.r, mc.col.g, mc.col.b, 0.0))
-                ctx.fillStyle = g; ctx.fill()
+                g.strokeStyle = mc.lcol; g.lineWidth = 2; g.lineJoin = "round"; g.stroke()
+                g.lineTo(W, H); g.lineTo(off * step, H); g.closePath()
+                var gr = g.createLinearGradient(0, 0, 0, H)
+                gr.addColorStop(0, ColorUtils.applyAlpha(mc.lcol, 0.35)); gr.addColorStop(1, ColorUtils.applyAlpha(mc.lcol, 0))
+                g.fillStyle = gr; g.fill()
+                g.beginPath(); g.arc(W - 3, yOf(pts[pts.length - 1]), 3.5, 0, 7); g.fillStyle = mc.lcol; g.fill()
             }
             onWidthChanged: requestPaint()
             onHeightChanged: requestPaint()
         }
-        Row {
-            anchors { top: parent.top; left: parent.left }
-            spacing: 6
-            Text { visible: mc.icon !== ""; text: mc.icon
-                   font.family: Appearance.font.family; font.pixelSize: 14; color: mc.col }
-            Text { text: mc.label
-                   font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold; color: mc.col }
+    }
+
+    // ── Chiffres lus dans services/SysData (démon partagé avec la barre) ──
+    Component { id: cTgpu
+        Metric { icon: "󰢮"; label: "Temp GPU"; col: "#fab387"
+            value: SysData.gpuT; unit: "°C"; valueColor: root.legible(root.tempCol(SysData.gpuT))
+            rightText: SysData.d ? "edge " + Math.round(SysData.d.temps.gpu.edge || 0) + "° · VRAM " + Math.round(SysData.d.temps.gpu.mem || 0) + "°" : "" }
+    }
+    Component { id: cTnvme
+        Metric { icon: "󰆼"; label: "Temp NVMe"; col: Appearance.colors.color14
+            value: SysData.nvmeT; unit: "°C"; valueColor: root.legible(root.tempCol(SysData.nvmeT))
+            rightText: SysData.d ? SysData.d.temps.nvme.map(n => n.name + " " + Math.round(n.temp) + "°").join("\n") : "" }
+    }
+    Component { id: cGpuPow
+        Metric { icon: "󰚥"; label: "Conso GPU"; col: Appearance.colors.color12
+            value: SysData.d ? (SysData.d.temps.gpu.power || 0) : 0; unit: "W"
+            rightText: SysData.d ? "max " + Math.round(SysData.d.temps.gpu.powerCap || 0) + " W · " + (SysData.d.temps.gpu.busy || 0) + " %" : "" }
+    }
+    Component { id: cFreq
+        Metric { icon: "󰓅"; label: "Fréquence"; col: Appearance.colors.color13
+            value: SysData.d ? SysData.d.freq : 0; decimals: 1; unit: "GHz"; rightText: SysData.profile }
+    }
+    Component { id: cSwap
+        Metric { icon: "󰾴"; label: "Swap"; col: Appearance.colors.color6
+            value: SysData.d ? SysData.d.mem.swapUsed / 1073741824 : 0; decimals: 1; unit: "Go"
+            rightText: SysData.d ? "sur " + SysData.gb(SysData.d.mem.swapTotal) : "" }
+    }
+
+    // ── Cartes détaillées de la page System, ajustées à la taille du widget ──
+    component SysCard: Item {
+        id: syc
+        property string icon: ""
+        property string label: ""
+        property color  col: Appearance.colors.accent
+        property Component card
+        clip: true
+        // processus, place récupérable… tant que la carte est affichée
+        onVisibleChanged: SysData.want("grid" + syc, visible)
+        Component.onCompleted: SysData.want("grid" + syc, visible)
+        Component.onDestruction: SysData.want("grid" + syc, false)
+        CardHead { id: sh; icon: syc.icon; label: syc.label; col: syc.col }
+        Item {
+            id: area
+            anchors { left: parent.left; right: parent.right; top: sh.bottom; topMargin: 8; bottom: parent.bottom }
+            // trop haute pour le widget → réduite (jusqu'à 60 %) plutôt que coupée
+            readonly property real s: ld.implicitHeight > 0 ? Math.max(0.6, Math.min(1, height / ld.implicitHeight)) : 1
+            Loader {
+                id: ld
+                width: area.width / area.s
+                scale: area.s
+                transformOrigin: Item.TopLeft
+                sourceComponent: syc.card
+                onLoaded: item.hints = false
+            }
         }
-        Text {
-            visible: mc.rightText !== ""
-            anchors { top: parent.top; right: parent.right }
-            text: mc.rightText
-            font.family: "JetBrains Mono"; font.pixelSize: 11; color: Appearance.colors.dim
-        }
-        Text {
-            id: bigNum
-            anchors { left: parent.left; verticalCenter: parent.verticalCenter; verticalCenterOffset: 2 }
-            text: mc.valueText !== "" ? mc.valueText : mc.value.toFixed(mc.decimals)
-            font.family: Appearance.font.family; font.pixelSize: 36; font.weight: Font.Bold
-            color: mc.valueColor
-        }
-        Text {
-            visible: mc.unit !== ""
-            anchors { left: bigNum.right; leftMargin: 3; baseline: bigNum.baseline }
-            text: mc.unit
-            font.family: Appearance.font.family; font.pixelSize: 14; font.weight: Font.Bold; color: mc.col
-        }
-        Text {
-            anchors { left: parent.left; top: bigNum.bottom; topMargin: -2 }
-            text: mc.sub !== "" ? mc.sub
-                  : (mc.spark ? "▲ " + mc.vmax.toFixed(mc.decimals) + "  ▼ " + mc.vmin.toFixed(mc.decimals) : "")
-            font.family: "JetBrains Mono"; font.pixelSize: 11; color: Appearance.colors.dim
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: SysData.open(({ "Processeur": "cpu", "Mémoire": "ram", "Température CPU": "tcpu", "Carte graphique": "tgpu",
+                                       "SSD NVMe": "tnvme", "Disques": "disk", "Réseau": "net" })[syc.label] || "cpu")
         }
     }
+    Component { id: cSysCpu;  SysCard { icon: "󰍛"; label: "Processeur";      col: SysData.cpuCol;   card: Component { CpuCard {} } } }
+    Component { id: cSysRam;  SysCard { icon: "󰾆"; label: "Mémoire";         col: SysData.ramCol;   card: Component { RamCard {} } } }
+    Component { id: cSysTcpu; SysCard { icon: "󰔏"; label: "Température CPU"; col: SysData.tcpuCol;  card: Component { CpuTempCard {} } } }
+    Component { id: cSysGpu;  SysCard { icon: "󰢮"; label: "Carte graphique"; col: SysData.tgpuCol;  card: Component { GpuCard {} } } }
+    Component { id: cSysNvme; SysCard { icon: "󰆼"; label: "SSD NVMe";        col: SysData.tnvmeCol; card: Component { NvmeCard {} } } }
+    Component { id: cSysDisk; SysCard { icon: "󰋊"; label: "Disques";         col: SysData.diskCol;  card: Component { DiskCard {} } } }
+    Component { id: cSysNet;  SysCard { icon: "󰛳"; label: "Réseau";          col: Appearance.colors.color14; card: Component { NetCard {} } } }
 
     Component { id: cUnknown
         Item { Text { anchors.centerIn: parent; text: "?"; color: Appearance.colors.dim } }
@@ -460,12 +551,7 @@ Item {
             readonly property string desc: m && m.description ? m.description : "mode actif"
             readonly property color  acol: root._rgbWc(m ? m.icon_color : "")
 
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰌵 RGB"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color11
-            }
+            CardHead { icon: "󰌵"; label: "RGB"; col: Appearance.colors.color11 }
             Rectangle {
                 anchors { top: parent.top; horizontalCenter: parent.horizontalCenter; topMargin: 2 }
                 width: 46; height: 46; radius: 23
@@ -497,18 +583,13 @@ Item {
     }
     Component { id: cTemp
         Metric { icon: "󰔏"; label: "Temp CPU"; col: root.tempCol(thermal.cpuTemp)
-            value: thermal.cpuTemp; unit: "°"; valueColor: root.tempCol(thermal.cpuTemp)
+            value: thermal.cpuTemp; unit: "°C"; valueColor: root.legible(root.tempCol(thermal.cpuTemp))
             rightText: "GPU " + Math.round(thermal.gpuTemp) + "°" }
     }
     // Disques multiples — tous les points de montage en barres
     Component { id: cDisks
         Item {
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰋊 Disques"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color3
-            }
+            CardHead { icon: "󰋊"; label: "Disques"; col: Appearance.colors.color3 }
             Column {
                 id: dkCol
                 anchors { left: parent.left; right: parent.right; top: parent.top; bottom: parent.bottom; topMargin: 24 }
@@ -560,12 +641,7 @@ Item {
                 interval: 1000; running: pom.running && pom.remain > 0; repeat: true
                 onTriggered: { pom.remain--; if (pom.remain <= 0) pom.running = false }
             }
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰔟 Pomodoro"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: "#f38ba8"
-            }
+            CardHead { icon: "󰔟"; label: "Pomodoro"; col: "#f38ba8" }
             Text {
                 id: pomBig
                 anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 24 }
@@ -608,12 +684,7 @@ Item {
         Item {
             readonly property int  cnt:  NotificationService.count
             readonly property var  last: cnt > 0 ? NotificationService.list[0] : null
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰂚 Notifications" + (cnt > 0 ? "  (" + cnt + ")" : "")
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color10
-            }
+            CardHead { icon: "󰂚"; label: "Notifications" + (cnt > 0 ? "  (" + cnt + ")" : ""); col: Appearance.colors.color10 }
             Text {
                 anchors.centerIn: parent
                 visible: parent.cnt === 0
@@ -645,12 +716,7 @@ Item {
     // Visualiseur audio (CavaService singleton : 32 barres, valeur 0..100)
     Component { id: cCava
         Item {
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰝚 Cava"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color11
-            }
+            CardHead { icon: "󰝚"; label: "Cava"; col: Appearance.colors.color11 }
             Item {
                 id: barArea
                 anchors { left: parent.left; right: parent.right; bottom: parent.bottom; top: parent.top; topMargin: 20 }
@@ -679,12 +745,7 @@ Item {
     // Lanceurs d'app (grille de tuiles depuis streamdeck.json ; tap → launch-main.sh)
     Component { id: cApps
         Item {
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰀻 Apps"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color4
-            }
+            CardHead { icon: "󰀻"; label: "Apps"; col: Appearance.colors.color4 }
             Flow {
                 anchors { left: parent.left; right: parent.right; top: parent.top; bottom: parent.bottom; topMargin: 22 }
                 spacing: 8
@@ -740,23 +801,18 @@ Item {
             readonly property var _sink: Pipewire.defaultAudioSink
             readonly property real vol: volW._sink?.audio?.volume ?? 0
             readonly property bool muted: volW._sink?.audio?.muted ?? false
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: (volW.muted ? "󰖁 " : (volW.vol > 0.5 ? "󰕾 " : "󰖀 ")) + "Volume"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color14
-            }
+            CardHead { id: volHead; icon: volW.muted ? "󰖁" : (volW.vol > 0.5 ? "󰕾" : "󰖀"); label: "Volume"; col: Appearance.colors.color14 }
             Text {
                 id: volBig
-                anchors { left: parent.left; verticalCenter: parent.verticalCenter; verticalCenterOffset: -4 }
-                text: Math.round(volW.vol * 100)
-                font.family: Appearance.font.family; font.pixelSize: 34; font.weight: Font.Bold
-                color: volW.muted ? Appearance.colors.dim : Appearance.colors.fg
+                anchors { left: parent.left; top: volHead.bottom; topMargin: 6 }
+                text: Math.round(volW.vol * 100) + " %"
+                font.family: Appearance.font.family; font.pixelSize: 30; font.weight: Font.Bold
+                color: volW.muted ? Appearance.colors.dim : Appearance.colors.color14
             }
             Text {
-                anchors { left: volBig.right; leftMargin: 3; baseline: volBig.baseline }
-                text: "%"; font.family: Appearance.font.family; font.pixelSize: 14; font.weight: Font.Bold
-                color: Appearance.colors.color14
+                anchors { right: parent.right; top: volBig.top; topMargin: 4 }
+                text: volW.muted ? "muet" : (volW._sink ? (volW._sink.description || volW._sink.name || "").slice(0, 24) : "")
+                font.family: "JetBrains Mono"; font.pixelSize: 11; color: Appearance.colors.dim
             }
             Rectangle {
                 id: track
@@ -782,12 +838,7 @@ Item {
     // Uptime (uptime -p)
     Component { id: cUptime
         Item {
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰔟 Uptime"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color6
-            }
+            CardHead { icon: "󰔟"; label: "Uptime"; col: Appearance.colors.color6 }
             Text {
                 anchors { left: parent.left; right: parent.right; verticalCenter: parent.verticalCenter; verticalCenterOffset: 4 }
                 text: root.uptimeStr !== "" ? root.uptimeStr : "—"
@@ -844,12 +895,7 @@ Item {
     // Palette wallust (color0..15)
     Component { id: cPalette
         Item {
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰸌 Palette"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color11
-            }
+            CardHead { icon: "󰸌"; label: "Palette"; col: Appearance.colors.color11 }
             Grid {
                 id: palGrid
                 anchors { left: parent.left; right: parent.right; top: parent.top; bottom: parent.bottom; topMargin: 22 }
@@ -896,12 +942,7 @@ Item {
             id: noteW
             readonly property var    wd:  noteW.parent ? noteW.parent.wdata : null
             readonly property string wid: noteW.parent ? noteW.parent.wid : ""
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰎞 Note"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: Appearance.colors.color5
-            }
+            CardHead { icon: "󰎞"; label: "Note"; col: Appearance.colors.color5 }
             Flickable {
                 anchors { left: parent.left; right: parent.right; top: parent.top; bottom: parent.bottom; topMargin: 22 }
                 contentHeight: noteEdit.height; clip: true
@@ -936,12 +977,7 @@ Item {
                 { ic: "󰐥", label: "Arrêt",   cmd: "systemctl poweroff",      col: "#f38ba8" }
             ]
             Timer { id: pwDisarm; interval: 2500; onTriggered: pw.armed = -1 }
-            Text {
-                anchors { top: parent.top; left: parent.left }
-                text: "󰐥 Power"
-                font.family: Appearance.font.family; font.pixelSize: 13; font.weight: Font.Bold
-                color: "#f38ba8"
-            }
+            CardHead { icon: "󰐥"; label: "Power"; col: "#f38ba8" }
             Grid {
                 anchors { left: parent.left; right: parent.right; top: parent.top; bottom: parent.bottom; topMargin: 24 }
                 columns: 2; rowSpacing: 8; columnSpacing: 8
@@ -1109,13 +1145,18 @@ Item {
                 y: root.py(modelData.y)
                 z: (dragMA.pressed || resizeMA.pressed) ? 20 : 1
 
+                // Cadre : même fond et même contour que les cartes de survol de la barre
+                HoverHandler { id: frameHov }
                 Rectangle {
                     anchors.fill: parent; radius: 16
                     color: (frame.bare && !root.editMode) ? "transparent"
-                                                          : ColorUtils.applyAlpha(Appearance.colors.bg, 0.5)
+                                                          : ColorUtils.applyAlpha(Appearance.colors.bg, 0.92)
                     border.color: root.editMode ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.7)
-                                                : (frame.bare ? "transparent" : ColorUtils.applyAlpha(frame.accentCol, 0.30))
+                                : frame.bare ? "transparent"
+                                : frameHov.hovered ? ColorUtils.applyAlpha(frame.accentCol, 0.7)
+                                : ColorUtils.applyAlpha(Appearance.colors.color15, 0.22)
                     border.width: root.editMode ? 2 : (frame.bare ? 0 : 1)
+                    Behavior on border.color { ColorAnimation { duration: Appearance.dur(160) } }
                 }
 
                 Loader {

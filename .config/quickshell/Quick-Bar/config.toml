@@ -45,6 +45,22 @@ name = "start-hyprland"
 type = "process"
 target = "start-hyprland"
 fix = "setsid -f start-hyprland >/dev/null 2>&1"
+
+[[health.custom]]
+name = "Samsung_Game"
+type = "mount"
+target = "/home/florian/Samsung_Game"
+fix = "pkexec mount /home/florian/Samsung_Game"
+
+[[health.custom]]
+name = "Batterie de la souris > 20 %"
+type = "command"
+target = "[ $(cat /sys/class/power_supply/hidpp_battery_0/capacity 2>/dev/null || echo 100) -gt 20 ]"
+
+[[health.custom]]
+name = "Github"
+type = "url"
+target = "https://github.com/Eaquo"
 [wallpaper]
 # Dossier des wallpapers (galerie de l'onglet Wall, bouton Aléatoire, rotation auto).
 dir    = "~/Pictures/wallpapers"
@@ -52,13 +68,12 @@ dir    = "~/Pictures/wallpapers"
 videos = "~/Pictures/wallpapers/Video"
 
 [theme]
-palette = "matugen"
+palette = "wallust"
 matugen_prefer = "value"
 matugen_mode = "dark"
-accent = "color4"
 
 [bar]
-height = 34
+height = 36
 
 [bar.layout]
 left = ["launcher", "stats"]
@@ -72,8 +87,11 @@ avatar = "~/Eaquo_Assets/Edited Image.jpg"
 
 [refresh]
 health = 3600
+localsend = 30
 
 [dashboard]
+tabs = ["home", "stats", "kanban", "files", "wall", "eq"]
+height = 540
 
 [game]
 eq_preset = "HP"

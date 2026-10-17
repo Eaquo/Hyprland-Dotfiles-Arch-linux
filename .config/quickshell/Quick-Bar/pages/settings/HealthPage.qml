@@ -155,6 +155,8 @@ ColumnLayout {
                     }
                     SetButton { visible: !!cu.modelData.fix && !!cu.row && !cu.row.ok; label: Health.fixing === "custom" + (cu.index + 1) ? "…" : "Réparer"
                                 onTap: Health.fix("custom" + (cu.index + 1)) }
+                    SetButton { readonly property var act: Health.openAction("custom" + (cu.index + 1))
+                                visible: !!act; label: act ? act.icon + "  " + act.label : ""; onTap: Health.open("custom" + (cu.index + 1)) }
                     SetButton { label: "󰆴"; onTap: { const l = page.custom.slice(); l.splice(cu.index, 1); page.saveCustom(l) } }
                 }
             }

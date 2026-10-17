@@ -16,6 +16,7 @@ QtObject {
     property bool spotifyOpen:       false   // panneau Spotify (bord droit, SUPER+SHIFT+S)
     property bool settingsOpen:      false   // fenêtre Réglages (tuile Config, SUPER+F1)
     property string settingsPage:    ""      // page à ouvrir dans les Réglages ("" = dernière)
+    property string touchPage:       ""      // onglet à afficher sur le panneau tactile (demande ponctuelle)
     property string settingsHint:    ""      // sous-partie de la page à ouvrir (ex. "stats" dans Modules)
 
     // ── Dashboard — largeur de contenu par page (px) ───────────────────────
@@ -65,11 +66,11 @@ QtObject {
     readonly property bool anyOpen: audioOpen || networkOpen || batteryOpen
                                     || notificationsOpen || archMenuOpen
                                     || dashboardOpen || wallpaperOpen || quickOpen
-                                    || clipboardOpen || spotifyOpen || settingsOpen
+                                    || clipboardOpen || spotifyOpen
 
     function closeAll() {
         spotifyOpen       = false
-        settingsOpen      = false
+        // les Réglages restent ouverts : on les ferme soi-même (croix, Échap, SUPER+F1)
         audioOpen         = false
         networkOpen       = false
         batteryOpen       = false
