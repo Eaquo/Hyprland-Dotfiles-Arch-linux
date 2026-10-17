@@ -9,7 +9,7 @@ Text {
     id: root
     text: "  "
     font.family: Appearance.font.family
-    font.pixelSize: Appearance.font.body + 2
+    font.pixelSize: Appearance.bar.icon + 2
     color: Appearance.colors.color15
 
     Process { id: rofiProc; command: ["bash", "-c", "pkill rofi || rofi -show drun -modi run,drun,filebrowser,window"] }

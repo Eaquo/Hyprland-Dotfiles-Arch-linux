@@ -85,6 +85,7 @@ ColumnLayout {
 
     SetCard {
         title: "Tailles"
+        resetKeys: ["fonts.body", "fonts.small"]
         SetRow {
             title: "Texte normal"; desc: "barre, panneaux, cartes"
             SetSlider { implicitWidth: 320; from: 10; to: 22; step: 1; suffix: " px"; value: Appearance.font.body; onMoved: (v) => Config.set("fonts.body", v) }

@@ -6,9 +6,11 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 7
+    rowSpacing: 7; columnSpacing: 7
 
     property int  volume:    0
     property bool muted:     false
@@ -58,12 +60,13 @@ RowLayout {
 
     // ── Speaker icon ─────────────────────────────────────────────────────
     Text {
+        Layout.alignment: Qt.AlignCenter
         text: root.muted        ? "󰖁"
             : root.volume > 70  ? "󰕾"
             : root.volume > 30  ? ""
             :                     ""
         font.family: Appearance.font.family
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: root.muted ? Appearance.color.color13 : Appearance.color.accent
 
         MouseArea {
@@ -88,8 +91,9 @@ RowLayout {
 
     // ── Speaker volume ────────────────────────────────────────────────────
     Text {
+        Layout.alignment: Qt.AlignCenter
         text: root.muted ? "" : root.volume + "%"
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.text
         color: root.muted ? Appearance.color.color10 : Appearance.color.accent
         Layout.maximumWidth: root.muted ? 0 : 60
         clip: true
@@ -99,9 +103,10 @@ RowLayout {
 
     // ── Mic icon ─────────────────────────────────────────────────────────
     Text {
+        Layout.alignment: Qt.AlignCenter
         text: root.micMuted ? " 󰍭" : " 󰍬"
         font.family: Appearance.font.family
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: root.micMuted ? Appearance.color.color10 : Appearance.color.accent
 
         MouseArea {
@@ -121,8 +126,9 @@ RowLayout {
 
     // ── Mic volume ────────────────────────────────────────────────────────
     Text {
+        Layout.alignment: Qt.AlignCenter
         text: root.micMuted ? "" : root.micVolume + "%"
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.text
         color: root.micMuted ? Appearance.color.color13 : Appearance.color.accent
         Layout.maximumWidth: root.micMuted ? 0 : 60
         clip: true

@@ -1,8 +1,16 @@
 //@ pragma UseQApplication
 //@ pragma Env QT_QUICK_CONTROLS_STYLE=Basic
 
+// Tous les modules partagés sont importés ici : Quickshell n'enregistre un module qu'une fois
+// importé par un fichier déjà chargé ; sans ça, une page chargée plus tard (Grid, Game…)
+// échoue avec « module … is not installed ».
 import qs.bar
+import qs.components
+import qs.components.stats
+import qs.core
 import qs.core.functions
+import qs.services
+import qs.services.system
 import qs.panels
 import qs.wallpaper
 

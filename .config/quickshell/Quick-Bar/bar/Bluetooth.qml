@@ -7,9 +7,11 @@ import Quickshell.Io
 import qs.core
 import qs.core.functions
 
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 3
+    rowSpacing: 3; columnSpacing: 3
 
     property bool powered: false
     property int  conns:   0
@@ -35,11 +37,12 @@ RowLayout {
     Process { id: blueman; command: ["blueman-manager"] }
 
     Text {
+        Layout.alignment: Qt.AlignCenter
         text: !root.powered  ? "  "
             : root.conns > 0 ? " 󰂱 "
             :                   "  "
         font.family: Appearance.font.family
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: root.conns > 0   ? Appearance.colors.color10
              : root.powered     ? Appearance.colors.color10
              :                    ColorUtils.applyAlpha(Appearance.colors.color5, 0.4)
@@ -52,9 +55,10 @@ RowLayout {
     }
 
     Text {
+        Layout.alignment: Qt.AlignCenter
         visible: root.conns > 0
         text: root.conns.toString()
-        font.pixelSize: Appearance.font.small
+        font.pixelSize: Appearance.bar.small
         color: Appearance.colors.color10
     }
 }

@@ -66,6 +66,7 @@ Item {
             root.hovered = true
             var pos = root.mapToGlobal(root.implicitWidth / 2, 0)
             Appearance.mediaPopupX     = pos.x
+            Appearance.mediaPopupY     = root.mapToGlobal(0, root.height / 2).y
             Appearance.mediaPopupWidth = root.implicitWidth
             Appearance.mediaPopupOpen  = true
         }
@@ -131,7 +132,7 @@ Item {
                     Text {
                         id: scrollText
                         text: root.artist !== "" ? root.artist + " – " + root.title : root.title
-                        font.pixelSize: Appearance.font.small
+                        font.pixelSize: Appearance.bar.small
                         font.family:    Appearance.font.family
                         color: root.isPlaying
                             ? Appearance.colors.color4

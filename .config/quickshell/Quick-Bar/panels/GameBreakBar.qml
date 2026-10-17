@@ -43,8 +43,15 @@ Scope {
         WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
         exclusionMode: ExclusionMode.Ignore
 
-        anchors { bottom: true }
-        margins { bottom: 24 }
+        // Emplacement sur l'écran tactile : [game] break_corner (haut-gauche par défaut)
+        readonly property string corner: String(Config.get("game.break_corner", "top-left"))
+        anchors {
+            top:    corner.startsWith("top")
+            bottom: corner.startsWith("bottom")
+            left:   corner.endsWith("left")
+            right:  corner.endsWith("right")
+        }
+        margins { top: 24; bottom: 24; left: 24; right: 24 }
         implicitWidth:  pill.implicitWidth
         implicitHeight: pill.implicitHeight
 
@@ -60,7 +67,10 @@ Scope {
             // Jauge du temps restant : se vide de droite à gauche sous la pastille.
             Rectangle {
                 anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                anchors.margins: 6
+                // rentrée de la valeur de l'arrondi : la jauge reste dans la partie droite de la pastille
+                anchors.leftMargin:   parent.radius
+                anchors.rightMargin:  parent.radius
+                anchors.bottomMargin: 8
                 height: 5
                 radius: 3
                 color:  ColorUtils.applyAlpha(Appearance.colors.dim, 0.4)
@@ -81,76 +91,20 @@ Scope {
                 spacing: 18
 
                 Text {
-                    text: "󰊴"
+                    text: ""
                     font.family:    Appearance.font.family
                     font.pixelSize: 32
-                    color: Appearance.colors.accent
+                    color: Appearance.colors.fg
                 }
 
                 ColumnLayout {
                     spacing: 2
                     Text {
-                        text: "Pause jeu — tactile actif"
+                        text: "Pause"
                         font.family: Appearance.font.family
                         font.pixelSize: 18
                         font.bold: true
                         color: Appearance.colors.fg
-                    }
-                    Text {
-                        // Fenêtre à laquelle on rendra le focus.
-                        text: GameBreak.heldTitle !== "" ? GameBreak.heldTitle : "fenêtre mémorisée"
-                        font.family: Appearance.font.family
-                        font.pixelSize: 14
-                        color: Appearance.colors.dim
-                        elide: Text.ElideRight
-                        Layout.maximumWidth: 320
-                    }
-                }
-
-                // ── Compte à rebours ──────────────────────────────────────────
-                // Sur sa propre pastille : dans le sous-titre il se faisait élider
-                // par les titres de fenêtre à rallonge.
-                Rectangle {
-                    Layout.preferredWidth:  62
-                    Layout.preferredHeight: 62
-                    radius: 31
-                    color: "transparent"
-                    border.width: 2
-                    border.color: ColorUtils.applyAlpha(Appearance.colors.accent, 0.6)
-                    visible: GameBreak.autoReturn
-                    Text {
-                        anchors.centerIn: parent
-                        text: Math.ceil(GameBreak.remainingMs / 1000) + "s"
-                        font.family: Appearance.font.family
-                        font.pixelSize: 20
-                        font.bold: true
-                        color: Appearance.colors.accent
-                    }
-                }
-
-                // ── Prolonger ─────────────────────────────────────────────────
-                Rectangle {
-                    Layout.preferredWidth:  96
-                    Layout.preferredHeight: 56
-                    radius: 18
-                    color: extendMa.pressed
-                        ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.45)
-                        : ColorUtils.applyAlpha(Appearance.colors.accent, 0.18)
-                    border.width: 1
-                    border.color: ColorUtils.applyAlpha(Appearance.colors.accent, 0.5)
-                    visible: GameBreak.autoReturn
-                    Text {
-                        anchors.centerIn: parent
-                        text: "+ " + Math.round(GameBreak.autoReturnMs / 1000) + " s"
-                        font.family: Appearance.font.family
-                        font.pixelSize: 17
-                        font.bold: true
-                        color: Appearance.colors.fg
-                    }
-                    MouseArea {
-                        id: extendMa
-                        anchors.fill: parent
-                        onClicked: GameBreak.extend()
                     }
                 }
 
@@ -164,11 +118,11 @@ Scope {
                         : Appearance.colors.accent
                     Text {
                         anchors.centerIn: parent
-                        text: "Revenir au jeu"
+                        text: "Retour"
                         font.family: Appearance.font.family
                         font.pixelSize: 17
                         font.bold: true
-                        color: Appearance.colors.bg
+                        color: Appearance.colors.fg
                     }
                     MouseArea {
                         id: backMa

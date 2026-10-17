@@ -7,9 +7,11 @@ import Quickshell.Hyprland
 import qs.core
 import qs.core.functions
 
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 8
+    rowSpacing: 8; columnSpacing: 8
 
     property int activeId:    1
     property var visibleIds:  []
@@ -60,13 +62,15 @@ RowLayout {
 
         Rectangle {
             id: wsBtn
+            Layout.alignment: Qt.AlignCenter
             required property int modelData
             property bool   isActive:  root.activeId === wsBtn.modelData
             property bool   isHovered: false
             property string wsIcon:    root.wsIcons[wsBtn.modelData] || root.defaultIcon
 
-            implicitHeight: Appearance.bar.height - 8
-            implicitWidth:  wsLabel.implicitWidth + (wsBtn.isActive ? 8 : 4)
+            // barre verticale : bouton de la largeur de la barre, numéro au-dessus de l'icône
+            implicitHeight: Appearance.bar.vertical ? wsLabel.implicitHeight + (wsBtn.isActive ? 10 : 6) : Appearance.bar.height - 8
+            implicitWidth:  Appearance.bar.vertical ? Appearance.bar.thickness - 10 : wsLabel.implicitWidth + (wsBtn.isActive ? 8 : 4)
             radius: 9
 
             color: wsBtn.isActive
@@ -78,8 +82,9 @@ RowLayout {
             Text {
                 id: wsLabel
                 anchors.centerIn: parent
-                text: " " + wsBtn.modelData + " " + wsBtn.wsIcon + " "
-                font.pixelSize: Appearance.font.small
+                text: Appearance.bar.vertical ? wsBtn.modelData + "\n" + wsBtn.wsIcon : " " + wsBtn.modelData + " " + wsBtn.wsIcon + " "
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: Appearance.bar.small
                 font.family:    Appearance.font.family
                 color: wsBtn.isActive
                     ? Appearance.textOn(Appearance.colors.accent)   // contraste garanti sur le pill actif
@@ -90,7 +95,8 @@ RowLayout {
                 Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
             }
 
-            Behavior on implicitWidth { NumberAnimation { duration: Appearance.dur(200); easing.type: Easing.OutCubic } }
+            Behavior on implicitWidth  { NumberAnimation { duration: Appearance.dur(200); easing.type: Easing.OutCubic } }
+            Behavior on implicitHeight { NumberAnimation { duration: Appearance.dur(200); easing.type: Easing.OutCubic } }
             Behavior on color         { ColorAnimation  { duration: Appearance.dur(150) } }
 
             MouseArea {

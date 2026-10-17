@@ -41,8 +41,11 @@ Scope {
 
             // Click outside → ferme (même pattern que EqPopup/CalendarWindow)
             MouseArea {
-                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                y: Appearance.bar.topMargin + Appearance.bar.height
+                // tout l'écran sauf la bande de la barre
+                x: Appearance.bar.position === "left" ? Appearance.bar.edge : 0
+                y: Appearance.bar.position === "top" ? Appearance.bar.edge : 0
+                width: parent.width - (Appearance.bar.vertical ? Appearance.bar.edge : 0)
+                height: parent.height - (Appearance.bar.vertical ? 0 : Appearance.bar.edge)
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
                 onClicked: Appearance.trayMenuOpen = false
             }
@@ -52,8 +55,8 @@ Scope {
                 id: card
 
                 readonly property real preferredX: Appearance.trayMenuX - width / 2
-                x: Math.max(8, Math.min(preferredX, menuWin.width - width - 8))
-                y: Appearance.bar.topMargin + Appearance.bar.height + 6
+                x: Appearance.bar.vertical ? Appearance.bar.popupX(menuWin.width, width, 0) : Math.max(8, Math.min(preferredX, menuWin.width - width - 8))
+                y: Appearance.bar.popupY(menuWin.height, height, Appearance.trayMenuY - menuWin.screen.y) + 1
 
                 implicitWidth:  Math.max(230, cardCol.implicitWidth + 28)
                 implicitHeight: cardCol.implicitHeight + 16
@@ -63,7 +66,7 @@ Scope {
 
                 opacity: Appearance.trayMenuOpen ? 1.0 : 0.0
                 scale:   Appearance.trayMenuOpen ? 1.0 : 0.94
-                transformOrigin: Item.Top
+                transformOrigin: Appearance.bar.atBottom ? Item.Bottom : Item.Top
                 Behavior on opacity { NumberAnimation { duration: Appearance.dur(180); easing.type: Easing.OutCubic } }
                 Behavior on scale   { NumberAnimation { duration: Appearance.dur(180); easing.type: Easing.OutExpo  } }
 

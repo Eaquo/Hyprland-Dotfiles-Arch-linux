@@ -31,39 +31,91 @@ Scope {
             WlrLayershell.namespace: "quickshell:bar"
             WlrLayershell.layer: WlrLayer.Top
 
-            anchors { top: true; left: true; right: true }
+            // [bar] position : haut, bas, gauche ou droite de l'écran
+            readonly property string pos: Appearance.bar.position
+            readonly property bool   vert: Appearance.bar.vertical
+            anchors { top: pos !== "bottom"; bottom: pos !== "top"; left: pos !== "right"; right: pos !== "left" }
             margins {
-                top:   Appearance.bar.topMargin
-                left:  Appearance.bar.sideMargin
-                right: Appearance.bar.sideMargin
+                top:    pos === "top" ? Appearance.bar.topMargin : vert ? Appearance.bar.sideMargin : 0
+                bottom: pos === "bottom" ? Appearance.bar.topMargin : vert ? Appearance.bar.sideMargin : 0
+                left:   pos === "left" ? Appearance.bar.topMargin : vert ? 0 : Appearance.bar.sideMargin
+                right:  pos === "right" ? Appearance.bar.topMargin : vert ? 0 : Appearance.bar.sideMargin
             }
 
-            implicitHeight: Appearance.bar.height
-            exclusiveZone:  Appearance.bar.height + Appearance.bar.topMargin
+            // Hyprland ne déplace pas une barre déjà affichée quand ses marges ou sa taille changent :
+            // on la recrée (masquer / réafficher) dès que la géométrie bouge dans les réglages.
+            readonly property string geom: [pos, Appearance.bar.topMargin, Appearance.bar.sideMargin, Appearance.bar.height, Appearance.bar.thickness].join()
+            onGeomChanged: remap.restart()
+            Timer { id: remap; interval: 250; onTriggered: { root.visible = false; Qt.callLater(() => root.visible = true) } }
+
+            implicitHeight: vert ? 0 : Appearance.bar.height
+            implicitWidth:  vert ? Appearance.bar.thickness : 0
+            exclusiveZone:  Appearance.bar.thickness + Appearance.bar.topMargin
 
             Item {
                 anchors.fill: parent
 
-                Pill { side: "left"; anchors { left: parent.left; verticalCenter: parent.verticalCenter } }
-                Pill { side: "center"; anchors.centerIn: parent }
-                Pill { side: "right"; anchors { right: parent.right; verticalCenter: parent.verticalCenter } }
+                // [bar] style : pills = 3 barres · split = 2 barres (gauche+centre | droite) · full = 1 barre
+                readonly property string style: Appearance.bar.style
+                Surface { anchors.fill: parent; visible: parent.style === "full" }
+                // groupes : gauche / centre / droite, ou haut / milieu / bas en barre verticale
+                Pill {
+                    side: parent.style === "split" ? "leftcenter" : "left"; bare: parent.style === "full"
+                    x: Appearance.bar.vertical ? (parent.width - width) / 2 : 0
+                    y: Appearance.bar.vertical ? 0 : (parent.height - height) / 2
+                }
+                Pill { side: "center"; bare: parent.style === "full"; visible: parent.style !== "split" && keys.length > 0; anchors.centerIn: parent }
+                Pill {
+                    side: "right"; bare: parent.style === "full"
+                    x: Appearance.bar.vertical ? (parent.width - width) / 2 : parent.width - width
+                    y: Appearance.bar.vertical ? parent.height - height : (parent.height - height) / 2
+                }
             }
         }
     }
 
     // Une pilule de la barre : les modules de [bar.layout].<side>, séparés par des traits.
     // Masquée si elle est vide.
-    component Pill: Rectangle {
-        id: pill
-        required property string side
-        readonly property var keys: BarModules.layout(side)
-        visible: keys.length > 0
-        height: Appearance.bar.height
-        width:  row.implicitWidth + Appearance.bar.pillPad * 2
+    // Fond d'une barre : dégradé, contour, bordure animée
+    component Surface: Rectangle {
         radius: Appearance.bar.radius
         border.color: Appearance.outline
         border.width: 1
         Behavior on border.color { ColorAnimation { duration: Appearance.dur(600); easing.type: Easing.InOutQuad } }
+        gradient: Gradient {
+            GradientStop {
+                position: 0.7
+                color: Appearance.colors.bg
+                Behavior on color { ColorAnimation { duration: Appearance.dur(600); easing.type: Easing.InOutQuad } }
+            }
+            GradientStop {
+                position: 1.0
+                color: ColorUtils.applyAlpha(Appearance.colors.color0, 0.80)
+                Behavior on color { ColorAnimation { duration: Appearance.dur(600); easing.type: Easing.InOutQuad } }
+            }
+        }
+        GradientBorder {
+            anchors.fill: parent
+            radius:       parent.radius
+            borderWidth:  2
+            visible:      Appearance.animationsEnabled
+            z:            5
+        }
+    }
+
+    // Groupe de modules ; bare = sans fond (dans la barre unique du style « full »)
+    component Pill: Item {
+        id: pill
+        required property string side
+        property bool bare: false
+        readonly property var keys: side === "leftcenter" ? BarModules.layout("left").concat(BarModules.layout("center")) : BarModules.layout(side)
+        visible: keys.length > 0
+        readonly property bool vert: Appearance.bar.vertical
+        height: vert ? row.implicitHeight + Appearance.bar.pillPad * 2 : Appearance.bar.height
+        width:  vert ? Appearance.bar.thickness : row.implicitWidth + Appearance.bar.pillPad * 2
+        Surface { anchors.fill: parent; visible: !pill.bare }
+        // modules trop longs pour une barre verticale : tournés d'un quart de tour
+        readonly property var rotated: ["cava", "media", "eq", "layout"]
 
         // Composants des modules, par clé de BarModules
         readonly property var mods: ({
@@ -88,44 +140,32 @@ Scope {
         Component { id: audioC; Audio {} }
         Component { id: powerC; PowerButtons {} }
 
-        gradient: Gradient {
-            GradientStop {
-                position: 0.7
-                color: Appearance.colors.bg
-                Behavior on color { ColorAnimation { duration: Appearance.dur(600); easing.type: Easing.InOutQuad } }
-            }
-            GradientStop {
-                position: 1.0
-                color: ColorUtils.applyAlpha(Appearance.colors.color0, 0.80)
-                Behavior on color { ColorAnimation { duration: Appearance.dur(600); easing.type: Easing.InOutQuad } }
-            }
-        }
-
-        RowLayout {
+        GridLayout {
             id: row
             anchors.centerIn: parent
-            spacing: Appearance.bar.gap
+            flow: pill.vert ? GridLayout.TopToBottom : GridLayout.LeftToRight
+            rowSpacing: Appearance.bar.gap; columnSpacing: Appearance.bar.gap
             Repeater {
                 model: pill.keys
-                delegate: RowLayout {
+                delegate: GridLayout {
                     id: slot
                     required property string modelData
                     required property int index
-                    spacing: Appearance.bar.gap
+                    readonly property bool rot: pill.vert && pill.rotated.indexOf(modelData) >= 0
+                    flow: pill.vert ? GridLayout.TopToBottom : GridLayout.LeftToRight
+                    rowSpacing: Appearance.bar.gap; columnSpacing: Appearance.bar.gap
+                    Layout.alignment: Qt.AlignCenter
                     // un module vide (lecteur sans musique…) ne laisse pas de trait orphelin
                     visible: ld.implicitWidth > 0
-                    BarSeparator { visible: slot.index > 0 && BarModules.separators }
-                    Loader { id: ld; sourceComponent: pill.mods[slot.modelData] }
+                    BarSeparator { visible: slot.index > 0 && BarModules.separators; Layout.alignment: Qt.AlignCenter }
+                    Item {
+                        Layout.alignment: Qt.AlignCenter
+                        implicitWidth:  slot.rot ? ld.implicitHeight : ld.implicitWidth
+                        implicitHeight: slot.rot ? ld.implicitWidth : ld.implicitHeight
+                        Loader { id: ld; anchors.centerIn: parent; rotation: slot.rot ? 90 : 0; sourceComponent: pill.mods[slot.modelData] }
+                    }
                 }
             }
-        }
-
-        GradientBorder {
-            anchors.fill: parent
-            radius:       parent.radius
-            borderWidth:  2
-            visible:      Appearance.animationsEnabled
-            z:            5
         }
     }
 }

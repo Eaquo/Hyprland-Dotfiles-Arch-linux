@@ -26,6 +26,8 @@ PanelWindow {
     readonly property int animDuration: Appearance.animDuration
     readonly property int panelWidth:  Config.get("spotify.width", 440)    // [spotify] dans config.toml
     readonly property int panelHeight: Config.get("spotify.height", 730)
+    // Toujours du côté opposé à la barre : à gauche quand la barre est à droite
+    readonly property bool onLeft: Appearance.bar.position === "right"
 
     // Écran principal = tout sauf le tactile Xeneon.
     screen: {
@@ -99,9 +101,13 @@ PanelWindow {
         id: sizer
         // Bande pleine hauteur (pour le trait du bord droit) ; le panneau lui-même
         // garde sa taille et reste centré dedans : [bodyY, bodyY + bodyH].
-        anchors { top: parent.top; bottom: parent.bottom; right: parent.right }
+        anchors { top: parent.top; bottom: parent.bottom
+                  right: root.onLeft ? undefined : parent.right; left: root.onLeft ? parent.left : undefined }
         width: root.panelWidth
         clip: true
+        // Côté gauche : toute la forme (trait du bord, raccords, animation) est retournée en miroir ;
+        // le contenu est retourné une 2e fois pour rester lisible.
+        transform: Scale { origin.x: sizer.width / 2; xScale: root.onLeft ? -1 : 1 }
         readonly property real bodyH: root.panelHeight + 2 * root.fh
         // Centré sur la hauteur de l'ÉCRAN, pas de la fenêtre : celle-ci vaut 0 un
         // instant à chaque ouverture, ce qui faisait arriver le panneau en diagonale.
@@ -276,6 +282,7 @@ PanelWindow {
             ColumnLayout {
                 x: 22; width: parent.width - 44
                 y: sizer.bodyY + root.fh + 18 + (1 - reveal.content) * 10
+                transform: Scale { origin.x: (root.panelWidth - 44) / 2; xScale: root.onLeft ? -1 : 1 }
                 opacity: reveal.content
                 height: root.panelHeight - 36
                 spacing: 14

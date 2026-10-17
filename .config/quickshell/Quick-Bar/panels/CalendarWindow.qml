@@ -82,8 +82,11 @@ Scope {
             }
 
             MouseArea {
-                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
-                y: Appearance.bar.topMargin + Appearance.bar.height
+                // tout l'écran sauf la bande de la barre
+                x: Appearance.bar.position === "left" ? Appearance.bar.edge : 0
+                y: Appearance.bar.position === "top" ? Appearance.bar.edge : 0
+                width: parent.width - (Appearance.bar.vertical ? Appearance.bar.edge : 0)
+                height: parent.height - (Appearance.bar.vertical ? 0 : Appearance.bar.edge)
                 hoverEnabled: false
                 onClicked: Appearance.calendarVisible = false
             }
@@ -92,8 +95,8 @@ Scope {
             Rectangle {
                 id: calCard
 
-                x: Math.max(8, Math.min(Appearance.calPopupX - width / 2, calWin.width - width - 8))
-                y: calWin.cardY + 6
+                x: Appearance.bar.popupX(calWin.width, width, Appearance.calPopupX)
+                y: Appearance.bar.popupY(calWin.height, height, Appearance.calPopupY - calWin.screen.y)
 
                 width:  calWin.gridW + 36
                 height: calContent.implicitHeight + 24
@@ -106,7 +109,7 @@ Scope {
 
                 opacity: Appearance.calendarVisible ? 1.0 : 0.0
                 scale:   Appearance.calendarVisible ? 1.0 : 0.96
-                transformOrigin: Item.Top
+                transformOrigin: Appearance.bar.atBottom ? Item.Bottom : Item.Top
                 Behavior on opacity { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
                 Behavior on scale   { NumberAnimation { duration: Appearance.dur(160); easing.type: Easing.OutCubic } }
 

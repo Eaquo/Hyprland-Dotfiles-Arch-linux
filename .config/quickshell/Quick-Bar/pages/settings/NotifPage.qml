@@ -33,12 +33,16 @@ ColumnLayout {
         }
         SetRow {
             title: "Automatique en jeu"; desc: "activé au lancement d'un jeu, rétabli à la sortie"
-            SetSwitch { on: Config.get("game.dnd", false) === true; onToggled: Config.set("game.dnd", on ? null : true) }
+            SetButton { label: (Config.get("game.dnd", false) === true ? "activé" : "désactivé") + "  ·  󰊴 Mode jeu"; onTap: Popups.settingsPage = "game" }
         }
     }
 
     SetCard {
         title: "Fenêtres de notification"
+        canReset: true
+        // valeurs par défaut de swaync
+        onResetRequested: { page.put("positionX", "right"); page.put("positionY", "top"); page.put("notification-window-width", 500)
+                             page.put("control-center-width", 500); page.put("timeout", 10); page.put("timeout-low", 5); page.put("timeout-critical", 0) }
         opacity: Object.keys(page.cfg).length ? 1 : 0.4
         SetRow {
             title: "Position"

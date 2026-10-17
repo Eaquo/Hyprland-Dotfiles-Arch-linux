@@ -18,9 +18,11 @@ import qs.services
 //   clic milieu → format (RAM Go ↔ %, disque utilisé ↔ libre)
 // Données : scripts/system/sysstats.py (démon, une ligne JSON toutes les 2 s ;
 // processus et place récupérable seulement pendant qu'une carte est ouverte).
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 2
+    rowSpacing: 2; columnSpacing: 2
 
     // ── Données : services/SysData.qml (démon partagé avec les pages System) ──
     readonly property var    d:        SysData.d
@@ -75,8 +77,8 @@ RowLayout {
         property color  col: Appearance.colors.fg
         property bool   alert: false
 
-        implicitWidth:  chipRow.implicitWidth + 14
-        implicitHeight: Appearance.bar.height - 4
+        implicitWidth:  Appearance.bar.vertical ? Appearance.bar.thickness - 6 : chipRow.implicitWidth + 14
+        implicitHeight: Appearance.bar.vertical ? chipRow.implicitHeight + 10 : Appearance.bar.height - 4
 
         Rectangle {
             anchors.fill: parent
@@ -86,16 +88,19 @@ RowLayout {
             Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
         }
 
-        RowLayout {
+        // icône à gauche de la valeur, ou au-dessus en barre verticale
+        GridLayout {
             id: chipRow
             anchors.centerIn: parent
-            spacing: 5
+            flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
+            rowSpacing: 3; columnSpacing: 5
 
             Text {
                 id: ico
+                Layout.alignment: Qt.AlignCenter
                 text: chip.icon
                 font.family: Appearance.font.family
-                font.pixelSize: Appearance.font.body
+                font.pixelSize: Appearance.bar.icon
                 color: chip.col
                 opacity: ma.containsMouse ? 1.0 : 0.75
                 Behavior on opacity { NumberAnimation { duration: Appearance.dur(120) } }
@@ -110,12 +115,17 @@ RowLayout {
                 }
             }
 
-            Column {
-                spacing: 2
+            // valeur centrée sur la ligne de l'icône ; la jauge se pose juste dessous sans compter
+            // dans la hauteur (sinon le texte remonte au-dessus du centre de la barre)
+            Item {
+                Layout.alignment: Qt.AlignVCenter
+                implicitWidth: lbl.implicitWidth
+                implicitHeight: lbl.implicitHeight
                 Text {
+                    id: lbl
                     text: chip.label
                     font.family: Appearance.font.family
-                    font.pixelSize: Appearance.font.body
+                    font.pixelSize: Appearance.bar.text
                     color: chip.col
                     opacity: ma.containsMouse ? 1.0 : 0.80
                     Behavior on opacity { NumberAnimation { duration: Appearance.dur(120) } }
@@ -123,7 +133,10 @@ RowLayout {
                 }
                 Item {
                     visible: chip.percent >= 0
-                    width:   chipRow.implicitWidth - 22
+                    anchors.horizontalCenter: lbl.horizontalCenter
+                    y: lbl.height - 1
+                    // largeur du texte (pas de la puce : sinon boucle de calcul quand la barre grandit)
+                    width:   Appearance.bar.vertical ? chip.width - 14 : lbl.implicitWidth
                     height:  2
                     Rectangle { anchors.fill: parent; radius: 1; color: ColorUtils.applyAlpha(Appearance.colors.color15, 0.10) }
                     Rectangle {
@@ -190,17 +203,21 @@ RowLayout {
 
     Repeater {
         model: root.statKeys
-        delegate: RowLayout {
+        delegate: GridLayout {
             id: slot
             required property string modelData
             required property int index
-            spacing: 2
+            flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
+            rowSpacing: 2; columnSpacing: 2
             // trait entre les puces, sauf entre deux températures (elles restent groupées)
             Rectangle {
                 visible: slot.index > 0 && !(root.isTemp(slot.modelData) && root.isTemp(root.statKeys[slot.index - 1]))
-                width: 1; height: 12; radius: 1; color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
+                Layout.alignment: Qt.AlignCenter
+                implicitWidth: Appearance.bar.vertical ? 14 : 1; implicitHeight: Appearance.bar.vertical ? 1 : 12
+                radius: 1; color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
             }
             StatChip {
+                Layout.alignment: Qt.AlignCenter
                 kind: slot.modelData; icon: root.chipIcon[slot.modelData]
                 label: root.chipLabel(slot.modelData); percent: root.chipPct(slot.modelData)
                 col: root.chipCol(slot.modelData); alert: root.chipAlert(slot.modelData)
@@ -239,10 +256,13 @@ RowLayout {
         readonly property bool shown: root.cardChip !== null
         anchor.item: root.lastCardChip ?? root
         anchor.rect.width:  root.lastCardChip ? root.lastCardChip.width : 0
-        // La fenêtre commence juste sous la puce : la goutte en sort
-        anchor.rect.height: root.lastCardChip ? root.lastCardChip.height : 0
-        anchor.edges:   Edges.Bottom
-        anchor.gravity: Edges.Bottom
+        // La fenêtre commence juste sous la puce (au-dessus si la barre est en bas) : la goutte en sort
+        anchor.rect.height: root.lastCardChip && !Appearance.bar.atBottom ? root.lastCardChip.height : 0
+        // barre verticale : la carte s'ouvre à côté de la puce (à droite d'une barre à gauche, et inversement)
+        anchor.edges:   Appearance.bar.position === "left" ? Edges.Right : Appearance.bar.position === "right" ? Edges.Left
+                      : Appearance.bar.atBottom ? Edges.Top : Edges.Bottom
+        anchor.gravity: Appearance.bar.position === "left" ? Edges.Right : Appearance.bar.position === "right" ? Edges.Left
+                      : Appearance.bar.atBottom ? Edges.Top : Edges.Bottom
         implicitWidth:  400
         implicitHeight: cardBox.fullH + cardBox.restY + 8
         visible: shown || cardBox.opacity > 0.01
@@ -262,8 +282,10 @@ RowLayout {
             property real w: fullW
             property real h: fullH
             property real content: 1
+            property real off: 0                 // décalage de la goutte vers la puce
             x: (cardWin.width - w) / 2
-            y: restY
+            // collée au côté de la puce : en haut sous une barre en haut, en bas au-dessus d'une barre en bas
+            y: Appearance.bar.vertical ? restY : Appearance.bar.atBottom ? cardWin.height - restY - h + off : restY - off
             width: w; height: h
             radius: Math.min(16, Math.min(w, h) / 2)
             color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.96)
@@ -280,8 +302,8 @@ RowLayout {
             SequentialAnimation {
                 id: cardEnter
                 ScriptAction { script: { cardBox.w = cardBox.dot; cardBox.h = cardBox.dot; cardBox.content = 0 } }
-                // 1. la goutte descend
-                NumberAnimation { target: cardBox; property: "y"; from: -cardBox.dot; to: cardBox.restY; duration: Appearance.dur(340); easing.type: Easing.OutCubic }
+                // 1. la goutte sort de la puce (descend, ou monte si la barre est en bas)
+                NumberAnimation { target: cardBox; property: "off"; from: cardBox.dot + cardBox.restY; to: 0; duration: Appearance.dur(340); easing.type: Easing.OutCubic }
                 // 2. elle s'étire à l'horizontale
                 NumberAnimation { target: cardBox; property: "w"; to: cardBox.fullW; duration: Appearance.dur(400); easing.type: Easing.OutCubic }
                 // 3. elle se déroule vers le bas, le contenu apparaît en fin de course
@@ -402,9 +424,12 @@ RowLayout {
         readonly property bool shown: root.menuChip !== null
         anchor.item: root.lastMenuChip ?? root
         anchor.rect.width:  root.lastMenuChip ? root.lastMenuChip.width : 0
-        anchor.rect.height: (root.lastMenuChip ? root.lastMenuChip.height : 0) + 8
-        anchor.edges:   Edges.Bottom
-        anchor.gravity: Edges.Bottom
+        anchor.rect.y:      Appearance.bar.atBottom ? -8 : 0
+        anchor.rect.height: Appearance.bar.atBottom ? 0 : (root.lastMenuChip ? root.lastMenuChip.height : 0) + 8
+        anchor.edges:   Appearance.bar.position === "left" ? Edges.Right : Appearance.bar.position === "right" ? Edges.Left
+                      : Appearance.bar.atBottom ? Edges.Top : Edges.Bottom
+        anchor.gravity: Appearance.bar.position === "left" ? Edges.Right : Appearance.bar.position === "right" ? Edges.Left
+                      : Appearance.bar.atBottom ? Edges.Top : Edges.Bottom
         implicitWidth:  menuBox.implicitWidth + 12
         implicitHeight: menuBox.implicitHeight + 12
         visible: shown || menuBox.opacity > 0.01

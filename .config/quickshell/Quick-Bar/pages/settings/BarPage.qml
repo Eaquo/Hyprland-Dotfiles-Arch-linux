@@ -9,9 +9,16 @@ ColumnLayout {
     id: page
     spacing: 18
 
-    readonly property var sides: [["left", "Gauche"], ["center", "Centre"], ["right", "Droite"], ["hidden", "Désactivés"]]
+    // Colonnes selon la forme de la barre : en « 2 barres », gauche et centre ne font qu'une
+    readonly property bool split: Appearance.bar.style === "split"
+    readonly property var sides: split
+        ? [["left", "Barre de gauche"], ["right", "Barre de droite"], ["hidden", "Désactivés"]]
+        : Appearance.bar.style === "full"
+        ? [["left", "Début"], ["center", "Milieu"], ["right", "Fin"], ["hidden", "Désactivés"]]
+        : [["left", "Gauche"], ["center", "Centre"], ["right", "Droite"], ["hidden", "Désactivés"]]
     readonly property var lay: {
-        const l = { left: BarModules.layout("left"), center: BarModules.layout("center"), right: BarModules.layout("right") }
+        const l = split ? { left: BarModules.layout("left").concat(BarModules.layout("center")), center: [], right: BarModules.layout("right") }
+                        : { left: BarModules.layout("left"), center: BarModules.layout("center"), right: BarModules.layout("right") }
         const used = l.left.concat(l.center, l.right)
         l.hidden = BarModules.list.map(m => m.key).filter(k => used.indexOf(k) < 0)
         return l
@@ -59,6 +66,7 @@ ColumnLayout {
             const d = BarModules.defaults[s].indexOf(key)
             if (d >= 0) { side = s; idx = Math.min(d, lay[s].length) }
         }
+        if (split && side === "center") { side = "left"; idx = lay.left.length }   // pas de centre en « 2 barres »
         moveTo(key, side, idx)
     }
 
@@ -87,24 +95,105 @@ ColumnLayout {
 
     PageHeader { title: "Modules de la barre"; sub: "[bar.layout] dans config.toml — glisse un module pour le déplacer" }
 
+    // Forme (1, 2 ou 3 barres) et position (haut / bas) — [bar] style · position
+    SetCard {
+        title: "Forme et position"
+        GridLayout {
+            Layout.fillWidth: true
+            columns: 3; columnSpacing: 10; rowSpacing: 10
+            Repeater {
+                model: [["pills", "3 barres", "gauche · centre · droite"], ["split", "2 barres", "gauche + centre · droite"], ["full", "1 barre", "pleine largeur"]]
+                delegate: Rectangle {
+                    id: fm
+                    required property var modelData
+                    readonly property bool on: Appearance.bar.style === modelData[0]
+                    Layout.fillWidth: true
+                    implicitHeight: 104; radius: 12
+                    color: on ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.10) : (fmMa.containsMouse ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.06) : "transparent")
+                    border.width: on ? 2 : 1
+                    border.color: on ? Appearance.colors.accent : ColorUtils.applyAlpha(Appearance.colors.fg, 0.1)
+                    // mini écran avec la barre en haut ou en bas
+                    Rectangle {
+                        id: scr
+                        anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 12 }
+                        width: 170; height: 46; radius: 6
+                        color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.6)
+                        border.width: 1; border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.12)
+                        // barre verticale : bande sur le côté
+                        Rectangle {
+                            visible: Appearance.bar.vertical
+                            x: Appearance.bar.position === "left" ? 5 : parent.width - width - 5
+                            y: 5; width: 8; height: parent.height - 10; radius: 4
+                            color: fm.modelData[0] === "full" ? Appearance.colors.accent : "transparent"
+                            Column {
+                                visible: fm.modelData[0] !== "full"
+                                width: parent.width; spacing: fm.modelData[0] === "split" ? 8 : 4
+                                Rectangle { width: 8; height: fm.modelData[0] === "split" ? 18 : 10; radius: 4; color: Appearance.colors.accent }
+                                Rectangle { visible: fm.modelData[0] === "pills"; width: 8; height: 10; radius: 4; color: Appearance.colors.accent }
+                                Rectangle { width: 8; height: 10; radius: 4; color: Appearance.colors.accent }
+                            }
+                        }
+                        Item {
+                            visible: !Appearance.bar.vertical
+                            x: 6; width: parent.width - 12; height: 10
+                            y: Appearance.bar.atBottom ? parent.height - height - 5 : 5
+                            Rectangle { visible: fm.modelData[0] === "full"; anchors.fill: parent; radius: 5; color: Appearance.colors.accent }
+                            Rectangle { visible: fm.modelData[0] !== "full"; width: fm.modelData[0] === "split" ? 64 : 34; height: 10; radius: 5; color: Appearance.colors.accent }
+                            Rectangle { visible: fm.modelData[0] === "pills"; anchors.horizontalCenter: parent.horizontalCenter; width: 50; height: 10; radius: 5; color: Appearance.colors.accent }
+                            Rectangle { visible: fm.modelData[0] !== "full"; anchors.right: parent.right; width: 38; height: 10; radius: 5; color: Appearance.colors.accent }
+                        }
+                    }
+                    Column {
+                        anchors { horizontalCenter: parent.horizontalCenter; top: scr.bottom; topMargin: 8 }
+                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: fm.modelData[1] + (fm.on ? "  ✓" : "")
+                               font.family: Appearance.font.family; font.pixelSize: Appearance.font.small - 2; font.weight: Font.DemiBold
+                               color: fm.on ? Appearance.colors.accent : Appearance.colors.fg }
+                        Text { anchors.horizontalCenter: parent.horizontalCenter; text: fm.modelData[2]
+                               font.family: Appearance.font.family; font.pixelSize: Appearance.font.small - 5; color: Appearance.colors.dim }
+                    }
+                    MouseArea { id: fmMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                onClicked: Config.set("bar.style", fm.modelData[0] === "pills" ? null : fm.modelData[0]) }
+                }
+            }
+        }
+        SetRow {
+            title: "Position"
+            desc: "menus et cartes s'ouvrent du côté de la barre ; le panneau Spotify va toujours du côté opposé"
+            SetSeg {
+                options: [["top", "En haut"], ["bottom", "En bas"], ["left", "À gauche"], ["right", "À droite"]]
+                current: Appearance.bar.position
+                onPicked: (v) => Config.set("bar.position", v === "top" ? null : v)
+            }
+        }
+    }
+
     // Aperçu : les trois pilules, comme sur la barre
     SetCard {
         title: "Aperçu"
         Item {
             Layout.fillWidth: true
             implicitHeight: 40
+            // 1 barre : une seule bande pleine largeur derrière les trois groupes
+            Rectangle {
+                visible: Appearance.bar.style === "full"
+                anchors.fill: parent; anchors.bottomMargin: 6
+                radius: Math.min(Appearance.bar.radius, 17)
+                color: Appearance.colors.bg
+                border.width: 1; border.color: Appearance.outline
+            }
             Repeater {
                 model: ["left", "center", "right"]
                 delegate: Rectangle {
                     id: pv
                     required property string modelData
                     readonly property var keys: page.lay[modelData]
+                    readonly property bool bare: Appearance.bar.style === "full"
                     visible: keys.length > 0
                     x: modelData === "left" ? 0 : modelData === "right" ? parent.width - width : (parent.width - width) / 2
                     height: 34; radius: Math.min(Appearance.bar.radius, 17)
                     width: prow.implicitWidth + 20
-                    color: Appearance.colors.bg
-                    border.width: 1; border.color: Appearance.outline
+                    color: bare ? "transparent" : Appearance.colors.bg
+                    border.width: bare ? 0 : 1; border.color: Appearance.outline
                     Row {
                         id: prow
                         anchors.centerIn: parent
@@ -300,29 +389,28 @@ ColumnLayout {
 
     SetCard {
         title: "Apparence"
+        resetKeys: ["bar.height", "bar.thickness", "bar.radius", "bar.gap", "bar.pill_padding", "bar.top_margin", "bar.side_margin", "bar.separators"]
         SetRow {
             title: "Séparateurs"; desc: "petit trait entre les modules"
             SetSwitch { on: BarModules.separators; onToggled: Config.set("bar.separators", !on) }
         }
-        SetRow { title: "Hauteur"; SetSlider { implicitWidth: 300; from: 24; to: 48; suffix: " px"; value: Appearance.bar.height; onMoved: (v) => Config.set("bar.height", v) } }
-        SetRow { title: "Arrondi des pilules"; SetSlider { implicitWidth: 300; from: 0; to: 24; suffix: " px"; value: Appearance.bar.radius; onMoved: (v) => Config.set("bar.radius", v) } }
-        SetRow { title: "Espace entre modules"; SetSlider { implicitWidth: 300; from: 0; to: 16; suffix: " px"; value: Appearance.bar.gap; onMoved: (v) => Config.set("bar.gap", v) } }
-        SetRow { title: "Marge intérieure des pilules"; SetSlider { implicitWidth: 300; from: 0; to: 20; suffix: " px"; value: Appearance.bar.pillPad; onMoved: (v) => Config.set("bar.pill_padding", v) } }
-        SetRow { title: "Marge en haut"; SetSlider { implicitWidth: 300; from: 0; to: 20; suffix: " px"; value: Appearance.bar.topMargin; onMoved: (v) => Config.set("bar.top_margin", v) } }
-        SetRow { title: "Marges sur les côtés"; SetSlider { implicitWidth: 300; from: 0; to: 60; suffix: " px"; value: Appearance.bar.sideMargin; onMoved: (v) => Config.set("bar.side_margin", v) } }
-    }
-
-    SetCard {
-        title: "Horloge"
         SetRow {
-            title: "Format"
-            desc: "les secondes rafraîchissent l'horloge chaque seconde, sinon toutes les 15 s"
-            SetSeg {
-                options: [["HH:mm:ss", "20:12:45"], ["HH:mm", "20:12"], ["ddd HH:mm", "ven. 20:12"], ["dd/MM HH:mm", "17/10 20:12"]]
-                current: String(Config.get("bar.clock_format", "HH:mm:ss"))
-                onPicked: (v) => Config.set("bar.clock_format", v === "HH:mm:ss" ? null : v)
+            title: "Taille de la barre"
+            desc: (Appearance.bar.vertical ? "largeur de la barre verticale" : "hauteur de la barre") + " — icônes et textes suivent : "
+                  + Appearance.bar.icon + " px / " + Appearance.bar.text + " px (" + Math.round(Appearance.bar.k * 100) + " %)"
+            SetSlider {
+                implicitWidth: 300; suffix: " px"
+                from: Appearance.bar.vertical ? 34 : 24; to: Appearance.bar.vertical ? 72 : 52
+                value: Appearance.bar.vertical ? Appearance.bar.thickness : Appearance.bar.height
+                onMoved: (v) => Appearance.bar.vertical ? Config.set("bar.thickness", v === 46 ? null : v) : Config.set("bar.height", v === 34 ? null : v)
             }
         }
+        SetRow { title: "Arrondi des pilules"; desc: "jusqu'à la moitié de la taille de la barre (" + Appearance.bar.maxRadius + " px) = bouts ronds"
+                 SetSlider { implicitWidth: 300; from: 0; to: Appearance.bar.maxRadius; suffix: " px"; value: Appearance.bar.radius; onMoved: (v) => Config.set("bar.radius", v === 16 ? null : v) } }
+        SetRow { title: "Espace entre modules"; SetSlider { implicitWidth: 300; from: 0; to: 16; suffix: " px"; value: Appearance.bar.gap; onMoved: (v) => Config.set("bar.gap", v === 5 ? null : v) } }
+        SetRow { title: "Marge intérieure des pilules"; SetSlider { implicitWidth: 300; from: 0; to: 20; suffix: " px"; value: Appearance.bar.pillPad; onMoved: (v) => Config.set("bar.pill_padding", v === 8 ? null : v) } }
+        SetRow { title: "Marge en haut"; SetSlider { implicitWidth: 300; from: 0; to: 20; suffix: " px"; value: Appearance.bar.topMargin; onMoved: (v) => Config.set("bar.top_margin", v === 3 ? null : v) } }
+        SetRow { title: "Marges sur les côtés"; SetSlider { implicitWidth: 300; from: 0; to: 60; suffix: " px"; value: Appearance.bar.sideMargin; onMoved: (v) => Config.set("bar.side_margin", v === 10 ? null : v) } }
     }
 
     // Module en cours de déplacement, sous le pointeur

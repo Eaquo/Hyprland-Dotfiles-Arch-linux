@@ -6,9 +6,11 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 3
+    rowSpacing: 3; columnSpacing: 3
 
     property int  count: 0
     property bool dnd:   false
@@ -38,11 +40,12 @@ RowLayout {
     Process { id: toggleNotif; command: ["swaync-client", "-t", "-sw"] }
 
     Text {
+        Layout.alignment: Qt.AlignCenter
         text: root.dnd       ? " 󰂛 "
             : root.count > 0 ? " 󰂚 "
             :                  " 󰂜 "
         font.family: Appearance.font.family
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: root.count > 0 ? Appearance.colors.color10
              : root.dnd       ? Appearance.colors.color11
              :                  Appearance.colors.color12
@@ -55,9 +58,10 @@ RowLayout {
     }
 
     Text {
+        Layout.alignment: Qt.AlignCenter
         visible: root.count > 0
         text: root.count.toString()
-        font.pixelSize: Appearance.font.small
+        font.pixelSize: Appearance.bar.small
         color: Appearance.colors.color10
     }
 }

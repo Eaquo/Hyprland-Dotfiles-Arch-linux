@@ -73,6 +73,8 @@ Item {
             lua = "hl.dispatch(hl.dsp.focus({ monitor = [[" + mainMon.name + "]] })) " + lua
         if (xeneonName !== "")
             lua += " hl.dispatch(hl.dsp.focus({ monitor = [[" + xeneonName + "]] }))"
+        // curseur laissé en place pendant ces changements de focus (no_warps le temps de l'eval)
+        lua = "hl.config({ cursor = { no_warps = true } }) " + lua + " hl.config({ cursor = { no_warps = false } })"
         actionProc.command = ["hyprctl", "eval", lua]
         actionProc.running = false
         actionProc.running = true

@@ -65,6 +65,9 @@ PanelWindow {
     // Exclusive focus only when fully open and visible.
     WlrLayershell.keyboardFocus: (windowVisible && Popups.dashboardOpen) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
+    // Le Dashboard s'ouvre toujours depuis le haut de l'écran, même barre en bas (choix de l'utilisateur).
+    // true = accroché en bas (forme et contenu inversés, prêt mais désactivé).
+    readonly property bool fromBottom: false
     property bool windowVisible: false
 
     Connections {
@@ -121,7 +124,9 @@ PanelWindow {
     // was the source of the vertical offset in the text-working variant.
     Item {
         id: sizer
-        anchors.top:              parent.top
+        // accroché au bord où se trouve la barre ([bar] position)
+        anchors.top:              root.fromBottom ? undefined : parent.top
+        anchors.bottom:           root.fromBottom ? parent.bottom : undefined
         anchors.horizontalCenter: parent.horizontalCenter
         clip: true
 
@@ -139,7 +144,7 @@ PanelWindow {
         // ── Background ────────────────────────────────────────────────────────
         PopupShape {
             anchors.fill: parent
-            attachedEdge: "top"
+            attachedEdge: root.fromBottom ? "bottom" : "top"
             color:        Appearance.background
             radius:       Appearance.cornerRadius
             flareWidth:   root.fw
@@ -153,13 +158,19 @@ PanelWindow {
         // ── Content ───────────────────────────────────────────────────────────
         Item {
             id: content
+            // Taille fixe, accrochée au côté de la barre : la forme qui grandit la dévoile
+            // depuis la barre (vers le bas si elle est en haut, vers le haut si elle est en bas)
             anchors {
-                fill:         parent
+                left:         parent.left
+                right:        parent.right
+                top:          root.fromBottom ? undefined : parent.top
+                bottom:       root.fromBottom ? parent.bottom : undefined
                 topMargin:    root.fh + 8
+                bottomMargin: root.fh + 8
                 leftMargin:   root.fw + 8
                 rightMargin:  root.fw + 8
-                bottomMargin: 8
             }
+            height: Appearance.dashboardHeight - root.fh - 16
 
             opacity: Popups.dashboardOpen ? 1 : 0
             Behavior on opacity {
@@ -170,14 +181,15 @@ PanelWindow {
                 }
             }
 
-            Column {
+            Item {
                 anchors.fill: parent
-                spacing: 0
 
-                // ── Tab bar ───────────────────────────────────────────────────
+                // ── Tab bar (côté barre) ──────────────────────────────────────
                 TabSwitcher {
                     id: tabBar
                     orientation: "horizontal"
+                    anchors.top:    root.fromBottom ? undefined : parent.top
+                    anchors.bottom: root.fromBottom ? parent.bottom : undefined
                     width:       parent.width
                     currentPage: root.page
                     model: root.tabs
@@ -189,6 +201,7 @@ PanelWindow {
                     id: pageArea
                     focus: true
 
+                    y:      root.fromBottom ? 0 : tabBar.height
                     width:  parent.width
                     height: parent.height - tabBar.height
 

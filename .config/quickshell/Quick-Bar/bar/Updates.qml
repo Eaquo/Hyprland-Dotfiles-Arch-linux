@@ -7,9 +7,11 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 3
+    rowSpacing: 3; columnSpacing: 3
 
     property int  updates:   0
     property int  repoCount: 0
@@ -61,9 +63,10 @@ RowLayout {
     }
 
     Text {
+        Layout.alignment: Qt.AlignCenter
         text: " "
         font.family:    Appearance.font.family
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: root.updates > 0
             ? (hov.hovered ? Appearance.colors.color13 : Appearance.colors.color5)
             : Appearance.colors.dim
@@ -71,9 +74,10 @@ RowLayout {
     }
 
     Text {
+        Layout.alignment: Qt.AlignCenter
         visible: root.updates > 0
         text:    root.updates.toString()
-        font.pixelSize: Appearance.font.small
+        font.pixelSize: Appearance.bar.small
         color: hov.hovered ? Appearance.colors.color13 : Appearance.colors.color5
         Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
     }

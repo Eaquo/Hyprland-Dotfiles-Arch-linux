@@ -6,9 +6,11 @@ import Quickshell
 import Quickshell.Io
 import qs.core
 
-RowLayout {
+// Rangée en barre horizontale, colonne en barre verticale ([bar] position)
+GridLayout {
+    flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
-    spacing: 3
+    rowSpacing: 3; columnSpacing: 3
 
     property string netType:  "none"   // "wifi" | "ethernet" | "none"
     property int    strength: 0        // wifi 0-100
@@ -52,6 +54,7 @@ RowLayout {
 
     // ── Icon ─────────────────────────────────────────────────────────────
     Text {
+        Layout.alignment: Qt.AlignCenter
         text: {
             if (root.netType === "ethernet") return "󰌘"
             if (root.netType === "none")     return "󰌙"
@@ -62,7 +65,7 @@ RowLayout {
             if (s >= 20) return "󰤟"
             return "󰤯"
         }
-        font.pixelSize: Appearance.font.body
+        font.pixelSize: Appearance.bar.icon
         color: root.netType === "none" ? Appearance.colors.red : Appearance.colors.blue
 
         MouseArea {
