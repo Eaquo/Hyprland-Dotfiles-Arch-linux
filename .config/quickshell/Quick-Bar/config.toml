@@ -73,7 +73,8 @@ matugen_prefer = "value"
 matugen_mode = "dark"
 
 [bar]
-height = 36
+height = 38
+radius = 19
 
 [bar.layout]
 left = ["launcher", "stats"]
@@ -97,7 +98,12 @@ height = 540
 eq_preset = "HP"
 
 [session]
-style = "cyber"
 
 [overview]
 scale = 0.4
+
+[apps]
+tile_size = 155
+labels = false
+
+[menu]

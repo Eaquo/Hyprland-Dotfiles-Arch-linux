@@ -10,12 +10,12 @@ local files = "thunar"
 hl.bind("PAUSE", hl.dsp.exec_cmd("wl-freeze -a"))
 
 -- ── Lanceurs ──────────────────────────────────────────────────────────────────
--- Rofi via Super seul (release)
-hl.bind(
-	mainMod .. " + SUPER_L",
-	hl.dsp.exec_cmd("pkill rofi || rofi -show drun -modi drun,filebrowser,run,window"),
-	{ release = true }
-)
+-- Super seul : lanceur d'apps Quick-Bar (menus/scripts/apps.sh, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind(
+-- 	mainMod .. " + SUPER_L",
+-- 	hl.dsp.exec_cmd("pkill rofi || rofi -show drun -modi drun,filebrowser,run,window"),
+-- 	{ release = true }
+-- )
 
 -- Rofi via Super+D
 hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("pkill rofi || rofi -show drun -modi drun,filebrowser,run,window"))

@@ -28,6 +28,11 @@ hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd(qb .. "spotify toggle"), { descript
 hl.bind("SUPER + A", hl.dsp.exec_cmd(qb .. "overview toggle"), { description = "Vue d'ensemble des espaces" })
 hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(qb .. "session toggle"), { description = "Session (verrouiller, éteindre…)" })
 
+-- Menus
+hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qb .. "menu run apps"), { description = "Lanceur d'applications (Super seul)", release = true })
+hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd(qb .. "menu run game-scripts"), { description = "Scripts de jeux" })
+hl.bind("SUPER + SHIFT + E", hl.dsp.exec_cmd(qb .. "menu run quickedit"), { description = "Éditer une config" })
+
 -- Fond d'écran
 hl.bind("SUPER + W", hl.dsp.exec_cmd(qb .. "wallpicker toggle"), { description = "Fond d'écran : carrousel" })
 hl.bind("ALT + W", hl.dsp.exec_cmd(qb .. "wallcinema toggle"), { description = "Fond d'écran : Cinéma" })

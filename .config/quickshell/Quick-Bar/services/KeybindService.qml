@@ -33,6 +33,9 @@ QtObject {
         "dashboard-home":   { mods: "SUPER + SHIFT", key: "D",      label: "Dashboard",                    group: "Panneaux",       target: "dashboard-home" },
         "spotify":          { mods: "SUPER + SHIFT", key: "S",    label: "Panneau Spotify",              group: "Panneaux",       target: "spotify" },
         "overview":         { mods: "SUPER",       key: "A",      label: "Vue d'ensemble des espaces",   group: "Panneaux",       target: "overview" },
+        "apps":             { mods: "SUPER",       key: "SUPER_L", label: "Lanceur d'applications (Super seul)", group: "Menus", target: "menu", fn: "run apps", release: true },
+        "game-scripts":     { mods: "SUPER + SHIFT", key: "G",    label: "Scripts de jeux",              group: "Menus",          target: "menu", fn: "run game-scripts" },
+        "quickedit":        { mods: "SUPER + SHIFT", key: "E",    label: "Éditer une config",            group: "Menus",          target: "menu", fn: "run quickedit" },
         "session":          { mods: "CTRL + ALT",  key: "P",      label: "Session (verrouiller, éteindre…)", group: "Panneaux",   target: "session" },
         "wallpicker":       { mods: "SUPER",       key: "W",      label: "Fond d'écran : carrousel",     group: "Fond d'écran",   target: "wallpicker" },
         "wallcinema":       { mods: "ALT",         key: "W",      label: "Fond d'écran : Cinéma",        group: "Fond d'écran",   target: "wallcinema" },
@@ -157,7 +160,7 @@ QtObject {
                 for (var i = 0; i < dkeys.length; i++) {
                     var dk = dkeys[i]
                     merged[dk] = { mods: defs[dk].mods, key: defs[dk].key, label: defs[dk].label, group: defs[dk].group,
-                                   target: defs[dk].target || dk, fn: defs[dk].fn || "toggle" }
+                                   target: defs[dk].target || dk, fn: defs[dk].fn || "toggle", release: defs[dk].release === true }
                 }
                 try {
                     var saved = JSON.parse(text.trim())
@@ -272,7 +275,7 @@ QtObject {
             if (!b || !b.mods || !b.key) continue
             var g = b.group || "Other"
             if (!groups[g]) { groups[g] = []; order.push(g) }
-            groups[g].push({ k: k, mods: b.mods, key: b.key, label: b.label, target: b.target || k, fn: b.fn || "toggle" })
+            groups[g].push({ k: k, mods: b.mods, key: b.key, label: b.label, target: b.target || k, fn: b.fn || "toggle", release: b.release === true })
         }
         return { groups: groups, order: order }
     }
@@ -313,7 +316,7 @@ QtObject {
             var entries = data.groups[g]
             for (var ei = 0; ei < entries.length; ei++) {
                 var e = entries[ei]
-                lines.push("hl.bind(\"" + e.mods + " + " + e.key + "\", hl.dsp.exec_cmd(qb .. \"" + e.target + " " + e.fn + "\"), { description = \"" + e.label.replace(/"/g, "'") + "\" })")
+                lines.push("hl.bind(\"" + e.mods + " + " + e.key + "\", hl.dsp.exec_cmd(qb .. \"" + e.target + " " + e.fn + "\"), { description = \"" + e.label.replace(/"/g, "'") + "\"" + (e.release ? ", release = true" : "") + " })")
             }
             lines.push("")
         }

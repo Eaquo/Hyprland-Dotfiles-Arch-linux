@@ -91,8 +91,10 @@ end)
 hl.bind("SUPER + G", hl.dsp.exec_cmd(home .. "/.config/quickshell/game-launcher/toggle.sh"))
 hl.bind("F9", hl.dsp.exec_cmd(home .. "/.config/quickshell/game-launcher/toggle.sh"))
 hl.bind("SUPER + O", hl.dsp.exec_cmd(home .. "/.config/quickshell/rgb-launcher/toggle.sh"))
-hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd(userScripts .. "/EditScriptGame.sh"))
-hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(userScripts .. "/QuickEdit.sh"))
+-- SUPER+SHIFT+G : scripts de jeux Quick-Bar (menus/scripts/game-scripts.sh, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd(userScripts .. "/EditScriptGame.sh"))
+-- SUPER+SHIFT+E : éditer une config, menu Quick-Bar (menus/scripts/quickedit.sh, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(userScripts .. "/QuickEdit.sh"))
 hl.bind("CTRL + B", hl.dsp.exec_cmd("rofi-bluetooth"))
 
 -- Master layout

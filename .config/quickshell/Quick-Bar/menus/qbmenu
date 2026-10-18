@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""qbmenu — menus Quick-Bar à la place de `rofi -dmenu` (panels/Menu.qml).
+
+Lit les choix sur l'entrée standard (une ligne = un choix), affiche le menu, écrit la ligne choisie
+sur la sortie standard. Codes de sortie comme rofi : 0 choisi, 1 annulé, 10+N pour -kb-custom-(N+1).
+Si Quick-Bar ne répond pas, relance rofi avec les mêmes arguments (rien ne casse).
+
+Options rofi reprises : -dmenu -i -p -mesg -kb-custom-1..19 -no-custom -selected-row -password
+  (les autres, -config -theme-str -l…, sont ignorées). Lignes : "texte\\0icon\\x1fnom|chemin",
+  "\\0nonselectable\\x1ftrue", "\\0info\\x1f…" ; en plus : "\\0glyph\\x1f󰊴" (glyphe Nerd Font).
+Options Quick-Bar :
+  --template list|grid|emoji|input|confirm   (list par défaut ; tabulations = colonnes)
+  --placeholder TXT   --icon GLYPHE   --title TXT
+  --live 'CMD'        relancé à chaque frappe avec la saisie en $1 ; sa sortie devient la liste
+  --apps              lanceur d'applications intégré (comme rofi -show drun)
+  --position center|top|bottom|left|right|top-left|top-right|bottom-left|bottom-right
+  --width PX  --height PX (hauteur max du contenu)  --columns N  --row-height PX
+  --tab 'glyphe|libellé|script' (répétable) · --tab-current script : onglets vers d'autres menus
+  Métadonnée "\0id\x1f…" : renvoyée à la place du texte.
+Sous-commandes : qbmenu run <script> [args]  (menus/scripts/<script>.sh) · qbmenu list
+"""
+import json, os, subprocess, sys, time, uuid
+
+HERE = os.path.dirname(os.path.realpath(__file__))
+SHELL = os.path.join(os.path.dirname(HERE), "shell.qml")
+argv = sys.argv[1:]
+
+# qbmenu run <script> [args…]  ·  qbmenu list
+if argv[:1] == ["run"]:
+    os.execv(os.path.join(HERE, "run.sh"), [os.path.join(HERE, "run.sh")] + argv[1:])
+if argv[:1] == ["list"]:
+    d = os.path.join(HERE, "scripts")
+    for f in sorted(os.listdir(d)):
+        if f.endswith(".sh"):
+            desc = next((l[1:].strip() for l in open(os.path.join(d, f)) if l.startswith("# ") and not l.startswith("#!")), "")
+            print(f"{f[:-3]:<18} {desc}")
+    sys.exit(0)
+
+req = {"position": "center", "width": 0, "height": 0, "columns": 0, "rowHeight": 0, "template": "list", "prompt": "", "mesg": "", "placeholder": "", "icon": "", "title": "",
+       "live": "", "keys": {}, "selected": 0, "noCustom": False, "password": False, "items": []}
+apps = False
+i = 0
+while i < len(argv):
+    a = argv[i]
+    nxt = argv[i + 1] if i + 1 < len(argv) else ""
+    takes = True
+    if a == "-p": req["prompt"] = nxt
+    elif a == "-mesg": req["mesg"] = nxt
+    elif a.startswith("-kb-custom-"): req["keys"][nxt] = 9 + int(a.rsplit("-", 1)[1])
+    elif a == "-selected-row": req["selected"] = int(nxt or 0)
+    elif a == "-show": apps = apps or nxt in ("drun", "run")
+    elif a in ("--template", "--placeholder", "--icon", "--title", "--live", "--position"): req[a[2:]] = nxt
+    elif a == "--tab":
+        ic, lab, run = (nxt.split("|") + ["", "", ""])[:3]
+        req.setdefault("tabs", []).append({"icon": ic, "label": lab, "run": run})
+    elif a == "--tab-current": req["tab"] = nxt
+    elif a == "--script": req["script"] = nxt
+    elif a in ("--width", "--height", "--columns", "--row-height"):
+        req["rowHeight" if a == "--row-height" else a[2:]] = int(nxt or 0)
+    elif a in ("-config", "-theme", "-theme-str", "-l", "-lines", "-width", "-modi", "-format", "-matching", "-location"): pass
+    else:
+        takes = False
+        if a == "-no-custom": req["noCustom"] = True
+        elif a == "-password": req["password"] = True
+        elif a == "--apps": apps = True
+    i += 2 if takes else 1
+if apps: req["template"] = "apps"
+
+
+def rofi_fallback(data):
+    if apps or req["template"] == "apps":
+        os.execvp("rofi", ["rofi", "-show", "drun"])
+    ours = ("--template", "--placeholder", "--icon", "--title", "--live", "--position", "--width", "--height", "--columns", "--row-height", "--tab", "--tab-current", "--script")
+    args, j = [], 0
+    while j < len(argv):
+        if argv[j] in ours: j += 2; continue
+        if not argv[j].startswith("--"): args.append(argv[j])
+        j += 1
+    p = subprocess.run(["rofi"] + args + ([] if "-dmenu" in args else ["-dmenu"]),
+                       input=data, capture_output=True, text=True)
+    sys.stdout.write(p.stdout)
+    sys.exit(p.returncode)
+
+
+data = "" if apps or sys.stdin.isatty() else sys.stdin.read()
+for line in data.splitlines():
+    text, _, meta = line.partition("\0")
+    it = {"t": text}
+    if meta:
+        parts = meta.split("\x1f")
+        # rofi : "\0clé\x1fvaleur" (une seule paire par ligne, la plus courante)
+        for k, v in zip(parts[0::2], parts[1::2]):
+            it[k] = v
+    if text == "" and len(it) == 1:
+        continue
+    req["items"].append(it)
+
+run_dir = os.path.join(os.environ.get("XDG_RUNTIME_DIR", "/tmp"), "qbmenu")
+os.makedirs(run_dir, exist_ok=True)
+rid = uuid.uuid4().hex[:10]
+req["id"] = rid
+req["out"] = os.path.join(run_dir, rid + ".out")
+path = os.path.join(run_dir, rid + ".json")
+with open(path, "w") as f:
+    json.dump(req, f)
+
+ok = subprocess.run(["qs", "-p", SHELL, "ipc", "call", "menu", "open", path],
+                    capture_output=True, text=True).returncode == 0
+if not ok:
+    os.unlink(path)
+    rofi_fallback(data)
+
+# attendre la réponse (le menu écrit "code\ntexte" dans .out) ; Quick-Bar arrêté ou demande perdue
+# (rechargement de Quick-Bar, menu remplacé) → annulé
+def cleanup():
+    for p in (path, req["out"]):
+        try: os.unlink(p)
+        except OSError: pass
+start, last_check, lost = time.time(), time.time(), 0
+while not os.path.exists(req["out"]):
+    time.sleep(0.03)
+    if time.time() - last_check > 1.5 and time.time() - start > 3:
+        last_check = time.time()
+        cur = subprocess.run(["qs", "-p", SHELL, "ipc", "call", "menu", "current"], capture_output=True, text=True)
+        lost = lost + 1 if cur.returncode != 0 or cur.stdout.strip() != rid else 0
+        if lost >= 2 and not os.path.exists(req["out"]):
+            cleanup(); sys.exit(1)
+with open(req["out"]) as f:
+    code, _, text = f.read().partition("\n")
+for p in (path, req["out"]):
+    try: os.unlink(p)
+    except OSError: pass
+if text:
+    print(text)
+sys.exit(int(code or 1))
