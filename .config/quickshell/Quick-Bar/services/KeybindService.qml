@@ -32,6 +32,7 @@ QtObject {
         "settings":         { mods: "SUPER",       key: "F1",     label: "Réglages",                     group: "Panneaux",       target: "settings" },
         "dashboard-home":   { mods: "SUPER + SHIFT", key: "D",      label: "Dashboard",                    group: "Panneaux",       target: "dashboard-home" },
         "spotify":          { mods: "SUPER + SHIFT", key: "S",    label: "Panneau Spotify",              group: "Panneaux",       target: "spotify" },
+        "overview":         { mods: "SUPER",       key: "A",      label: "Vue d'ensemble des espaces",   group: "Panneaux",       target: "overview" },
         "session":          { mods: "CTRL + ALT",  key: "P",      label: "Session (verrouiller, éteindre…)", group: "Panneaux",   target: "session" },
         "wallpicker":       { mods: "SUPER",       key: "W",      label: "Fond d'écran : carrousel",     group: "Fond d'écran",   target: "wallpicker" },
         "wallcinema":       { mods: "ALT",         key: "W",      label: "Fond d'écran : Cinéma",        group: "Fond d'écran",   target: "wallcinema" },

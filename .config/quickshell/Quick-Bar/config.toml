@@ -97,3 +97,6 @@ height = 540
 eq_preset = "HP"
 
 [session]
+
+[overview]
+scale = 0.4

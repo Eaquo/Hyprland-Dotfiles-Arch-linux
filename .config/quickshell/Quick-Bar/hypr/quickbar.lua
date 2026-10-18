@@ -25,6 +25,7 @@ end)
 hl.bind("SUPER + F1", hl.dsp.exec_cmd(qb .. "settings toggle"), { description = "Réglages" })
 hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd(qb .. "dashboard-home toggle"), { description = "Dashboard" })
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd(qb .. "spotify toggle"), { description = "Panneau Spotify" })
+hl.bind("SUPER + A", hl.dsp.exec_cmd(qb .. "overview toggle"), { description = "Vue d'ensemble des espaces" })
 hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(qb .. "session toggle"), { description = "Session (verrouiller, éteindre…)" })
 
 -- Fond d'écran

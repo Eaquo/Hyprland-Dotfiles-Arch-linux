@@ -47,9 +47,10 @@ hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("pypr toggle ranger"))
 hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd(home .. "/.local/bin/jarvis-panel"))
 
 -- ── Vues / Overview ───────────────────────────────────────────────────────────
-hl.bind(mainMod .. " + A", function()
-	hl.plugin.scrolloverview.overview("toggle")
-end)
+-- SUPER+A : vue d'ensemble Quick-Bar (panels/Overview.qml, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind(mainMod .. " + A", function()
+-- 	hl.plugin.scrolloverview.overview("toggle")
+-- end)
 
 -- ── Performance / Utilitaires ─────────────────────────────────────────────────
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(userScripts .. "/Performance.sh"))

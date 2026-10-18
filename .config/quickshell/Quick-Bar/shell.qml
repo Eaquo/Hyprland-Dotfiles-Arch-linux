@@ -37,6 +37,7 @@ ShellRoot {
     WallpaperPicker {}
     WallpaperCinema {}
     SessionPanel {}
+    Overview {}
     // génère Quick-Bar/hypr/quickbar.lua (raccourcis) et s'assure que hyprland.lua le charge
     readonly property var _keybinds: KeybindService
 }
