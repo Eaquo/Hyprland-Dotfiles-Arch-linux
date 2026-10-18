@@ -25,6 +25,8 @@ QtObject {
     readonly property color fxColor: glitchColor !== "" ? glitchColor : Appearance.colors.accent
     property bool   wsFxEnabled:     true      // screen shader au changement de workspace
     // Rotation : change de wallpaper tout seul, au hasard, toutes les autoMinutes.
+    property bool   perWorkspace:    false     // un fond (au hasard) par espace de travail
+    property bool   wsRecolor:       false     // … et recolorer la palette à chaque changement d'espace
     property bool   autoChange:      false
     property int    autoMinutes:     15
 
@@ -52,6 +54,8 @@ QtObject {
             if (d.glitchColor     !== undefined) root.glitchColor     = d.glitchColor
             if (d.wsFxEnabled     !== undefined) root.wsFxEnabled     = d.wsFxEnabled
             if (d.autoChange      !== undefined) root.autoChange      = d.autoChange
+            if (d.perWorkspace    !== undefined) root.perWorkspace    = d.perWorkspace
+            if (d.wsRecolor       !== undefined) root.wsRecolor       = d.wsRecolor
             if (d.autoMinutes     !== undefined) root.autoMinutes     = d.autoMinutes
             root._loading = false
         } catch (e) { root._loading = false }
@@ -70,7 +74,9 @@ QtObject {
             glitchColor:     root.glitchColor,
             wsFxEnabled:     root.wsFxEnabled,
             autoChange:      root.autoChange,
-            autoMinutes:     root.autoMinutes
+            autoMinutes:     root.autoMinutes,
+            perWorkspace:    root.perWorkspace,
+            wsRecolor:       root.wsRecolor
         })
         saveProc.command = ["bash", "-c", "printf '%s' \"$1\" > \"$2\"", "_", json, root._path]
         saveProc.running = false
@@ -96,6 +102,65 @@ QtObject {
     onWsFxEnabledChanged:     save()
     onAutoChangeChanged:      save()
     onAutoMinutesChanged:     save()
+    onPerWorkspaceChanged:    { save(); if (perWorkspace) { root._wsWalls = ({}); wsList.running = true } }
+    onWsRecolorChanged:       save()
+
+    // ── Appliquer un fond (onglet Wall, sélecteur SUPER+W) ──────────────────
+    // Image : Quickshell rend (gslapper arrêté, mode vidéo quitté), set-wallpaper.sh recolore.
+    function applyImage(path) {
+        applyProc.command = ["bash", "-c", "pkill -x gslapper 2>/dev/null; exec \"$1\" \"$2\"", "_",
+                             Quickshell.env("HOME") + "/.config/hypr/scripts/set-wallpaper.sh", path]
+        applyProc.running = false
+        applyProc.running = true
+        root.currentWall = path
+        root.videoMode = false
+    }
+    // Vidéo : gslapper sur l'écran principal (pas le tactile), effets coupés en mode vidéo.
+    function applyVideo(path) {
+        applyProc.command = ["bash", "-c",
+            "exec >>/tmp/qs-video.log 2>&1; " +
+            "mon=$(hyprctl monitors -j | jq -r '[.[] | select((.description // \"\") | test(\"" + Config.touchMatch + "\"; \"i\") | not)][0].name'); " +
+            "echo \"[$(date +%T)] mon='$mon' path='$1'\"; \"$2\" \"$mon\" \"$1\" && echo '→ launched' || echo '→ FAILED'",
+            "_", path, Quickshell.env("HOME") + "/.config/hypr/scripts/set-video-wallpaper.sh"]
+        applyProc.running = false
+        applyProc.running = true
+        root.videoMode = true
+    }
+    property var _applyProc: Process { id: applyProc }
+
+    // ── Un fond par espace de travail ([perWorkspace]) ─────────────────────
+    // Chaque espace reçoit un fond au hasard la 1re fois qu'on y va, et le garde pendant la session.
+    // Changement léger (seule l'image change), sauf wsRecolor. Rien en vidéo, en jeu, ni sur le tactile.
+    property var _wsWalls: ({})
+    property var _wsPool: []
+    property var _wsList: Process {
+        id: wsList
+        command: ["bash", "-c", "find -L \"$1\" -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\)",
+                  "_", Config.dir("wallpaper.dir", "~/Pictures/wallpapers")]
+        stdout: StdioCollector { onStreamFinished: root._wsPool = text.split("\n").filter(l => l.trim() !== "") }
+    }
+    property var _wsConn: Connections {
+        target: Hyprland
+        function onFocusedWorkspaceChanged() { if (root.perWorkspace) wsDebounce.restart() }
+    }
+    property var _wsDebounce: Timer {
+        id: wsDebounce; interval: 150
+        onTriggered: {
+            const ws = Hyprland.focusedWorkspace
+            if (!ws || root.videoMode || GameMode.active || !root._wsPool.length) return
+            const mon = Quickshell.screens.find(s => s.name === (ws.monitor ? ws.monitor.name : ""))
+            if (mon && Config.isTouch(mon)) return
+            let path = root._wsWalls[ws.id]
+            if (!path) {
+                const pool = root._wsPool.filter(p => p !== root.currentWall)
+                path = pool[Math.floor(Math.random() * pool.length)] || root._wsPool[0]
+                const m = Object.assign({}, root._wsWalls); m[ws.id] = path; root._wsWalls = m
+            }
+            if (path === root.currentWall) return
+            if (root.wsRecolor) root.applyImage(path)
+            else root.currentWall = path
+        }
+    }
 
     // ── Wallpaper aléatoire / rotation automatique ─────────────────────────────
     // Tire une image au hasard dans le dossier de config.toml [wallpaper] dir (pas la courante, pas

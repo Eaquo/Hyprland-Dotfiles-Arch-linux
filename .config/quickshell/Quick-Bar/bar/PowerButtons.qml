@@ -13,7 +13,7 @@ GridLayout {
     rowSpacing: 5; columnSpacing: 5
 
     Process { id: lockProc;   command: ["hyprlock"] }
-    Process { id: logoutProc; command: ["wlogout"]  }
+    // ⏻ ouvre le panneau de session de Quick-Bar (panels/SessionPanel.qml), plus wlogout
 
     // ── Power ─────────────────────────────────────────────────────────────
     Text {
@@ -29,7 +29,7 @@ GridLayout {
             hoverEnabled: true
             onEntered: powerBtn.color = Appearance.colors.red
             onExited:  powerBtn.color = Appearance.colors.dim
-            onClicked: logoutProc.running = true
+            onClicked: { Popups.closeAll(); Popups.sessionOpen = true }
         }
     }
     

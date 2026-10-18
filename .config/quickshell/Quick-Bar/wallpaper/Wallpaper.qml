@@ -28,6 +28,12 @@ Scope {
     }
     Component.onCompleted: readlinkProc.running = true
 
+    // Changement direct depuis Quick-Bar (fond par espace de travail, sans passer par wallust)
+    Connections {
+        target: WallpaperState
+        function onCurrentWallChanged() { if (WallpaperState.currentWall !== "" && !WallpaperState.videoMode) root.wallPath = WallpaperState.currentWall }
+    }
+
     // Signal universel de changement de wallpaper : wal.json régénéré par wallust
     FileView {
         path: "file://" + Quickshell.env("HOME") + "/.cache/wal/wal.json"

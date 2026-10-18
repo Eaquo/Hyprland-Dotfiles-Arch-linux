@@ -9,10 +9,13 @@ QtObject {
     id: root
 
     readonly property string _shellDir: Quickshell.shellDir
-    readonly property string _configDir: Quickshell.env("HOME") + "/.config/Brain_Shell"
-    readonly property string _luaPath:  _configDir + "/Brain_ShellKeybinds.lua"
-    readonly property string _confPath: _configDir + "/Brain_ShellKeybinds.conf"
-    readonly property string _jsonPath: _configDir + "/src/user_data/keybinds.json"
+    // Raccourcis propres à Quick-Bar : générés dans Quick-Bar/hypr/, chargés par une ligne de
+    // hyprland.lua (ajoutée si absente). Personnalisations : user_data/keybinds.json.
+    readonly property string _configDir: _shellDir + "/hypr"
+    readonly property string _luaPath:  _configDir + "/quickbar.lua"
+    readonly property string _confPath: _configDir + "/quickbar.conf"
+    readonly property string _jsonPath: _shellDir + "/user_data/keybinds.json"
+    readonly property string _oldJson:  Quickshell.env("HOME") + "/.config/Brain_Shell/src/user_data/keybinds.json"
     
     property string configProvider: ShellState.configProvider
 
@@ -24,25 +27,18 @@ QtObject {
     property bool isCapturing: false
 
     // ── Defaults ──────────────────────────────────────────────────────────────
+    // id → { mods, key, label, group, target (IpcHandler), fn (fonction appelée, « toggle » par défaut) }
     readonly property var _defaults: ({
-        "dashboard-home":     { mods: "SUPER",        key: "D",      label: "Dashboard: System",    group: "Dashboard"      },
-        "dashboard-stats":    { mods: "CTRL + SHIFT",  key: "ESCAPE", label: "Dashboard: Home",      group: "Dashboard"      },
-        "dashboard-kanban":   { mods: "SUPER",        key: "Z",      label: "Dashboard: Tasks",     group: "Dashboard"      },
-        "dashboard-launcher": { mods: "SUPER",        key: "Q",      label: "Dashboard: Apps",      group: "Dashboard"      },
-        "dashboard-config":   { mods: "SUPER",        key: "C",      label: "Dashboard: Config",    group: "Dashboard"      },
-        "PowerMenu-toggle":   { mods: "SUPER",        key: "ESCAPE", label: "Arch Menu",            group: "Popups"         },
-        "notification-toggle":{ mods: "SUPER",        key: "N",      label: "Notifications",        group: "Popups"         },
-        "wallpaper-toggle":   { mods: "SUPER",        key: "W",      label: "Wallpaper",            group: "Popups"         },
-        "clipboard-toggle":   { mods: "SUPER",        key: "V",      label: "Clipboard",            group: "Popups"         },
-        "wifi-toggle":        { mods: "SUPER + ALT",   key: "W",      label: "Network: Wi-Fi",       group: "Network Tabs"   },
-        "bluetooth-toggle":   { mods: "SUPER + ALT",   key: "B",      label: "Network: Bluetooth",   group: "Network Tabs"   },
-        "vpn-toggle":         { mods: "SUPER + ALT",   key: "G",      label: "Network: VPN",         group: "Network Tabs"   },
-        "hotspot-toggle":     { mods: "SUPER + ALT",   key: "H",      label: "Network: Hotspot",     group: "Network Tabs"   },
-        "audioOut-toggle":    { mods: "SUPER",        key: "A",      label: "Audio: Output",        group: "Audio Tabs"     },
-        "audioIn-toggle":     { mods: "SUPER + ALT",   key: "I",      label: "Audio: Input",         group: "Audio Tabs"     },
-        "audioMix-toggle":    { mods: "SUPER",        key: "M",      label: "Audio: Mixer",         group: "Audio Tabs"     },
-        "focus-toggle":       { mods: "SUPER",        key: "B",      label: "Focus Mode",           group: "Quick Settings" },
-        "screenrec-on":       { mods: "ALT",          key: "F9",     label: "Screen Record",        group: "Quick Settings" },
+        "settings":         { mods: "SUPER",       key: "F1",     label: "Réglages",                     group: "Panneaux",       target: "settings" },
+        "dashboard-home":   { mods: "SUPER + SHIFT", key: "D",      label: "Dashboard",                    group: "Panneaux",       target: "dashboard-home" },
+        "spotify":          { mods: "SUPER + SHIFT", key: "S",    label: "Panneau Spotify",              group: "Panneaux",       target: "spotify" },
+        "session":          { mods: "CTRL + ALT",  key: "P",      label: "Session (verrouiller, éteindre…)", group: "Panneaux",   target: "session" },
+        "wallpicker":       { mods: "SUPER",       key: "W",      label: "Fond d'écran : carrousel",     group: "Fond d'écran",   target: "wallpicker" },
+        "wallcinema":       { mods: "ALT",         key: "W",      label: "Fond d'écran : Cinéma",        group: "Fond d'écran",   target: "wallcinema" },
+        "wallpaper-random": { mods: "CTRL + ALT",  key: "W",      label: "Fond d'écran au hasard",       group: "Fond d'écran",   target: "wallpicker", fn: "random" },
+        "gamebreak":        { mods: "SUPER",       key: "T",      label: "Pause tactile en jeu",         group: "Jeu",            target: "gamebreak" },
+        "focus-toggle":     { mods: "SUPER",       key: "F2",      label: "Mode focus",                   group: "Réglages rapides", target: "focus-toggle" },
+        "screenrec-on":     { mods: "ALT",         key: "F9",     label: "Capture vidéo",                group: "Réglages rapides", target: "screenrec-on" }
     })
 
     property var keybinds: ({})
@@ -90,7 +86,7 @@ QtObject {
             var b = root._hyprBinds[i]
             if (b.submap !== "")                        continue  // ignore submaps
             if (b.mouse)                                continue  // ignore mouse binds
-            if (b.arg && b.arg.indexOf("qs ipc") >= 0) continue  // our own shell binds
+            if (b.arg && (b.arg.indexOf("qs ipc") >= 0 || b.arg.indexOf("Quick-Bar/shell.qml ipc") >= 0)) continue  // nos propres raccourcis
             if (b.modmask === mask && (b.key || "").toLowerCase() === k) {
                 var desc = b.dispatcher || ""
                 if (b.arg) desc += ": " + b.arg.substring(0, 36)
@@ -150,7 +146,7 @@ QtObject {
     // ── Load ──────────────────────────────────────────────────────────────────
     property var _loadProc: Process {
         command: ["bash", "-c",
-            "[ -f '" + root._jsonPath + "' ] && cat '" + root._jsonPath + "' || echo '{}'"]
+            "[ -f '" + root._jsonPath + "' ] && cat '" + root._jsonPath + "' || { [ -f '" + root._oldJson + "' ] && cat '" + root._oldJson + "' || echo '{}'; }"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
@@ -159,8 +155,8 @@ QtObject {
                 var dkeys  = Object.keys(defs)
                 for (var i = 0; i < dkeys.length; i++) {
                     var dk = dkeys[i]
-                    merged[dk] = { mods: defs[dk].mods, key: defs[dk].key,
-                                   label: defs[dk].label, group: defs[dk].group }
+                    merged[dk] = { mods: defs[dk].mods, key: defs[dk].key, label: defs[dk].label, group: defs[dk].group,
+                                   target: defs[dk].target || dk, fn: defs[dk].fn || "toggle" }
                 }
                 try {
                     var saved = JSON.parse(text.trim())
@@ -259,6 +255,7 @@ QtObject {
         
         // Write both files so the user has them regardless of what they switch to
         _writeProc.command = ["bash", "-c",
+            "mkdir -p '" + root._configDir + "' && " +
             "printf '%s' '" + le + "' > '" + root._luaPath + "' && " +
             "printf '%s' '" + ce + "' > '" + root._confPath + "'"]
             
@@ -274,7 +271,7 @@ QtObject {
             if (!b || !b.mods || !b.key) continue
             var g = b.group || "Other"
             if (!groups[g]) { groups[g] = []; order.push(g) }
-            groups[g].push({ k: k, mods: b.mods, key: b.key, label: b.label })
+            groups[g].push({ k: k, mods: b.mods, key: b.key, label: b.label, target: b.target || k, fn: b.fn || "toggle" })
         }
         return { groups: groups, order: order }
     }
@@ -285,11 +282,12 @@ QtObject {
         
         var lines = [
             "-- ==============================================================================",
-            "-- Brain Shell Keybinds",
-            "-- Auto-generated by Quickshell. Do not edit manually.",
+            "-- Quick-Bar — raccourcis clavier",
+            "-- Généré par Quick-Bar (Réglages › Raccourcis) : ne pas modifier à la main.",
+            "-- Chargé par ~/.config/hypr/hyprland.lua : dofile(\".../Quick-Bar/hypr/quickbar.lua\")",
             "-- ==============================================================================",
             "",
-            "local shell = \"" + sd + "\"",
+            "local qb = \"qs -p " + sd + "/shell.qml ipc call \"",
             "",
             "-- ==============================================================================",
             "-- BrainShell Capture Submap (Disables all normal binds during recording)",
@@ -314,7 +312,7 @@ QtObject {
             var entries = data.groups[g]
             for (var ei = 0; ei < entries.length; ei++) {
                 var e = entries[ei]
-                lines.push("hl.bind(\"" + e.mods + " + " + e.key + "\", hl.dsp.exec_cmd(\"qs ipc -c \" .. shell .. \" call " + e.k + " toggle\"))")
+                lines.push("hl.bind(\"" + e.mods + " + " + e.key + "\", hl.dsp.exec_cmd(qb .. \"" + e.target + " " + e.fn + "\"), { description = \"" + e.label.replace(/"/g, "'") + "\" })")
             }
             lines.push("")
         }
@@ -352,7 +350,7 @@ QtObject {
                 var e = entries[ei]
                 // Hyprland .conf format drops the '+' symbol between modifiers
                 var confMods = e.mods.replace(/\s*\+\s*/g, " ")
-                var cmd = "qs ipc -c " + root._shellDir + " call " + e.k + " toggle"
+                var cmd = "qs -p " + root._shellDir + "/shell.qml ipc call " + e.target + " " + e.fn
                 lines.push("bind = " + confMods + ", " + e.key + ", exec, " + cmd)
             }
             lines.push("")
@@ -363,28 +361,25 @@ QtObject {
     // ── Auto-include in hyprland configs ──────────────────────────────────────
     property var _includeProc: Process { command: []; running: false }
 
+    // hyprland.lua charge quickbar.lua ; l'ancienne ligne Brain_Shell (même rôle) est remplacée
     function _ensureInclude() {
         var lp = root._luaPath.replace(/"/g, "\\\"")
         var cp = root._confPath.replace(/"/g, "\\\"")
-        
         if (configProvider === "lua") {
             _includeProc.command = ["bash", "-c", [
-                "MARKER='Brain_ShellKeybinds'",
                 "LUA=\"$HOME/.config/hypr/hyprland.lua\"",
-                "if [ -f \"$LUA\" ] && ! grep -qF \"$MARKER\" \"$LUA\"; then",
-                "  printf '\\n-- Brain_ShellKeybinds\\ndofile(\"" + lp + "\")\\n' >> \"$LUA\"",
-                "fi",
+                "[ -f \"$LUA\" ] || exit 0",
+                "sed -i '/^-- Brain_ShellKeybinds$/d; /Brain_Shell\\/Brain_ShellKeybinds.lua/d' \"$LUA\"",
+                "grep -qF 'Quick-Bar/hypr/quickbar.lua' \"$LUA\" || printf '\\n-- Quick-Bar : raccourcis (Réglages › Raccourcis)\\ndofile(\"" + lp + "\")\\n' >> \"$LUA\""
             ].join("\n")]
         } else {
             _includeProc.command = ["bash", "-c", [
-                "MARKER='Brain_ShellKeybinds'",
                 "CONF=\"$HOME/.config/hypr/hyprland.conf\"",
-                "if [ -f \"$CONF\" ] && ! grep -qF \"$MARKER\" \"$CONF\"; then",
-                "  printf '\\n# Brain_ShellKeybinds\\nsource = " + cp + "\\n' >> \"$CONF\"",
-                "fi",
+                "[ -f \"$CONF\" ] || exit 0",
+                "sed -i '/^# Brain_ShellKeybinds$/d; /Brain_ShellKeybinds.conf/d' \"$CONF\"",
+                "grep -qF 'Quick-Bar/hypr/quickbar.conf' \"$CONF\" || printf '\\n# Quick-Bar : raccourcis\\nsource = " + cp + "\\n' >> \"$CONF\""
             ].join("\n")]
         }
-        
         _includeProc.running = false
         _includeProc.running = true
     }

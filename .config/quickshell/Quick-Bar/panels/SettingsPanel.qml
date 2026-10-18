@@ -46,13 +46,14 @@ PanelWindow {
         { key: "theme", group: "Apparence", ic: "󰏘", name: "Thème", kw: "thèmes préréglages presets accent bordures animées contour vitesse arrondi rayon formes", src: "theme" },
         { key: "colors", group: "Apparence", ic: "󰸌", name: "Couleurs", kw: "palette wallust matugen material you chemin", src: "colors" },
         { key: "fonts", group: "Apparence", ic: "󰛖", name: "Police", kw: "police famille taille texte nerd font", src: "fonts" },
-        { key: "anim", group: "Apparence", ic: "󰑓", name: "Animations", kw: "durée vitesse ouverture rapide instantané aucune animation onglets transition goutte rideau zoom montée glissement fondu", src: "anim" },
+        { key: "anim", group: "Apparence", ic: "󰑓", name: "Animations", kw: "durée vitesse ouverture rapide instantané aucune animation onglets transition goutte bulle iris rebond carte tourbillon rideau zoom montée glissement fondu", src: "anim" },
         { key: "bar", group: "Barre", ic: "󰍜", name: "Modules", kw: "barre modules ordre gauche centre droite masquer options géométrie hauteur séparateurs horloge format", src: "bar" },
         { key: "barint", group: "Barre", ic: "󰔛", name: "Rafraîchissement", kw: "intervalles mises à jour réseau bluetooth stats volume santé secondes cpu", src: "refresh" },
         { key: "dash", group: "Panneaux", ic: "󰕮", name: "Dashboard", kw: "taille onglets accueil", src: "dashboard" },
         { key: "touch", group: "Panneaux", ic: "󰦧", name: "Panneau tactile", kw: "zoom onglets pause jeu xeneon", src: "touch" },
         { key: "apps", group: "Panneaux", ic: "󰀻", name: "Apps", kw: "applications lanceurs deck tuiles sections raccourcis apps", src: "apps" },
         { key: "spotify", group: "Panneaux", ic: "󰓇", name: "Spotify et média", kw: "spotify lecteur pochette", src: "spotify" },
+        { key: "session", group: "Panneaux", ic: "󰐥", name: "Écran de session", kw: "session déconnexion éteindre redémarrer verrouiller veille bios matrix minimal ctrl alt p", src: "session" },
         { key: "notif", group: "Panneaux", ic: "󰂚", name: "Notifications", kw: "toasts swaync durée position ne pas déranger", src: "notif" },
         { key: "wall", group: "Multimédia", ic: "󰸉", name: "Fond d'écran", kw: "dossiers rotation effets shaders", src: "wall" },
         { key: "audio", group: "Multimédia", ic: "󰓃", name: "Audio et EQ", kw: "égaliseur presets easyeffects sortie", src: "audio" },
@@ -307,7 +308,7 @@ PanelWindow {
                         }
                         Component.onCompleted: tabChanged()
                         onLoaded: if (item) item.width = Qt.binding(() => pageLoader.width)
-                        readonly property var pages: ({ colors: colorsC, fonts: fontsC, deps: depsC, bar: barC, theme: themeC, general: generalC, anim: animC, refresh: refreshC, dashboard: dashboardC, touch: touchC, spotify: spotifyC, notif: notifC, wall: wallC, audio: audioC, capture: captureC, game: gameC, stats: statsC, health: healthC, keys: keysC, data: dataC, apps: appsC, plan: planC })
+                        readonly property var pages: ({ colors: colorsC, fonts: fontsC, deps: depsC, bar: barC, theme: themeC, general: generalC, anim: animC, refresh: refreshC, dashboard: dashboardC, touch: touchC, spotify: spotifyC, notif: notifC, wall: wallC, audio: audioC, capture: captureC, game: gameC, stats: statsC, health: healthC, keys: keysC, data: dataC, apps: appsC, session: sessionC, plan: planC })
                         Component { id: colorsC; ColorsPage {} }
                         Component { id: fontsC; FontsPage {} }
                         Component { id: depsC; DepsPage {} }
@@ -329,6 +330,7 @@ PanelWindow {
                         Component { id: keysC; KeysPage {} }
                         Component { id: dataC; DataPage {} }
                         Component { id: appsC; AppsPage {} }
+                        Component { id: sessionC; SessionPage {} }
                         Component { id: planC; PlannedPage { title: pageLoader.tab.name; items: pageLoader.tab.plan } }
                         opacity: status === Loader.Ready ? 1 : 0
                         Behavior on opacity { NumberAnimation { duration: Appearance.dur(180) } }

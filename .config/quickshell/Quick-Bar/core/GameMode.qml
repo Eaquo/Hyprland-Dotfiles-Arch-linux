@@ -50,11 +50,11 @@ QtObject {
 
     property bool _seen: false
     function _update(clients) {
-        const g = clients.find(c => (c.tags || []).some(t => t.replace("*", "") === "games"))
+        const g = clients.find(c => (c.tags || []).some(t => t.replace("*", "") === "games") && !isExcluded(c))
         // 1re lecture sans jeu : fichiers /tmp d'une session finie sans _exit()
         // (redémarrage, crash) → on les jette pour ne pas fausser la suivante.
         if (!_seen) { _seen = true; if (!g) _run(["rm", "-f", _prevFile, _rgbFile, _startFile]) }
-        if (g && g.class !== gameClass) _identify(g.class)
+        if (g && g.class !== gameClass) _identify(g.class, g.pid)
         if (g) { gameTitle = g.title; gameClass = g.class }
         if (!!g === active) return
         active = !!g
@@ -83,13 +83,21 @@ QtObject {
         _prevPreset = ""; _prevRgb = ""
     }
 
-    // Steam : appid + visuels du cache ; autres jeux : clé = classe, pas de visuels.
-    function _identify(cls) {
+    // Logiciels Wine (.exe) qui ne sont pas des jeux : [game] exclude (classe, classe initiale ou titre)
+    readonly property var exclude: (Config.get("game.exclude", ["fusion360", "autodesk", "7zfm", "winecfg", "explorer.exe", "notepad.exe", "regedit"]) || [])
+                                   .map(x => String(x).toLowerCase()).filter(x => x !== "")
+    function isExcluded(c) {
+        const id = ((c.class || "") + " " + (c.initialClass || "") + " " + (c.title || "")).toLowerCase()
+        return exclude.some(x => id.includes(x))
+    }
+
+    // Steam : appid (classe steam_app_N, sinon cherché dans l'environnement du processus) + visuels ;
+    // sans appid : clé = classe, pas de visuels.
+    function _identify(cls, pid) {
         const m = /^steam_app_(\d+)/.exec(cls)
         gameKey = m ? m[1] : cls
         gameArt = ""; gameLogo = ""; gameColors = []
-        if (!m) return
-        artProc.command = ["bash", _scripts + "/game/game_art.sh", m[1]]
+        artProc.command = ["bash", _scripts + "/game/game_art.sh", m ? m[1] : cls, String(pid || "")]
         artProc.running = true
     }
 
@@ -140,6 +148,7 @@ QtObject {
                 root.gameArt    = l[0] ? "file://" + l[0] : ""
                 root.gameLogo   = l[1] ? "file://" + l[1] : ""
                 root.gameColors = l[2] ? l[2].split(",") : []
+                if (/^\d+$/.test(l[3] || "") && root.gameKey !== l[3]) root.gameKey = l[3]   // appid retrouvé
                 root._applyRgb()
             }
         }

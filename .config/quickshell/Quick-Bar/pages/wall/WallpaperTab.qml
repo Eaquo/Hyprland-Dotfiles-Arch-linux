@@ -43,29 +43,14 @@ Item {
     // Tout toucher prolonge la pause jeu (passif : ne vole aucun geste)
     PointHandler { onActiveChanged: if (active) GameBreak.extend() }
 
-    Process { id: applyProc }
 
-    // Image statique → Quickshell rend (tue gslapper, sort du mode vidéo)
+    // Application : core/WallpaperState.qml (partagée avec le sélecteur SUPER+W)
     function apply(path) {
-        applyProc.command = ["bash", "-c", "pkill -x gslapper 2>/dev/null; exec \"$1\" \"$2\"", "_", root.setScript, path]
-        applyProc.running = false
-        applyProc.running = true
-        WallpaperState.currentWall = path
-        WallpaperState.videoMode   = false
+        WallpaperState.applyImage(path)
         toast.say(Appearance.paletteSource + " recolore Quick-Bar…")
     }
-
-    // Vidéo → gslapper prend le fond de l'écran principal (pas le Xeneon, qui a le
-    // focus pendant qu'on le touche), Quickshell passe en mode vidéo (glitch off)
     function applyVideo(path) {
-        applyProc.command = ["bash", "-c",
-            "exec >>/tmp/qs-video.log 2>&1; " +
-            "mon=$(hyprctl monitors -j | jq -r '[.[] | select((.description // \"\") | test(\"" + Config.touchMatch + "\"; \"i\") | not)][0].name'); " +
-            "echo \"[$(date +%T)] mon='$mon' path='$1'\"; \"$2\" \"$mon\" \"$1\" && echo '→ launched' || echo '→ FAILED'",
-            "_", path, root.videoScript]
-        applyProc.running = false
-        applyProc.running = true
-        WallpaperState.videoMode = true
+        WallpaperState.applyVideo(path)
         toast.say("Vidéo lancée")
     }
 

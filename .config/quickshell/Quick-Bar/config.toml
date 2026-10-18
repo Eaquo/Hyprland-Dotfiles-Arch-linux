@@ -27,7 +27,7 @@ small  = 14
 [health]
 # Adresse du serveur Proxmox vérifiée par l'onglet Santé (vide = pas de vérification).
 proxmox = "192.168.1.200"
-skip = ["discord"]
+skip = ["discord", "easyeffects"]
 
 [[health.custom]]
 name = "Jellyfin"
@@ -95,3 +95,5 @@ height = 540
 
 [game]
 eq_preset = "HP"
+
+[session]

@@ -34,6 +34,15 @@ ColumnLayout {
             SetSwitch { on: WallpaperState.autoChange; onToggled: WallpaperState.autoChange = !WallpaperState.autoChange }
         }
         SetRow {
+            title: "Un fond par espace de travail"; desc: "chaque espace reçoit son fond au hasard, gardé pendant la session (aussi dans SUPER+W)"
+            SetSwitch { on: WallpaperState.perWorkspace; onToggled: WallpaperState.perWorkspace = !WallpaperState.perWorkspace }
+        }
+        SetRow {
+            visible: WallpaperState.perWorkspace
+            title: "Recolorer à chaque espace"; desc: "relance " + Appearance.paletteName + " à chaque changement (plus lent)"
+            SetSwitch { on: WallpaperState.wsRecolor; onToggled: WallpaperState.wsRecolor = !WallpaperState.wsRecolor }
+        }
+        SetRow {
             title: "Intervalle"
             SetSlider { implicitWidth: 300; from: 1; to: 120; suffix: " min"; value: WallpaperState.autoMinutes; onMoved: (v) => WallpaperState.autoMinutes = v }
         }

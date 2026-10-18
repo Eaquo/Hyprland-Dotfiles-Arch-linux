@@ -19,7 +19,7 @@ local browser = "zen-browser"
 local term = "kitty"
 local editor = "windsurf"
 local media = "org.jellyfin.JellyfinDesktop"
-local game = "env QT_QPA_PLATFORM=wayland steam"
+local game = "env QT_QPA_PLATFORM=wayland steam -silent"
 local manga = "manga-reader"
 local melanger = "pavucontrol"
 local btop = "btop"
@@ -34,7 +34,8 @@ local guitare = "ToneLib-Metal"
 
 hl.bind("CTRL + ALT + Delete", hl.dsp.exit())
 hl.bind("CTRL + ALT + L", hl.dsp.exec_cmd("hyprlock -q"))
-hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(scripts .. "/Wlogout.sh"))
+-- → déplacé dans Quick-Bar/hypr/quickbar.lua (Réglages › Raccourcis de Quick-Bar)
+-- hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(scripts .. "/Wlogout.sh"))
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(scripts .. "/LockScreen.sh"))
 
 -- Fenêtres
@@ -44,6 +45,8 @@ hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + ALT + F", hl.dsp.exec_cmd("hyprctl dispatch workspaceopt allfloat"))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
+
+hl.bind(mainMod .. " + O", hl.dsp.window.move({ monitor = "+1" }))
 
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║                         APPLICATIONS                                      ║
@@ -109,12 +112,20 @@ hl.bind(mainMod .. " + ALT + V", hl.dsp.exec_cmd(scripts .. "/ClipManager.sh"))
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
 
 -- Wallpaper
-hl.bind(mainMod .. " + W", hl.dsp.exec_cmd(userScripts .. "/WallpaperSelect.sh"))
-hl.bind("ALT + W", hl.dsp.exec_cmd("quickshell -c hyprquickpaper"))
-hl.bind("CTRL + ALT + W", hl.dsp.exec_cmd(userScripts .. "/WallpaperRandom.sh"))
+-- Sélecteurs de Quick-Bar : SUPER+W carrousel, ALT+W « Cinéma », CTRL+ALT+W fond au hasard
+-- (anciens : WallpaperSelect.sh, hyprquickpaper, WallpaperRandom.sh)
+-- → déplacé dans Quick-Bar/hypr/quickbar.lua (Réglages › Raccourcis de Quick-Bar)
+-- hl.bind(mainMod .. " + W", hl.dsp.exec_cmd("qs -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml ipc call wallpicker toggle"))
+-- → déplacé dans Quick-Bar/hypr/quickbar.lua (Réglages › Raccourcis de Quick-Bar)
+-- hl.bind("ALT + W", hl.dsp.exec_cmd("qs -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml ipc call wallcinema toggle"))
+-- → déplacé dans Quick-Bar/hypr/quickbar.lua (Réglages › Raccourcis de Quick-Bar)
+-- hl.bind("CTRL + ALT + W", hl.dsp.exec_cmd("qs -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml ipc call wallpicker random"))
 
 -- Cheat sheet
 hl.bind(mainMod .. " + H", hl.dsp.exec_cmd(scripts .. "/KeyHints.sh"))
+
+-- Bascule DP-1 SDR <-> HDR (hdredid) — bref écran noir : mode-set colorimétrie
+hl.bind(mainMod .. " + SHIFT + H", hl.dsp.exec_cmd(scripts .. "/HdrToggle.sh toggle"))
 
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║                         FOCUS / DÉPLACEMENT                               ║
@@ -175,8 +186,8 @@ local azerty = {
 	"quotedbl", -- 3
 	"apostrophe", -- 4
 	"parenleft", -- 5
-	"egrave", -- 6
-	"minus", -- 7
+	"minus", -- 6
+	"egrave", -- 7
 	"underscore", -- 8
 	"ccedilla", -- 9
 	"agrave", -- 10
@@ -195,9 +206,9 @@ hl.bind(mainMod .. " + SHIFT + bracketright", hl.dsp.exec_cmd("hyprctl dispatch 
 hl.bind(mainMod .. " + CTRL + bracketleft", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspacesilent e-1"))
 hl.bind(mainMod .. " + CTRL + bracketright", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspacesilent e+1"))
 
--- Special workspace
-hl.bind(mainMod .. " + U", hl.dsp.exec_cmd("hyprctl dispatch togglespecialworkspace"))
-hl.bind(mainMod .. " + SHIFT + U", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace special"))
+-- Special workspace : doublon de SUPER+U / SUPER+SHIFT+U (scratchpad « magic », plus haut) — retiré
+-- hl.bind(mainMod .. " + U", hl.dsp.exec_cmd("hyprctl dispatch togglespecialworkspace"))
+-- hl.bind(mainMod .. " + SHIFT + U", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace special"))
 
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║                         TOUCHES SPÉCIALES / MÉDIA                         ║
@@ -229,4 +240,3 @@ hl.bind(mainMod .. " + SHIFT + F12", hl.dsp.exec_cmd(scripts .. "/ScreenShot.sh 
 hl.bind(mainMod .. " + CTRL + F12", hl.dsp.exec_cmd(scripts .. "/ScreenShot.sh --in5"))
 hl.bind(mainMod .. " + ALT + F12", hl.dsp.exec_cmd(scripts .. "/ScreenShot.sh --in10"))
 hl.bind("ALT + F12", hl.dsp.exec_cmd(scripts .. "/ScreenShot.sh --active"))
-

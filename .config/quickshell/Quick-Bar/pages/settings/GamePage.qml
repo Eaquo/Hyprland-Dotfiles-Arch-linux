@@ -69,6 +69,25 @@ ColumnLayout {
     }
 
     SetCard {
+        title: "Ce qui compte comme un jeu"
+        resetKeys: ["game.exclude"]
+        Text {
+            Layout.fillWidth: true; wrapMode: Text.WordWrap
+            text: "Une fenêtre est un jeu si Hyprland lui met le tag « games » (Steam, gamescope, programmes Windows .exe). Les logiciels Windows qui ne sont pas des jeux sont ignorés s'ils sont dans cette liste (un morceau de leur nom de fenêtre suffit)."
+            font.family: Appearance.font.family; font.pixelSize: Appearance.font.small - 3; color: Appearance.colors.dim
+        }
+        SetRow {
+            title: "Pas des jeux"; desc: "séparés par des virgules — ex. fusion360, autodesk, blender"; wide: true
+            SetInput {
+                width: parent ? parent.width : 500
+                text: GameMode.exclude.join(", ")
+                placeholder: "fusion360, autodesk, 7zfm, winecfg…"
+                onCommitted: (t) => Config.set("game.exclude", t.split(",").map(x => x.trim()).filter(x => x !== ""))
+            }
+        }
+    }
+
+    SetCard {
         title: "Pendant le jeu"
         SetRow {
             title: "Ne pas déranger"; desc: "notifications coupées le temps du jeu"

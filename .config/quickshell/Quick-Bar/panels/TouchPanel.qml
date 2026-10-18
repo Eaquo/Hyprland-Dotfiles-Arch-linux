@@ -98,11 +98,22 @@ Scope {
         case "zoom":    pageZoom.restart(); return
         case "rise":    pageRise.restart(); return
         case "curtain": pageCurtain.restart(); return
+        case "bubble":  pageBubble.restart(); return
+        case "iris":    pageIris.restart(); return
+        case "bounce":  pageBounce.restart(); return
+        case "flip":    pageFlip.restart(); return
+        case "swirl":   pageSwirl.restart(); return
         // morph : les onglets à cartes (System, Apps) ouvrent déjà leurs cartes une à une
         default:        if (selfAnimated.indexOf(page) < 0) pageMorph.restart()
         }
     }
     readonly property var selfAnimated: ["stats", "deck"]
+    // centre (x) de l'onglet actif, dans le repère de la zone de page : départ de la bulle
+    function tabCenterX() {
+        for (const c of tabRow.children)
+            if (c.modelData && c.modelData.key === page) return c.mapToItem(pageArea, c.width / 2, 0).x
+        return pageArea.width / 2
+    }
     function stepTab(d) {
         const i = visibleTabs.findIndex(t => t.key === page)
         const j = Math.max(0, Math.min(visibleTabs.length - 1, i + d))
@@ -374,6 +385,7 @@ Scope {
                 id: pageArea
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                clip: true                       // la bulle géante reste dans la zone de page
                 transform: Translate { id: pageShift }
 
                 ParallelAnimation {
@@ -414,6 +426,12 @@ Scope {
                 property real my: 0
                 property real frame: 0           // fond + contour de la forme pendant l'animation
                 property real shown: 1
+                property real rad: 22            // arrondi de la forme pendant l'animation
+                property bool vcenter: false     // forme centrée verticalement (iris)
+                property bool circle: false      // forme ronde de diamètre d centrée en (cx, cy) (bulle)
+                property real cx: 0
+                property real cy: 0
+                property real d: 0
                 SequentialAnimation {
                     id: pageMorph
                     ScriptAction { script: { pageArea.mw = pageArea.dot; pageArea.mh = pageArea.dot; pageArea.my = -pageArea.dot; pageArea.frame = 1; pageArea.shown = 0 } }
@@ -453,12 +471,57 @@ Scope {
                     ScriptAction { script: { pageArea.mh = Qt.binding(() => pageArea.height) } }
                 }
 
+                // bulle : un cercle naît sous l'onglet touché et gonfle jusqu'à couvrir la page
+                SequentialAnimation {
+                    id: pageBubble
+                    ScriptAction { script: { pageArea.cx = root.tabCenterX(); pageArea.cy = 0; pageArea.d = 0
+                                             pageArea.circle = true; pageArea.frame = 1; pageArea.shown = 1 } }
+                    NumberAnimation { target: pageArea; property: "d"; to: 2.1 * Math.hypot(pageArea.width, pageArea.height)
+                                      duration: Appearance.dur(700); easing.type: Easing.InOutCubic }
+                    ScriptAction { script: pageArea.circle = false }
+                    NumberAnimation { target: pageArea; property: "frame"; to: 0; duration: Appearance.dur(160) }
+                }
+                // iris : une fente s'ouvre au centre comme un œil, ses bords ronds se redressent
+                SequentialAnimation {
+                    id: pageIris
+                    ScriptAction { script: { pageArea.vcenter = true; pageArea.mw = 0; pageArea.mh = pageArea.height * 0.3
+                                             pageArea.rad = pageArea.height; pageArea.frame = 1; pageArea.shown = 1 } }
+                    ParallelAnimation {
+                        NumberAnimation { target: pageArea; property: "mw"; to: pageArea.width; duration: Appearance.dur(620); easing.type: Easing.OutCubic }
+                        NumberAnimation { target: pageArea; property: "mh"; to: pageArea.height; duration: Appearance.dur(620); easing.type: Easing.InOutCubic }
+                        NumberAnimation { target: pageArea; property: "rad"; to: 22; duration: Appearance.dur(620); easing.type: Easing.InCubic }
+                    }
+                    NumberAnimation { target: pageArea; property: "frame"; to: 0; duration: Appearance.dur(220) }
+                    ScriptAction { script: { pageArea.vcenter = false; pageArea.mw = Qt.binding(() => pageArea.width); pageArea.mh = Qt.binding(() => pageArea.height) } }
+                }
+                // rebond : la page tombe d'en haut et rebondit en se posant
+                ParallelAnimation {
+                    id: pageBounce
+                    NumberAnimation { target: riseShift; property: "y"; from: -pageArea.height * 0.45; to: 0; duration: Appearance.dur(820); easing.type: Easing.OutBounce }
+                    NumberAnimation { target: pageArea; property: "shown"; from: 0; to: 1; duration: Appearance.dur(220) }
+                }
+                // carte : la page pivote sur elle-même comme une carte qu'on retourne
+                ParallelAnimation {
+                    id: pageFlip
+                    NumberAnimation { target: flipRot; property: "angle"; from: 88; to: 0; duration: Appearance.dur(640); easing.type: Easing.OutBack; easing.overshoot: 1.4 }
+                    NumberAnimation { target: pageContent; property: "scale"; from: 0.9; to: 1; duration: Appearance.dur(640); easing.type: Easing.OutCubic }
+                    NumberAnimation { target: pageArea; property: "shown"; from: 0.2; to: 1; duration: Appearance.dur(300) }
+                }
+                // tourbillon : la page arrive en spirale depuis le centre en grossissant
+                ParallelAnimation {
+                    id: pageSwirl
+                    NumberAnimation { target: spinRot; property: "angle"; from: -35; to: 0; duration: Appearance.dur(680); easing.type: Easing.OutBack; easing.overshoot: 1.2 }
+                    NumberAnimation { target: pageContent; property: "scale"; from: 0.35; to: 1; duration: Appearance.dur(680); easing.type: Easing.OutBack; easing.overshoot: 1.2 }
+                    NumberAnimation { target: pageArea; property: "shown"; from: 0; to: 1; duration: Appearance.dur(360) }
+                }
+
                 ClippingRectangle {
                     id: morphBox
-                    x: (pageArea.width - pageArea.mw) / 2
-                    y: pageArea.my
-                    width: pageArea.mw; height: pageArea.mh
-                    radius: pageArea.frame > 0 ? Math.min(22, Math.min(width, height) / 2) : 0
+                    x: pageArea.circle ? pageArea.cx - pageArea.d / 2 : (pageArea.width - pageArea.mw) / 2
+                    y: pageArea.circle ? pageArea.cy - pageArea.d / 2 : pageArea.vcenter ? (pageArea.height - pageArea.mh) / 2 : pageArea.my
+                    width: pageArea.circle ? pageArea.d : pageArea.mw
+                    height: pageArea.circle ? pageArea.d : pageArea.mh
+                    radius: pageArea.circle ? pageArea.d / 2 : pageArea.frame > 0 ? Math.min(pageArea.rad, Math.min(width, height) / 2) : 0
                     color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.85 * pageArea.frame)
                     border.width: pageArea.frame > 0 ? 1 : 0
                     border.color: ColorUtils.applyAlpha(Appearance.colors.accent, 0.6 * pageArea.frame)
@@ -469,7 +532,11 @@ Scope {
                         x: -morphBox.x; y: -morphBox.y
                         width: pageArea.width; height: pageArea.height
                         opacity: pageArea.shown
-                        transform: Translate { id: riseShift }
+                        transform: [
+                            Translate { id: riseShift },
+                            Rotation { id: flipRot; origin.x: pageContent.width / 2; origin.y: pageContent.height / 2; axis { x: 0; y: 1; z: 0 } },
+                            Rotation { id: spinRot; origin.x: pageContent.width / 2; origin.y: pageContent.height / 2 }
+                        ]
 
                 // Une page par entrée du catalogue. Chargée à la demande (Loader) et
                 // libérée quand l'onglet n'est pas affiché, sauf `keep: true`.

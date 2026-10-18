@@ -9,7 +9,9 @@ QtObject {
     property bool notificationsOpen: false
     property bool archMenuOpen:      false
     property bool dashboardOpen:     false
-    property bool wallpaperOpen:     false
+    property bool wallpaperOpen:     false   // sélecteur de fond SUPER+W (carrousel)
+    property bool wallCinemaOpen:    false   // sélecteur de fond ALT+W (Cinéma)
+    property bool sessionOpen:       false   // panneau de session CTRL+ALT+P (verrouiller, éteindre…)
     property bool notificationToastOpen: false
     property bool quickOpen:         false
     property bool clipboardOpen:     false
@@ -65,7 +67,7 @@ QtObject {
     // ── État global ─────────────────────────────────────────────────────────
     readonly property bool anyOpen: audioOpen || networkOpen || batteryOpen
                                     || notificationsOpen || archMenuOpen
-                                    || dashboardOpen || wallpaperOpen || quickOpen
+                                    || dashboardOpen || wallpaperOpen || wallCinemaOpen || sessionOpen || quickOpen
                                     || clipboardOpen || spotifyOpen
 
     function closeAll() {
@@ -78,6 +80,8 @@ QtObject {
         archMenuOpen      = false
         dashboardOpen     = false
         wallpaperOpen     = false
+        wallCinemaOpen    = false
+        sessionOpen       = false
         quickOpen         = false
         clipboardOpen     = false
     }
