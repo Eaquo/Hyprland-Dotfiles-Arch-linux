@@ -97,6 +97,7 @@ height = 540
 eq_preset = "HP"
 
 [session]
+style = "cyber"
 
 [overview]
 scale = 0.4

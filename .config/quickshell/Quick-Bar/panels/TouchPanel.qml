@@ -154,6 +154,8 @@ Scope {
         target: Popups
         function onTouchPageChanged() { Qt.callLater(root.takeTouchPage) }
     }
+    // `qs ipc call touch page <onglet>` : ouvrir un onglet depuis un script
+    IpcHandler { target: "touch"; function page(p: string) { Popups.touchPage = p } }
     Process { id: focusProc }
     // valeur de cursor:no_warps de la config Hyprland, remise après le focus
     property string noWarps: "false"

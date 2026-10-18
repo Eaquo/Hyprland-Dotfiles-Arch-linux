@@ -1,102 +1,261 @@
-# 🌿 Hyprland Dotfiles – Arch Linux Setup
+<div align="center">
 
-Welcome to my personal dotfiles for a customized Arch Linux system using **Hyprland** as the Wayland compositor.
-This repository contains configuration files for various applications that make up my minimalist and responsive Linux desktop environment.
+# Hyprland Dotfiles · Arch Linux
+
+**Hyprland en config Lua + Quick-Bar, un shell Quickshell fait maison :
+barre, dashboard, écran tactile, écrans de session, vue d'ensemble, sélecteurs de fonds.**
+Tout se re-teinte avec **wallust** à chaque changement de fond d'écran.
+
+<img src="image/quickbar/desktop.jpg" alt="Bureau Hyprland avec la Quick-Bar" width="100%">
+
+<sub>Écran principal 3440×1440 · fond animé (rafale du shader Matrix) · Quick-Bar en haut · Corsair Xeneon Edge 2560×720 en dessous</sub>
+
+</div>
 
 ---
 
-## 🖼️ Preview
-![Hyprland Configuration](image/Base.png)
+## Sommaire
+
+- [Quick-Bar en bref](#quick-bar-en-bref)
+- [Raccourcis clavier](#raccourcis-clavier)
+- [La barre](#la-barre)
+- [Écran de session](#écran-de-session--ctrlaltp)
+- [Vue d'ensemble des espaces](#vue-densemble-des-espaces--supera)
+- [Fonds d'écran et shaders](#fonds-décran-et-shaders--superw--altw)
+- [Dashboard, Spotify, Réglages](#dashboard-spotify-réglages)
+- [Panneau tactile Xeneon Edge](#panneau-tactile--corsair-xeneon-edge)
+- [Mode jeu automatique](#mode-jeu-automatique)
+- [Wallust et thèmes](#wallust--thèmes-dynamiques)
+- [Game Launcher](#game-launcher--quickshell)
+- [Configs incluses](#configs-incluses)
+- [Installation](#installation)
 
 ---
 
-## 🖥️ Quickbar — Quickshell
+## Quick-Bar en bref
 
-Ma barre, mon **dashboard** et mon **panneau tactile** sont faits en **Quickshell**
-(`~/.config/quickshell/Quick-Bar`). Toutes les couleurs viennent de **wallust** →
-l'ensemble se re-teinte automatiquement à chaque changement de wallpaper.
+Quick-Bar (`~/.config/quickshell/Quick-Bar`) remplace waybar, wlogout, le sélecteur de fonds rofi
+et le plugin d'overview. Tout est en QML (Quickshell 0.3), toutes les couleurs viennent de la
+palette wallust, et toutes les animations suivent une seule vitesse réglable.
+
+| | |
+|---|---|
+| **Barre** | En haut, en bas, à gauche ou à droite · 1, 2 ou 3 îlots · tailles proportionnelles à la hauteur · modules à réordonner, masquer, régler |
+| **Survols système** | Une carte détaillée au survol de chaque module (CPU, RAM, GPU, températures, disques, réseau) |
+| **Écran de session** | 5 styles plein écran : Matrix, Netrunner, Jarvis, Minimal, Carte |
+| **Vue d'ensemble** | Carrousel vertical des espaces façon niri, aperçus live, glisser-déposer |
+| **Fonds d'écran** | Carrousel (SUPER+W), mode Cinéma (ALT+W), un fond par espace, 7 shaders animés |
+| **Réglages** | Fenêtre flottante de 20+ onglets, tout s'applique en direct (`config.toml`) |
+| **Panneau tactile** | Un clone à onglets du dashboard sur le Corsair Xeneon Edge |
+| **Mode jeu** | Page dédiée, EQ, LED RGB et fond aux couleurs du jeu, puis tout revient à la sortie |
+
+> La carte complète du projet (dossiers, flux, comment ajouter un onglet, un shader, un widget)
+> est dans [`docs/ARCHITECTURE.md`](.config/quickshell/Quick-Bar/docs/ARCHITECTURE.md).
+
+---
+
+## Raccourcis clavier
+
+Générés dans `Quick-Bar/hypr/quickbar.lua` (chargé par `hyprland.lua`), modifiables dans
+**Réglages › Avancé › Raccourcis** (avec détection des conflits Hyprland).
+
+| Raccourci | Action |
+|---|---|
+| `SUPER` `A` | Vue d'ensemble des espaces |
+| `CTRL` `ALT` `P` | Écran de session |
+| `SUPER` `W` | Fonds d'écran : carrousel |
+| `ALT` `W` | Fonds d'écran : mode Cinéma |
+| `CTRL` `ALT` `W` | Fond d'écran au hasard |
+| `SUPER` `SHIFT` `D` | Dashboard |
+| `SUPER` `SHIFT` `S` | Panneau Spotify |
+| `SUPER` `F1` | Réglages |
+| `SUPER` `T` | Pause tactile en jeu (libère le curseur pour l'écran tactile, retour auto au jeu) |
+| `SUPER` `F2` | Mode focus |
+| `ALT` `F9` | Capture vidéo |
+
+Tout se pilote aussi en ligne de commande : `qs -p ~/.config/quickshell/Quick-Bar/shell.qml ipc call <cible> <fonction>`
+(`overview toggle`, `session open`, `settings open theme`, `touch page grid`, `wallpicker random`…).
+
+---
+
+## La barre
+
+<img src="image/quickbar/bar-hover.webp" alt="Cartes de survol de la barre" width="100%">
+
+- Chaque module système ouvre une **carte au survol** : courbe, détail, plus gros consommateurs,
+  disques et ce qu'on peut libérer (corbeille, cache pacman). Clic droit : actions.
+- **Position** haut / bas / gauche / droite, **1, 2 ou 3 îlots**, icônes et texte à l'échelle de
+  l'épaisseur, arrondi plafonné pour rester propre.
+- Modules : espaces de travail, horloge, Cava (ouvre le dashboard), lecteur, réseau, Bluetooth,
+  volume, luminosité, notifications, plateau, capture, session…
+
+---
+
+## Écran de session · `CTRL`+`ALT`+`P`
+
+Cinq styles au choix dans **Réglages › Panneaux › Écran de session**, tous en plein écran.
+Même clavier partout : `←` `→` pour choisir, `Entrée` pour valider, les lettres `L` `U` `E` `R` `S` `B`
+en direct, `Échap` pour fermer. Déconnexion, redémarrage, arrêt et BIOS passent par un compte à
+rebours de 3 secondes, qu'on annule avec `Échap` ou un clic.
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**Matrix**
+<img src="image/quickbar/session-matrix.webp" alt="Style Matrix" width="100%">
+Plongée dans la pluie (le shader du fond animé, ton fond deviné dessous), terminal qui s'allume
+comme un écran cathodique, frappe ligne par ligne, ligne choisie qui se « déchiffre ». Pendant le
+compte à rebours, la pluie accélère et change de couleur.
+
+</td>
+<td width="50%" valign="top">
+
+**Netrunner · Breach Protocol**
+<img src="image/quickbar/session-cyber.webp" alt="Style Netrunner" width="100%">
+Le mini-jeu de piratage de Cyberpunk 2077. Chaque action est un *daemon* avec sa séquence de codes ;
+valider lance la brèche, le curseur suit le chemin dans la matrice et remplit le buffer. La RAM du
+« cyberdeck » est ta vraie RAM, la *trace* ton CPU.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+**Jarvis**
+<img src="image/quickbar/session-jarvis.webp" alt="Style Jarvis" width="100%">
+HUD holographique : réacteur dont les anneaux se tracent puis tournent, actions en secteurs,
+ligne de rappel vers la fiche de l'action, diagnostic système, radar réseau et journal dans les coins.
+
+</td>
+<td valign="top">
+
+**Minimal**
+<img src="image/quickbar/session-minimal.webp" alt="Style Minimal" width="100%">
+Fond flouté, grande heure aux chiffres qui roulent, trait des secondes, six mots et un
+soulignement élastique. Pendant le compte à rebours, l'heure laisse place à un grand 3, 2, 1.
+
+</td>
+</tr>
+</table>
+
+Fichiers : `panels/SessionPanel.qml` (logique commune) + `SessionMatrix.qml`, `SessionCyber.qml`,
+`SessionJarvis.qml`, `SessionMinimal.qml`.
+
+---
+
+## Vue d'ensemble des espaces · `SUPER`+`A`
+
+<img src="image/quickbar/overview.webp" alt="Vue d'ensemble, navigation" width="100%">
+
+Remplace le plugin `hyprland-scroll-overview`, sur la même idée (une colonne d'espaces, comme
+niri), mais animée : le bureau rétrécit en carte, les autres espaces glissent autour, et on
+replonge dans l'espace choisi en sortant.
+
+<img src="image/quickbar/overview-drag.webp" alt="Vue d'ensemble, glisser une fenêtre" width="100%">
+
+- `↑` `↓` ou molette : changer d'espace · `←` `→` : changer de fenêtre · `1`–`9` : sauter
+- Survol d'une carte : elle se soulève et propose « Aller sur l'espace N » · un clic y va
+- **Glisser une fenêtre** : une vignette live suit le curseur, la carte visée s'allume, le bandeau
+  défile seul près des bords ; lâchée dans le vide, elle revient à sa place
+- `X` ou clic molette : fermer · `Maj`+`↑` `↓` : déplacer · carte **+** : nouvel espace
+- `−` `+` : taille des cartes · `H` : halo sur la fenêtre active (les deux sont mémorisés)
+
+---
+
+## Fonds d'écran et shaders · `SUPER`+`W` · `ALT`+`W`
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+**Carrousel (SUPER+W)**
+<img src="image/quickbar/wallpicker.webp" alt="Carrousel de fonds" width="100%">
+Coverflow avec halo, aperçu de la palette, *Au hasard*, *Un fond par espace* (et recoloration de
+tout le système à chaque changement d'espace).
+
+</td>
+<td width="50%" valign="top">
+
+**Cinéma (ALT+W)**
+<img src="image/quickbar/wallcinema.webp" alt="Mode Cinéma" width="100%">
+Plein écran, bande de vignettes en arc, la carte choisie grossit avec son halo.
+
+</td>
+</tr>
+</table>
+
+<img src="image/quickbar/wall-fx.webp" alt="Rafale de shader sur le fond" width="100%">
+
+**Fonds animés** : des shaders portés depuis kitty jouent par rafales (ou en continu) sur le fond :
+*Matrix*, *Aurora*, *Underwater*, *Fireworks*, *Cyberpunk*, *Braindance*, *Neon*, plus un effet au
+changement d'espace. Intensité, fréquence, durée et vitesse se règlent, la couleur suit l'accent
+wallust. Les **vidéos** en fond sont gérées aussi (la palette suit la vidéo).
+
+---
+
+## Dashboard, Spotify, Réglages
+
+<img src="image/quickbar/dashboard.webp" alt="Dashboard" width="100%">
+
+Le **dashboard** s'ouvre depuis le module Cava ou `SUPER`+`SHIFT`+`D` : profil, calendrier,
+horloge / minuteur / alarme / chrono, lecteur, réglages rapides (écran, tactile, Wi-Fi, Bluetooth,
+caféine, focus, ne pas déranger, capture, filtre).
 
 <div align="center">
-  <img src="image/Desktop.png" alt="Quickbar - bureau" width="80%">
-  <p><em>Bureau avec la Quickbar</em></p>
+  <img src="image/quickbar/spotify.jpg" alt="Panneau Spotify" width="100%">
 </div>
 
-<div align="center">
-  <img src="image/Desk1.png" alt="Quickbar - vue 2" width="80%">
-  <p><em>Quickbar — autre vue</em></p>
-</div>
+Le **panneau Spotify** (`SUPER`+`SHIFT`+`S`) s'ouvre toujours du côté opposé à la barre.
 
-> 🗺️ **Architecture** : la carte complète du projet (dossiers, flux, recettes « ajouter un
-> onglet / un shader / un widget ») est dans
-> [`.config/quickshell/Quick-Bar/docs/ARCHITECTURE.md`](.config/quickshell/Quick-Bar/docs/ARCHITECTURE.md).
+<img src="image/quickbar/settings-tour.webp" alt="Réglages" width="100%">
 
-### 🖐️ TouchPanel — Corsair Xeneon Edge
+Les **Réglages** sont une fenêtre flottante (le bureau reste utilisable derrière) : thème,
+couleurs, police, **thème d'icônes**, animations (vitesse + 12 transitions d'onglets avec aperçu),
+barre et modules, rafraîchissement, dashboard, panneau tactile, apps, Spotify, écran de session,
+notifications, fonds, audio et EQ, capture, mode jeu, stats et seuils d'alerte, santé,
+dépendances, raccourcis, données. Chaque bloc a son bouton *Par défaut*, la recherche trouve
+n'importe quel réglage, l'onglet ouvert est retenu.
 
-Un panneau **plein écran sur le tactile Xeneon Edge** (détecté par modèle),
-organisé en **onglets** — un clone tactile du dashboard. Activé par la tuile
-*Touch Panel* des Quick Settings.
+---
 
-<div align="center">
-  <img src="image/Home_Panel.png" alt="Quickbar - Home" width="80%">
-  <p><em>Panel Corsair Xeneon Edge Touch Scren</em></p>
-</div>
+## Panneau tactile · Corsair Xeneon Edge
 
-<div align="center">
-  <img src="image/Sys_Panel.png" alt="Quickbar - Sys" width="80%">
-  <p><em>Panel System Scren</em></p>
-</div>
+<img src="image/quickbar/touch-tour.webp" alt="Tour des onglets du panneau tactile" width="100%">
 
-<div align="center">
-  <img src="image/Game_Panel.png" alt="Quickbar - Game" width="80%">
-  <p><em>Panel Gaming Scren</em></p>
-</div>
+Plein écran sur le tactile (détecté par modèle), un clone tactile du dashboard organisé en onglets.
 
-<div align="center">
-  <img src="image/App_Panel.png" alt="Quickbar - App" width="80%">
-  <p><em>Panel App Scren</em></p>
-</div>
+<table>
+<tr>
+<td width="50%"><img src="image/quickbar/touch-grid.jpg" alt="Grid"><br><b>Grid</b> · widgets libres façon Nothing, cartes système avec courbes</td>
+<td width="50%"><img src="image/quickbar/touch-stats.jpg" alt="System"><br><b>System</b> · les mêmes cartes que les survols de la barre</td>
+</tr>
+<tr>
+<td><img src="image/quickbar/touch-ws.jpg" alt="Spaces"><br><b>Spaces</b> · espaces avec aperçus live, glisser une fenêtre au doigt</td>
+<td><img src="image/quickbar/touch-colors.jpg" alt="Wallust"><br><b>Wallust</b> · éditer la palette, aperçu en direct, rôle de chaque couleur</td>
+</tr>
+<tr>
+<td><img src="image/quickbar/touch-deck.jpg" alt="Apps"><br><b>Apps</b> · lanceurs façon Stream Deck, vrais logos, sections colorées</td>
+<td><img src="image/quickbar/touch-games.jpg" alt="Games"><br><b>Games</b> · jaquettes Steam et jeux manuels, lancement au tap</td>
+</tr>
+<tr>
+<td><img src="image/quickbar/touch-wall.jpg" alt="Wall"><br><b>Wall</b> · fonds, rotation automatique, réglages des shaders</td>
+<td><img src="image/quickbar/touch-home.jpg" alt="Home"><br><b>Home</b> · profil, calendrier, horloge, lecteur, réglages rapides</td>
+</tr>
+</table>
 
-| Onglet | Contenu |
-|--------|---------|
-| **Game** | Apparaît tout seul quand un jeu tourne *(voir « Mode jeu » plus bas)* |
-| **Home** | Profil, calendrier, horloge/timer/alarme, lecteur média, Quick Settings |
-| **Grid** | Widgets libres façon Nothing : déplaçables, redimensionnables |
-| **Spaces** | Vue de tous les workspaces avec aperçus live *(voir plus bas)* |
-| **System** | CPU/RAM/GPU (jauges wallust), températures, disques, réseau, ventilos, alim |
-| **Tasks** | Kanban (JSON local) — désactivé par défaut |
-| **Files** | Explorateur type yazi (aperçu `bat`, images) |
-| **Wall** | Sélecteur de wallpapers + effets |
-| **Wallust** | Édition manuelle de la palette de couleurs *(voir plus bas)* |
-| **Eq** | Égaliseur 10 bandes, presets, volume, sortie |
-| **Mixer** | Volume par application, au doigt *(voir plus bas)* |
-| **Discord** | Chat 2 sens avec un salon *(voir plus bas)* |
-| **Apps** | Lanceurs façon Stream Deck *(voir plus bas)* |
-| **Games** | Jaquettes de jeux (backend du game-launcher) |
-| **RGB** | Modes OpenRGB (séquences animées, couleurs fixes) |
+Et aussi : **Game** (apparaît seul en jeu), **Files** (explorateur type yazi), **Eq** et **Mixer**
+(égaliseur 10 bandes, presets, volume par application), **Discord** (chat deux sens via un bot,
+clavier virtuel), **RGB** (modes OpenRGB), **Santé** (bilan de la machine et des services,
+vérifications perso cliquables).
 
-- Barre d'onglets **centrée** et **colorée par wallust** (une couleur par onglet).
-- Bouton **⚙** : activer, désactiver et **réordonner** les onglets (gardé au redémarrage).
-- La page **glisse** dans le sens de navigation ; swipe horizontal sur la barre
-  pour passer à l'onglet voisin. Trop d'onglets → barre compacte (icônes seules).
-- Onglets **lazy-loadés** (chargés à l'ouverture, libérés ensuite) → RAM optimisée.
-- Les apps lancées depuis le panneau s'ouvrent sur l'**écran principal**
-  (`scripts/hypr/launch-main.sh`), pas sous le plein écran tactile.
+- Onglets à activer, réordonner et zoomer un par un (⚙ ou Réglages)
+- 12 transitions au choix : Goutte, Bulle, Iris, Rebond, Carte, Tourbillon, Rideau, Zoom…
+- Onglets chargés à l'ouverture puis libérés : la RAM reste basse
+- Les apps lancées depuis le tactile s'ouvrent sur l'écran principal, sans voler le curseur
 
-### 💬 Onglet Discord
-
-Chat **2 sens** avec un serveur Discord via un **bot** (bridge Python
-`aiohttp`/`websockets`, sans discord.py) : historique, messages en direct,
-threads, **embeds et boutons** rendus, et déclenchement de **téléchargements**
-(intégration qBittorrent via un endpoint HTTP sur le bot).
-
-**Prérequis :** un bot avec l'intent **Message Content** activé et présent dans le
-serveur ; le token dans `~/.config/quickshell/Quick-Bar/.discord_token` *(gitignoré)*.
-
-### 🎛️ Onglet Apps — Stream Deck
-
-Grille tactile de lanceurs en **sections** (Dev / Gaming / Média / Other), une
-couleur wallust par section, avec les **vrais logos d'apps** (résolus via le thème
-d'icônes, comme rofi). Piloté par `user_data/streamdeck.json`, rechargé à chaud :
+<details>
+<summary><b>Onglet Apps : format de <code>user_data/streamdeck.json</code></b></summary>
 
 ```json
 [
@@ -111,258 +270,119 @@ d'icônes, comme rofi). Piloté par `user_data/streamdeck.json`, rechargé à ch
 ]
 ```
 
-- `appicon` = nom d'icône (`steam`, `discord`…) **ou** chemin absolu (`/usr/share/…`).
-- `icon` = glyphe Nerd Font en secours ; `accent` = index de la palette wallust.
-- App **terminale** (nvim, htop…) → à envelopper : `"exec": "kitty -e nvim"`.
+`appicon` = nom d'icône ou chemin absolu · `icon` = glyphe Nerd Font de secours ·
+`accent` = index de la palette wallust · app terminale : `"exec": "kitty -e nvim"`.
+Se modifie aussi depuis **Réglages › Panneaux › Apps**.
 
-### 🎮 Onglet Games
+</details>
 
-Étagère de **jaquettes** alimentée par le backend du game-launcher (Steam + jeux
-manuels + SteamGridDB), lancement au tap.
+<details>
+<summary><b>Onglet Discord : prérequis</b></summary>
 
-### 🕹️ Mode jeu automatique
+Un bot avec l'intent **Message Content**, présent dans le serveur, et son token dans
+`~/.config/quickshell/Quick-Bar/.discord_token` (jamais poussé). Historique, messages en direct,
+threads, embeds et boutons rendus, téléchargements via qBittorrent.
 
-Dès qu'une fenêtre de jeu s'ouvre (tag Hyprland `games`, posé par
-`configs lua/WindowRulesGaming.lua` sur `steam_app_*`, gamescope, `*.exe`), le
-TouchPanel bascule sur la page **Game** :
-
-<div align="center">
-  <img src="image/GameMode_Panel.png" alt="Quickbar - Mode jeu" width="80%">
-  <p><em>Page Game pendant une partie de MTG Arena</em></p>
-</div>
-
-- **Logo officiel** et **bannière** du jeu récupérés dans le cache Steam (logo
-  foncé passé en blanc automatiquement) ; la bannière devient aussi le fond du panneau.
-- **Couleurs du jeu** extraites de la bannière : contour animé de la page **et
-  LED OpenRGB** à la couleur du jeu.
-- **Égaliseur** basculé sur le preset FPS du casque en cours (`KZ-FPS` / `Bose-FPS`).
-- Mesures CPU/GPU/RAM/températures avec **pics de la session**, **ping**, et
-  **temps de jeu** (aujourd'hui / semaine / total, par jeu).
-- Mixeur en verre (jeu, musique, Discord…), lecteur en cours, actions rapides :
-  *Ne pas déranger*, capture de l'écran du jeu, enregistrement.
-- À la fermeture du jeu, **tout revient comme avant** (EQ, LED, page affichée), même
-  si Quickshell a redémarré entre-temps.
-
-Fichiers : `core/GameMode.qml`, `pages/game/GameModeTab.qml`,
-`scripts/game/game_art.sh`, `scripts/game/game_sessions.py` (historique dans
-`user_data/game_sessions.json`).
-
-### 🪟 Onglet Spaces
-
-Vue des workspaces 1 à 10 sur le tactile, avec le wallpaper dans chaque vignette
-et un **aperçu live** de chaque fenêtre :
-
-- **double-tap** sur une vignette → aller sur ce workspace ;
-- **tap** sur une fenêtre → la mettre au premier plan ;
-- **glisser** une fenêtre au doigt → la déplacer vers un autre workspace (sans
-  changer ce qu'affiche l'écran principal) ;
-- **appui long** → vue agrandie de la fenêtre (pratique pour surveiller une
-  impression 3D, un téléchargement…) ; bouton **×** → fermer la fenêtre.
-
-Les workspaces créés depuis le tactile atterrissent toujours sur l'**écran principal**.
-
-### 🎚️ Onglet Mixer
-
-Une grande tranche verticale par application qui joue du son (PipeWire) + Master,
-et le choix de la sortie. Le bouton **« Avec égaliseur »** garde le passage par
-EasyEffects ; une sortie choisie directement le contourne (c'est indiqué).
-
-### 🎨 Onglet Wallust
-
-Les 19 couleurs de la palette (`background`, `foreground`, `cursor`, `color0`…`color15`),
-chacune avec **son rôle** dans la config (ex. *color11 = accent*). Tap → sélecteur de
-couleur tactile ; **Actualiser** applique la palette à tout le système
-(`wallust cs` → tous les templates, puis `Refresh.sh`) ; **Reset** revient à la
-palette d'origine. Un nouveau wallpaper (nouveau `wallust run`) écrase les changements.
-
-### 🔐 Après un clone : secrets à recréer
-
-Deux fichiers **gitignorés** (jamais poussés), nécessaires à l'onglet Discord.
-Le dossier `user_data/` (réglages perso, mot de passe hotspot…) n'est pas publié non
-plus : il est recréé au premier lancement.
-
-```bash
-echo "TON_TOKEN_BOT" > ~/.config/quickshell/Quick-Bar/.discord_token
-echo "TON_SECRET"    > ~/.config/quickshell/Quick-Bar/.dl_secret   # = DL_API_SECRET de bot.js
-chmod 600 ~/.config/quickshell/Quick-Bar/.discord_token ~/.config/quickshell/Quick-Bar/.dl_secret
-```
+</details>
 
 ---
 
-## 📦 Included Configurations
-This repository includes configuration files for the following applications:
-```bash
-.config/
-├── hypr        # Hyprland WM (configs, scripts, hyprlock, hypridle, hyprpaper)
-├── quickshell  # Barre + dashboard + touch panel + game-launcher (QML)
-├── rofi        # Application launcher (+ rofi-game-launcher, rofi-games, rofi-spotify)
-├── swaync      # Notification center
-├── wlogout     # Logout menu
-├── kitty       # Terminal
-├── fish        # Shell (+ starship.toml)
-├── nvim        # Neovim editor
-├── zed         # Zed editor
-├── yazi / ranger  # File managers (TUI)
-├── cava        # Audio visualizer
-├── mpv         # Media player
-├── fastfetch   # System info
-├── btop        # Resource monitor
-├── wallust     # Dynamic color scheme manager
-├── pypr        # Pyprland (scratchpads…)
-├── spicetify   # Spotify customization
-├── qt5ct / qt6ct / Kvantum   # Qt theming
-├── gtk-3.0 / gtk-4.0         # GTK theming
-├── nwg-look / nwg-displays   # GTK & monitor GUI tools
-└── MangoHud    # In-game overlay
-```
-> Aussi inclus : `home_dotfiles/` (`.zshrc`, `.bashrc`), `.themes/gtk` (thème GTK),
-> `Pictures/wallpapers`, profil `.zen` (Zen Browser) et `simple-sddm-2/` (thème SDDM).
+## Mode jeu automatique
+
+<img src="image/GameMode_Panel.png" alt="Page Game pendant une partie" width="100%">
+
+Dès qu'une fenêtre de jeu s'ouvre (tag Hyprland `games`, posé par `configs lua/WindowRulesGaming.lua`
+sur `steam_app_*`, gamescope, `*.exe`) :
+
+- le panneau tactile bascule sur **Game** : logo et bannière Steam (retrouvés aussi par l'appid du
+  processus et le CDN Steam), mesures avec pics de session, ping, temps de jeu ;
+- les **couleurs du jeu** passent sur le contour, le fond et les **LED OpenRGB** ;
+- l'**égaliseur** passe sur le preset FPS du casque en cours ;
+- *Ne pas déranger*, capture, enregistrement et **pause tactile** (`SUPER`+`T`) sont à portée de doigt ;
+- à la fermeture, **tout revient comme avant**, même après un redémarrage de Quickshell.
+
+Les logiciels Windows qui ne sont pas des jeux (Fusion 360…) s'excluent dans **Réglages › Jeu**.
 
 ---
 
-## 🚀 Rofi - Application Launcher and More
+## Wallust · thèmes dynamiques
 
-### Application Launcher
-My Rofi launcher is customized to integrate seamlessly with my overall theme. It offers a clean and responsive interface for launching your favorite applications.
-
-<div align="center">
-  <img src="image/Launcher.png" alt="Rofi Launcher" width="80%">
-  <p><em>Rofi Application Launcher</em></p>
-</div>
-
-Special thanks to [JaKooLit](https://github.com/JaKooLit) for the inspiration.
-
-### Wallpaper Selector
-I created a custom wallpaper selector with Rofi that allows you to easily choose and apply wallpapers from a visual interface.
+Wallust extrait une palette du fond d'écran et la pousse partout : Quick-Bar, Hyprland, kitty,
+rofi, swaync, GTK (thème basé sur [phocus/gtk](https://github.com/phocus/gtk)), Spotify
+(spicetify), Discord, Zen, starship, cava.
 
 <div align="center">
-  <img src="image/Rofi_wall.png" alt="Wallpaper Selector" width="80%">
-  <p><em>Rofi Wallpaper Selector</em></p>
+  <img src="image/Wallust_gtk.png" alt="Thunar avec wallust" width="80%">
 </div>
-
-#### Using the wallpaper selector:
-- **Keyboard shortcut**: `Mod+W` (Mod = Super = Windows Key)
-- **Features**:
-  - Random wallpaper selection
-  - Multi-workspace wallpaper support
-  - Special effects for wallpapers
-  - MPVpaper for video wallpapers
-
-#### Wallpaper locations:
-- **Static wallpapers**: `~/Pictures/wallpapers/`
-- **Video wallpapers**: `~/Pictures/wallpapers/Video/`
+<div align="center">
+  <img src="image/Wall_1.png" alt="Exemple de thème 1" width="49%">
+  <img src="image/Wall_2.png" alt="Exemple de thème 2" width="49%">
+</div>
 
 ---
 
-## 🎨 Wallust - Dynamic Themes
+## Game Launcher · Quickshell
 
-Wallust automatically manages my color schemes based on the current wallpaper, creating a cohesive visual experience across the entire system.
-
-### GTK & Thunar Integration
-My setup uses a custom GTK configuration based on the [phocus/gtk](https://github.com/phocus/gtk) project that makes Thunar (and all other GTK applications) automatically adapt to the color scheme generated by Wallust.
+Lanceur de jeux maison : mode fenêtré et mode plein écran façon console (**Big Mode**), jaquettes
+récupérées automatiquement (Steam, jeux manuels, SteamGridDB), options par jeu.
 
 <div align="center">
-  <img src="image/Wallust_gtk.png" alt="Thunar with Wallust" width="80%">
-  <p><em>Thunar file manager with Wallust theme integration</em></p>
+  <img src="image/Quickshell_game.png" alt="Game Launcher" width="49%">
+  <img src="image/Bigmode.png" alt="Big Mode" width="49%">
 </div>
 
-#### Dynamic theme examples:
-<div align="center">
-  <img src="image/Wall_1.png" alt="Thunar Wallust Example 1" width="80%">
-  <p><em>Theme example 1</em></p>
-</div>
+<details>
+<summary><b>Scripts de lancement par jeu (gamescope, MangoHud, FSR…)</b></summary>
 
-<div align="center">
-  <img src="image/Wall_2.png" alt="Thunar Wallust Example 2" width="80%">
-  <p><em>Theme example 2 - Notice how colors automatically change</em></p>
-</div>
+Les scripts sont dans `~/.config/hypr/scripts/GameScripts/` (`add-script.sh` pour en créer un,
+`new-game` comme modèle). Exemple :
 
-#### How it works:
-1. Wallust extracts a color palette from the current wallpaper
-2. The phocus/gtk theme reads these colors from Wallust's configuration
-3. GTK applications like Thunar automatically adapt their appearance to match the system theme
-
-#### Setup:
-1. Install the phocus/gtk theme in `.themes/gtk`
-2. Configure Wallust to generate color variables in the format expected by phocus
-3. Apply a new wallpaper using the Rofi wallpaper selector (Mod+W)
-4. Wallust automatically regenerates the theme based on the new wallpaper
-
-This creates a seamless visual experience where your file manager and other GTK applications automatically match your desktop theme.
-
----
-
-## 🎮 Game Launcher — Quickshell
-
-Lanceur de jeux maison en **Quickshell** (il remplace l'ancien lanceur Rofi) :
-un mode fenêtré et un mode plein écran type console (**Big Mode**), avec
-récupération automatique des jaquettes et lancement de chaque jeu selon ses
-options préconfigurées.
-
-### Features
-- Options préférées par jeu (résolution, plein écran, etc.)
-- Configurations de performance optimisées
-- Intégration MangoHud (stats en jeu)
-- Support des launchers (Steam, Lutris, etc.)
-
-<div align="center">
-  <img src="image/Quickshell_game.png" alt="Quickshell Game Launcher" width="80%">
-  <p><em>Lanceur de jeux Quickshell</em></p>
-</div>
-
-<div align="center">
-  <img src="image/Bigmode.png" alt="Big Mode" width="80%">
-  <p><em>Mode plein écran « Big Mode »</em></p>
-</div>
-
-### Game Script Creation
-
-#### Creating a new game script:
-1. Run `-01-script-Game` to open the game script interface
-2. Select "Create new script" (`-02`)
-3. Name your script file (`-03`)
-4. Edit the script settings (`-04`)
-
-#### Example configuration (The_Finals):
 ```bash
 GAMESCOPE_OPTIONS="False"
 GAME_PERF="True"
 GAME_VRR="True"
-ANIMATION="True"
 MANGOHUD_OPTION="True"
 OPTION_AFTER="-useallavailablecores"
-LANG_KEY="fr"
 
-# ======= GENERAL SETTINGS =======
-MONITOR="DP-2"
+MONITOR="DP-1"
 RESOLUTION="3440x1440"
 REFRESH_RATE="165"
-POSITION="0x0"
-SCALE="1"
-
-RES_WIDTH=3440
-RES_HEIGHT=1440
 FSR="True"
 ```
 
-#### Applying the script:
-- Run: `config/hypr/scripts/Gamescope/add_script.sh`
-- OR: Select "Run update script" from the `-01-script-Game` menu
+Dans Steam, options de lancement : `The_Finals %command%`.
 
-#### Using in Steam:
-Add to your game's launch options:
-```
-The_Finals %command% # Launches The Finals with optimized settings
-```
+</details>
 
 ---
 
-## 💻 Installation
+## Configs incluses
 
-> ⚠️ **Arch Linux** uniquement. Lance le script en utilisateur normal (pas root) —
-> `sudo` est demandé au besoin.
+```
+.config/
+├── hypr          Hyprland en Lua (configs lua/, scripts/, GameScripts/, wallust/)
+├── quickshell    Quick-Bar · game-launcher · overview · hyprquickpaper
+├── wallust       palette dynamique + templates (kitty, discord, zen, starship…)
+├── kitty · fish · starship.toml · nvim · zed
+├── rofi (+ rofi-game-launcher, rofi-games, rofi-spotify)
+├── swaync · cava · mpv · fastfetch · btop · yazi · ranger
+├── pypr · spicetify · MangoHud · vader5
+├── gtk-3.0 · gtk-4.0 · qt5ct · qt6ct · Kvantum · nwg-look · nwg-displays
+└── …
+```
 
-### 🚀 Installation automatique (recommandé)
+Aussi : `home_dotfiles/` (`.zshrc`, `.bashrc`), `.themes/gtk`, `Pictures/wallpapers`, profil `.zen`,
+thème SDDM `simple-sddm-2/`.
+
+**Tenir la sauvegarde à jour** : `./sync.sh` montre ce qui a changé dans `~/.config`,
+`./sync.sh --go` recopie (sans secrets, caches, journaux ni `.bak`) et vérifie qu'aucun secret ne
+part, puis `git commit` et `git push`.
+
+---
+
+## Installation
+
+> Arch Linux uniquement. Lance le script en utilisateur normal, `sudo` est demandé au besoin.
 
 ```bash
 git clone https://github.com/Eaquo/Hyprland-Dotfiles-Arch-linux.git hypr-restore
@@ -370,70 +390,68 @@ cd hypr-restore
 ./install.sh
 ```
 
-Le script `install.sh` est **interactif** et coloré : il demande confirmation à
-chaque grande étape (tu peux en sauter n'importe laquelle).
+Le script est interactif : chaque grande étape demande confirmation.
 
 | # | Étape | Détail |
-|---|-------|--------|
+|---|---|---|
 | 1 | Vérifications | Arch, non-root, sudo, réseau |
-| 2 | **yay** | installé automatiquement s'il manque |
-| 3 | Paquets officiels | `pkglist-pacman.txt` (hyprland, waybar, rofi, sddm, qt6, fish, awww…) |
-| 4 | Paquets AUR | `pkglist-aur.txt` (quickshell, pyprland-git, wallust, spicetify-cli-git…) |
-| 5 | Dotfiles | déploie `~` et `~/.config` ; **demande dédiée** pour les wallpapers (`Pictures`) |
-| 6 | Shell par défaut | au choix : **fish** ou **zsh** (`chsh`) |
-| 7 | Plugins **hyprpm** | `hyprpm update` + dépôts hyprland-plugins/hy3 + active **hy3** & **hyprbars** |
-| 8 | Thème **SDDM** | copie dans `/usr/share/sddm/themes/` + `theme.conf.user` + crée la session Hyprland |
-| 9 | Services | NetworkManager, bluetooth, (au choix) SDDM — puis propose le **redémarrage** |
+| 2 | **yay** | installé s'il manque |
+| 3 | Paquets officiels | `pkglist-pacman.txt` |
+| 4 | Paquets AUR | `pkglist-aur.txt` (quickshell, wallust, pyprland, spicetify…) |
+| 5 | Dotfiles | `~` et `~/.config`, question à part pour les fonds (`Pictures`) |
+| 6 | Shell | fish ou zsh |
+| 7 | Plugins **hyprpm** | hy3 |
+| 8 | Thème **SDDM** | `simple-sddm-2` + session Hyprland |
+| 9 | Services | NetworkManager, bluetooth, SDDM, puis redémarrage |
 
-**Gestion des fichiers existants** — au début de l'étape Dotfiles, tu choisis :
-- `[o]` **tout écraser** — l'ancien fichier/dossier est conservé renommé `<nom>_backup` juste à côté
-- `[g]` **garder l'existant** — ne déploie que ce qui manque
-- `[d]` **demander** pour chaque fichier
+Fichiers existants : `[o]` tout écraser (l'ancien est gardé en `<nom>_backup`), `[g]` garder
+l'existant, `[d]` demander à chaque fois. Un paquet qui échoue n'arrête pas le script : il est
+noté dans `~/hypr-install.log`.
 
-Chaque paquet est installé **individuellement** : si l'un échoue, le script
-**continue**, le logue dans `~/hypr-install.log` et liste les ratés à la fin.
+Dans Quick-Bar, **Réglages › Système › Dépendances** liste ce qui manque (logiciels, polices,
+modules Python) et donne la commande d'installation.
 
-### 🧩 Personnaliser les paquets
-Édite `pkglist-pacman.txt` (dépôts officiels) ou `pkglist-aur.txt` (AUR) —
-`#` = commentaire, une ligne = un paquet — puis relance `./install.sh`.
+### Plugins Hyprland
 
-### 🖥️ Thème SDDM
-Le thème (`simple-sddm-2`) est installé dans `/usr/share/sddm/themes/` et défini
-par défaut. Dépendances : `sddm qt6-svg qt6-declarative qt6-5compat`. Le script
-crée aussi la session **Hyprland** (`/usr/share/wayland-sessions/hyprland.desktop`)
-que le paquet n'installe pas toujours.
+Seul **hy3** est encore utilisé (la vue d'ensemble est maintenant dans Quick-Bar). À lancer dans
+une session Hyprland :
 
-### 🔌 Plugins Hyprland (hyprpm)
-À lancer idéalement **dans une session Hyprland**. Si l'étape échoue depuis le TTY,
-relance après le 1er login :
 ```bash
-hyprpm update && hyprpm enable hy3 && hyprpm enable hyprbars && hyprpm enable hyprland-scroll-overview && hyprpm enable hyprgrass && hyprpm reload
+hyprpm update && hyprpm enable hy3 && hyprpm reload
 ```
 
-> ⚠️ **Ne jamais lancer `sudo hyprpm`** : le cache passe à root et les plugins
-> sautent à chaque mise à jour (`sudo chown -R $USER:$USER /var/cache/hyprpm/$USER`
-> pour réparer).
->
-> **hy3** : si hyprpm le compile contre la mauvaise version (« hy3 was compiled for a
-> different version of hyprland »), compile-le depuis le bon tag avec
-> `~/.config/hypr/scripts/rebuild-hy3.sh`, puis `hyprpm disable hy3` et reconnecte-toi.
-> Le script est à relancer après chaque mise à jour de Hyprland.
+> Ne lance jamais `sudo hyprpm` : le cache passe à root et les plugins sautent à chaque mise à
+> jour (réparer : `sudo chown -R $USER:$USER /var/cache/hyprpm/$USER`). Si hy3 a été compilé pour
+> une autre version de Hyprland, recompile-le avec `~/.config/hypr/scripts/rebuild-hy3.sh`, puis
+> `hyprpm disable hy3` et reconnecte-toi.
+
+### Après un clone : secrets à recréer
+
+Ces fichiers ne sont jamais publiés. `user_data/` (réglages perso) se recrée au premier
+lancement ; les deux fichiers ci-dessous servent à l'onglet Discord.
+
+```bash
+echo "TON_TOKEN_BOT" > ~/.config/quickshell/Quick-Bar/.discord_token
+echo "TON_SECRET"    > ~/.config/quickshell/Quick-Bar/.dl_secret
+chmod 600 ~/.config/quickshell/Quick-Bar/.discord_token ~/.config/quickshell/Quick-Bar/.dl_secret
+```
 
 ---
 
-## 🙏 Acknowledgements
-- [JaKooLit](https://github.com/JaKooLit) who introduced me to and made me love Hyprland
-- [Hyprland](https://github.com/hyprwm/Hyprland) for the amazing Wayland compositor
-- [r/unixporn](https://reddit.com/r/unixporn) for inspiration
-- All the developers of the tools used in this configuration
+## Remerciements
 
-## ☕ Support
+- [JaKooLit](https://github.com/JaKooLit), qui m'a fait découvrir et aimer Hyprland
+- [Hyprland](https://github.com/hyprwm/Hyprland) et [Quickshell](https://quickshell.org)
+- [yayuuu/hyprland-scroll-overview](https://github.com/yayuuu/hyprland-scroll-overview), l'inspiration de la vue d'ensemble
+- Les shaders d'origine sur Shadertoy (*Inside the Matrix* et les autres, crédités dans chaque `.frag`)
+- [r/unixporn](https://reddit.com/r/unixporn)
 
-If you like this project, consider buying me a coffee!
+## Soutien
+
+Si ce projet te plaît, tu peux m'offrir un café :
 
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/waxdred)
 
----
+## Licence
 
-## 📜 License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT.
