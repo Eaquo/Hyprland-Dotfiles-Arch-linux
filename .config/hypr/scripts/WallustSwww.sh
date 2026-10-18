@@ -35,5 +35,5 @@ if [ "$ln_success" = true ]; then
     # execute wallust
 	echo 'about to execute wallust'
     # execute wallust skipping tty and terminal changes
-    wallust run "$wallpaper_path" -s &
+    { wallust run "$wallpaper_path" -s; pkill -USR1 -x kitty; } &  # USR1 = kitty recharge couleurs + shader
 fi

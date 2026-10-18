@@ -112,9 +112,21 @@ class GameLauncher:
             ),
             (
                 "steamgriddb",
+                "enabled",
+                "true",
+                "# Enable SteamGridDB cover art fetching",
+            ),
+            (
+                "steamgriddb",
                 "fallback_to_steam",
                 "true",
                 "# Fall back to Steam CDN images when no SGDB cover is found",
+            ),
+            (
+                "steamgriddb",
+                "max_animated_mb",
+                "50",
+                "# Skip animated covers heavier than this (MB, 0 = no limit)",
             ),
             ("steamgriddb", "nsfw", "false", "# Include NSFW content"),
             ("steamgriddb", "humor", "false", "# Include humor / meme content"),
@@ -124,25 +136,52 @@ class GameLauncher:
                 "false",
                 "# Include epilepsy-triggering content",
             ),
+            (
+                "animations",
+                "enabled",
+                "true",
+                "# Animated gradient border around the launcher window and search bar",
+            ),
+            (
+                "animations",
+                "cache_in_memory",
+                "false",
+                "# Keep decoded animated WebP frames in RAM (opt-in, upstream: RAM-light by default)",
+            ),
         ]
         try:
             with open(self.config_path, "r", encoding="utf-8") as f:
                 original = f.read()
             content = original
 
-            for _, key, _, _ in NEW_KEYS:
-                seen, new_lines = False, []
+            for section, key, _, _ in NEW_KEYS:
+                seen, new_lines, cur_section = False, [], ""
                 for line in content.split("\n"):
+                    sec_match = re.match(r"^\[([^\]]+)\]", line.strip())
+                    if sec_match:
+                        cur_section = sec_match.group(1)
                     if re.match(rf"^\s*{re.escape(key)}\s*=", line):
-                        if not seen:
+                        if cur_section == section and not seen:
                             new_lines.append(line)
                             seen = True
+                        elif cur_section != section:
+                            new_lines.append(line)
                     else:
                         new_lines.append(line)
                 content = "\n".join(new_lines)
 
+            def key_in_section(text, section, key):
+                cur = ""
+                for line in text.split("\n"):
+                    sec_match = re.match(r"^\[([^\]]+)\]", line.strip())
+                    if sec_match:
+                        cur = sec_match.group(1)
+                    if cur == section and re.match(rf"^\s*{re.escape(key)}\s*=", line):
+                        return True
+                return False
+
             for section, key, default, comment in NEW_KEYS:
-                if re.search(rf"^\s*{re.escape(key)}\s*=", content, re.MULTILINE):
+                if key_in_section(content, section, key):
                     continue
                 header = f"[{section}]"
                 if header not in content:
@@ -177,6 +216,7 @@ class GameLauncher:
                 "api_key": "",
                 "image_type": "grid",
                 "prefer_animated": False,
+                "max_animated_mb": 50,
                 "fallback_to_steam": True,
                 "dimensions": [],
                 "styles": [],
@@ -470,7 +510,7 @@ class GameLauncher:
 
         urls = []
         for game in games:
-            for field in ("image", "image_animated", "logo"):
+            for field in ("image", "image_animated", "hero_animated", "logo"):
                 url = game.get(field, "")
                 if url and url.startswith("http"):
                     urls.append(url)
@@ -479,37 +519,71 @@ class GameLauncher:
                     urls.append(url)
         if not urls:
             return
+
         tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
         json.dump(urls, tmp)
         tmp.close()
+
+        log_path = self.image_cache.cache_dir.parent / "download-cache.log"
+        try:
+            # Rotation minimale : repart de zéro au-delà de 512 Ko
+            if log_path.exists() and log_path.stat().st_size > 512 * 1024:
+                log_path.unlink()
+            log_file = open(log_path, "ab")
+        except OSError:
+            log_file = subprocess.DEVNULL
         subprocess.Popen(
             ["python3", str(Path(__file__).absolute()), "download-cache", tmp.name],
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stdout=log_file,
+            stderr=log_file,
             start_new_session=True,
         )
+        if log_file is not subprocess.DEVNULL:
+            log_file.close()
 
     def download_missing_images(self, urls_file: str):
-        self.image_cache.clear_orphaned_images()
+        import fcntl
+
         try:
             with open(urls_file) as f:
                 urls = json.load(f)
-            os.unlink(urls_file)
         except Exception:
             return
-        for url in urls:
-            local = self.image_cache.cached_image_path(url)
-            if Path(local).exists():
-                continue
+        finally:
             try:
-                request = urllib.request.Request(url)
-                request.add_header("User-Agent", "QuickShell-GameLauncher/2.0")
-                with urllib.request.urlopen(request, timeout=30) as resp:
-                    data = resp.read()
-                with open(local, "wb") as f:
-                    f.write(data)
-            except Exception as e:
-                print(f"[downloader] {url}: {e}", file=sys.stderr)
+                os.unlink(urls_file)
+            except OSError:
+                pass
+
+        # Un seul téléchargeur à la fois : les suivants attendent leur tour.
+        # Le verrou couvre aussi le nettoyage, sinon un téléchargeur supprime
+        # les fichiers qu'un autre est en train d'écrire.
+        self.image_cache.cache_dir.mkdir(parents=True, exist_ok=True)
+        lock_path = self.image_cache.cache_dir.parent / "download-cache.lock"
+        with open(lock_path, "w") as lock:
+            fcntl.flock(lock, fcntl.LOCK_EX)
+            # Recharge le cache : un autre processus a pu le mettre à jour
+            self.image_cache.cache = self.image_cache._load_cache()
+            self.image_cache.clear_orphaned_images(keep_urls=urls)
+            for url in urls:
+                local = Path(self.image_cache.cached_image_path(url))
+                if local.exists():
+                    continue
+                # Écrit dans .part puis renomme : un téléchargement interrompu
+                # ne laisse jamais un fichier tronqué pris pour valide
+                part = local.with_name(local.name + ".part")
+                try:
+                    request = urllib.request.Request(url)
+                    request.add_header("User-Agent", "QuickShell-GameLauncher/2.0")
+                    with urllib.request.urlopen(request, timeout=60) as resp, open(
+                        part, "wb"
+                    ) as f:
+                        while chunk := resp.read(1 << 20):
+                            f.write(chunk)
+                    os.replace(part, local)
+                except Exception as e:
+                    part.unlink(missing_ok=True)
+                    print(f"[downloader] {url}: {e}", file=sys.stderr, flush=True)
 
 
 def main():

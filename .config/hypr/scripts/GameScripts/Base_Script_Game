@@ -1,0 +1,149 @@
+#!/bin/bash
+# Script pour lancer des jeux via Gamescope avec optimisations Hyprland + AMD
+SCRIPTSDIR="$HOME/.config/hypr/scripts"
+SCRIPT_NAME=$(basename "$0")
+
+# ======= OPTIONS DE CONFIGURATION =======
+GAMESCOPE_OPTIONS="False"
+GAME_PERF="False"
+GAME_VRR="True"
+ANIMATION="True"
+MANGOHUD_OPTION="True"
+OPTION_AFTER=""
+LANG_KEY="fr"
+
+# ======= PARAMÈTRES GÉNÉRAUX =======
+MONITOR="DP-2"
+RESOLUTION="3440x1440"
+REFRESH_RATE="165"
+POSITION="0x0"
+SCALE="1"
+
+RES_WIDTH=3440
+RES_HEIGHT=1440
+FSR="True"
+
+# ======= WALLPAPER / BARRE =======
+WALLPAPER_IMG="$HOME/.config/rofi/.current_wallpaper"
+QUICKSHELL_CMD="quickshell -p $HOME/.config/quickshell/Quick-Bar/shell.qml"
+
+# ======= Config Wayland or X11 ======
+X11="True"
+
+# ======= CONFIGURATION DYNAMIQUE =======
+if [ "$FSR" = "True" ]; then
+  FSR_MODE="-F fsr"
+else
+  FSR_MODE=""
+fi
+
+if [ "$GAMESCOPE_OPTIONS" = "True" ]; then
+  export XKB_DEFAULT_LAYOUT=$LANG_KEY
+  GAMESCOPE_SET="gamescope --backend sdl -f -W $RES_WIDTH -H $RES_HEIGHT -r $REFRESH_RATE $FSR_MODE --force-grab-cursor --"
+else
+  GAMESCOPE_SET=""
+fi
+
+if [ "$GAME_PERF" = "True" ]; then
+  GAME_PERF_SET="game-performance"
+else
+  GAME_PERF_SET=""
+fi
+
+if [ "$MANGOHUD_OPTION" = "True" ]; then
+  export MANGOHUD=1
+else
+  export MANGOHUD=0
+fi
+
+if [ "$X11" = "True" ]; then
+  unset WAYLAND_DISPLAY
+  export GDK_BACKEND=x11
+  export QT_QPA_PLATFORM=xcb
+fi
+
+# ======= GAME MODE HYPRLAND =======
+enable_hyprland_gamemode() {
+  if [ "$ANIMATION" = "True" ]; then
+    hyprctl --batch "\
+      keyword general:no_focus_fallback true;\
+      keyword misc:focus_on_activate false;\
+      keyword misc:layers_hog_keyboard_focus false;\
+      keyword animations:enabled 0;\
+      keyword decoration:shadow:enabled 0;\
+      keyword decoration:blur:enabled 0;\
+      keyword general:gaps_in 0;\
+      keyword general:gaps_out 0;\
+      keyword general:border_size 1;\
+      keyword decoration:rounding 0"
+    hyprctl keyword "windowrule opacity 1 override 1 override 1 override, ^(.*)$"
+    # Coupe le wallpaper et la barre pendant le jeu
+    awww kill 2>/dev/null
+    pkill -x quickshell 2>/dev/null
+  fi
+}
+
+disable_hyprland_gamemode() {
+  hyprctl keyword general:no_focus_fallback false
+  if [ "$ANIMATION" = "True" ]; then
+    # Relance le wallpaper
+    if ! pgrep -x "awww" >/dev/null; then
+      awww-daemon &
+      sleep 1
+      awww img "$WALLPAPER_IMG"
+    fi
+    # Relance la barre quickshell (setsid -f : survit à la sortie du script)
+    if ! pgrep -x "quickshell" >/dev/null; then
+      setsid -f $QUICKSHELL_CMD >/dev/null 2>&1
+    fi
+    hyprctl reload
+  fi
+}
+
+# ======= ENVIRONNEMENT AMD =======
+#export RADV_PERFTEST=gpl
+#export mesa_glthread=true
+#export __GL_SHADER_DISK_CACHE_SKIP_CLEANUP=1
+#unset SDL_VIDEODRIVER
+
+# ======= LAUNCH THE GAME =======
+if [ "$GAME_VRR" = "True" ]; then
+  hyprctl keyword monitor "$MONITOR,${RESOLUTION}@${REFRESH_RATE},${POSITION},${SCALE},vrr,2"
+  notify-send -e -u normal " Enabling VRR Hyprland"
+fi
+
+enable_hyprland_gamemode
+notify-send -e -u normal" Launching the game $SCRIPT_NAME"
+
+env --unset=SDL_VIDEODRIVER $GAME_PERF_SET $GAMESCOPE_SET "$@" $OPTION_AFTER &
+GAME_PID=$!
+
+for i in {1..10}; do
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  [ -n "$GAME_WINDOW_CLASS" ] && break
+  sleep 1
+done
+
+# ======= AUTO FOCUS & WARP FIX =======
+if [ "$GAME_VRR" = "True" ]; then
+  GAME_WINDOW_CLASS=$(hyprctl clients | grep -A 3 "pid: $GAME_PID" | grep "class:" | awk '{print $2}')
+  if [ -n "$GAME_WINDOW_CLASS" ]; then
+    hyprctl keyword windowrulev2 "immediate, class:$GAME_WINDOW_CLASS"
+    hyprctl dispatch focuswindow "class:$GAME_WINDOW_CLASS"
+    hyprctl dispatch movetoworkspacesilent 1,class:$GAME_WINDOW_CLASS
+  else
+    echo "Failed to detect game window class."
+  fi
+fi
+
+wait $GAME_PID
+GAME_EXIT_CODE=$?
+
+if [ "$GAME_VRR" = "True" ] && [ -n "$GAME_WINDOW_CLASS" ]; then
+  hyprctl keyword windowrulev2 "unset, class:$GAME_WINDOW_CLASS"
+  notify-send -e -u normal " Disabling VRR Hyprland "
+  hyprctl keyword monitor "$MONITOR,${RESOLUTION}@${REFRESH_RATE},${POSITION},${SCALE},vrr,0"
+fi
+
+disable_hyprland_gamemode
+exit $GAME_EXIT_CODE

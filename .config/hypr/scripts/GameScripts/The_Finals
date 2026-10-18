@@ -1,0 +1,12 @@
+#!/bin/bash
+# === The Finals ===
+GAME_PERF="True"
+GAME_VRR="True"
+GAMESCOPE_OPTIONS="False"
+FSR="True"
+HDR="False"
+MANGOHUD_OPTION="True"
+ANIMATION="True"
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"

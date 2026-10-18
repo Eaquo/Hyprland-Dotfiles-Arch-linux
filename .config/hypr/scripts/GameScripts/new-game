@@ -1,0 +1,231 @@
+#!/bin/bash
+# =============================================================================
+#  new-game — Génère un nouveau script de lancement de jeu + l'enregistre
+#  Le script créé ne contient que les options ; toute la logique est dans
+#  lib/game-core.sh.
+# =============================================================================
+
+SOURCE_DIR="$(dirname "$(readlink -f "$0")")"
+DEST_DIR="/usr/local/bin"
+
+# --- Catalogue des options : label / variable / défaut -----------------------
+LABELS=(
+  "game-performance (gouverneur perf)"
+  "VRR + tearing immediate"
+  "Encapsuler dans gamescope"
+  "FSR (si gamescope)"
+  "HDR"
+  "MangoHud"
+  "Forcer X11 (XWayland)"
+  "Proton Wayland natif (exclusif avec X11)"
+  "Désactiver split_lock_mitigate (sudo)"
+  "Épingler à 1 CCD (anti-latence inter-CCD, 5900X)"
+)
+VARS=(GAME_PERF GAME_VRR GAMESCOPE_OPTIONS FSR HDR MANGOHUD_OPTION X11 WAYLAND_NATIVE SPLIT_LOCK CPU_CCD)
+DEFAULTS=(True False False False False True False False False False)
+
+HAS_GUM=0
+command -v gum >/dev/null 2>&1 && HAS_GUM=1
+
+# =============================================================================
+#  1. Nom du jeu
+# =============================================================================
+if [ "$HAS_GUM" = 1 ]; then
+  gum style --border rounded --margin "1 0" --padding "0 2" --border-foreground 212 \
+    "🎮  Nouveau script de jeu"
+  NAME=$(gum input --prompt "Nom > " --placeholder "Elden")
+else
+  read -rp "Nom du script de jeu (ex: Elden) : " NAME
+fi
+
+if [ -z "$NAME" ]; then
+  echo "Nom vide, abandon." >&2
+  exit 1
+fi
+
+TARGET="$SOURCE_DIR/$NAME"
+if [ -e "$TARGET" ]; then
+  if [ "$HAS_GUM" = 1 ]; then
+    gum confirm "« $NAME » existe déjà. Écraser ?" || { echo "Abandon."; exit 1; }
+  else
+    read -rp "$NAME existe déjà. Écraser ? [n] : " ov
+    [[ "${ov,,}" =~ ^(y|yes|o|oui)$ ]] || { echo "Abandon."; exit 1; }
+  fi
+fi
+
+# =============================================================================
+#  2. Options (booléennes)
+# =============================================================================
+if [ "$HAS_GUM" = 1 ]; then
+  # Pré-cochage des défauts
+  preselect=()
+  for i in "${!LABELS[@]}"; do
+    [ "${DEFAULTS[$i]}" = "True" ] && preselect+=("${LABELS[$i]}")
+  done
+  selstr=$(IFS=,; echo "${preselect[*]}")
+
+  CHOSEN=$(gum choose --no-limit --height 12 --selected="$selstr" \
+    --header "Options — espace = cocher / décocher, entrée = valider" \
+    "${LABELS[@]}")
+
+  for i in "${!LABELS[@]}"; do
+    if grep -qxF "${LABELS[$i]}" <<<"$CHOSEN"; then
+      printf -v "${VARS[$i]}" '%s' "True"
+    else
+      printf -v "${VARS[$i]}" '%s' "False"
+    fi
+  done
+else
+  echo "--- Options (Entrée = valeur par défaut) ---"
+  ask() {
+    local reply
+    read -rp "$1 [$2] : " reply
+    reply="${reply:-$2}"
+    case "${reply,,}" in
+      y|yes|o|oui|t|true|1) echo "True" ;;
+      *)                    echo "False" ;;
+    esac
+  }
+  for i in "${!LABELS[@]}"; do
+    printf -v "${VARS[$i]}" '%s' "$(ask "${LABELS[$i]}" "${DEFAULTS[$i]}")"
+  done
+fi
+
+# X11 et Wayland natif sont exclusifs → si les deux cochés, Wayland l'emporte
+if [ "$WAYLAND_NATIVE" = "True" ] && [ "$X11" = "True" ]; then
+  X11="False"
+  [ "$HAS_GUM" = 1 ] && gum style --foreground 214 "X11 + Wayland cochés → Wayland natif retenu (X11 désactivé)."
+fi
+
+# =============================================================================
+#  3. Refresh rate
+# =============================================================================
+if [ "$HAS_GUM" = 1 ]; then
+  REFRESH_RATE=$(gum input --prompt "Refresh Hz > " --value "165")
+else
+  read -rp "Refresh rate Hz [165] : " REFRESH_RATE
+fi
+REFRESH_RATE="${REFRESH_RATE:-165}"
+
+# =============================================================================
+#  3b. Exports spécifiques au jeu (optionnel)
+# =============================================================================
+# Catalogue d'exports courants : libellé affiché / ligne réellement écrite
+EXPORT_LABELS=(
+  # --- GPU AMD / Mesa RADV ---
+  'AMD_VULKAN_ICD=RADV   (force le driver RADV open-source)'
+  'RADV_TEX_ANISO=16   (filtrage anisotrope 16x forcé)'
+  'RADV_DEBUG=noamdvrs   (désactive le VRS agressif AMD)'
+  'RADV_PERFTEST=rt   (active le ray tracing RADV)'
+  'mesa_glthread=true   (multi-thread GL côté CPU)'
+  'VKD3D_CONFIG=dxr   (ray tracing DX12 / vkd3d-proton)'
+  # --- Proton-CachyOS / RDNA3 (récent) ---
+  'PROTON_FSR4_RDNA3_UPGRADE=1   (upgrade FSR 3.1 → FSR 4, RDNA3)'
+  'PROTON_USE_NTSYNC=1   (sync NTSYNC, expérimental)'
+  # --- Proton / Wine ---
+  'WINEDLLOVERRIDES="dinput8.dll=n,b"   (mods / ModEngine2)'
+  'WINEDLLOVERRIDES="dwmapi.dll=n,b"   (certains jeux UE)'
+  'WINE_LARGE_ADDRESS_AWARE=1   (jeux gros VRAM)'
+  'PROTON_ENABLE_NVAPI=0   (inutile sur AMD)'
+  'STAGING_SHARED_MEMORY=1   (mémoire partagée Wine)'
+  'PULSE_LATENCY_MSEC=60   (réduit les craquements audio)'
+)
+EXPORT_LINES=(
+  'export AMD_VULKAN_ICD=RADV'
+  'export RADV_TEX_ANISO=16'
+  'export RADV_DEBUG=noamdvrs'
+  'export RADV_PERFTEST=gpl,rt'
+  'export mesa_glthread=true'
+  'export VKD3D_CONFIG=dxr'
+  'export PROTON_FSR4_RDNA3_UPGRADE=1'
+  'export PROTON_USE_NTSYNC=1'
+  'export WINEDLLOVERRIDES="dinput8.dll=n,b"'
+  'export WINEDLLOVERRIDES="dwmapi.dll=n,b"'
+  'export WINE_LARGE_ADDRESS_AWARE=1'
+  'export PROTON_ENABLE_NVAPI=0'
+  'export STAGING_SHARED_MEMORY=1'
+  'export PULSE_LATENCY_MSEC=60'
+)
+
+EXPORTS=""
+if [ "$HAS_GUM" = 1 ]; then
+  CHOSEN_EXP=$(gum choose --no-limit --height 12 \
+    --header "Exports courants — coche ceux à activer (entrée seule = aucun)" \
+    "${EXPORT_LABELS[@]}")
+  for i in "${!EXPORT_LABELS[@]}"; do
+    grep -qxF "${EXPORT_LABELS[$i]}" <<<"$CHOSEN_EXP" && EXPORTS+="${EXPORT_LINES[$i]}"$'\n'
+  done
+  # Champ libre pour les extras
+  EXTRA=$(gum write --width 64 --height 4 \
+    --header "Exports supplémentaires (optionnel, Ctrl+D pour valider)" \
+    --placeholder 'export MA_VARIABLE=valeur')
+  [ -n "${EXTRA//[$'\n\t ']/}" ] && EXPORTS+="$EXTRA"$'\n'
+else
+  echo "--- Exports courants (o/N pour chacun) ---"
+  for i in "${!EXPORT_LABELS[@]}"; do
+    read -rp "${EXPORT_LABELS[$i]} ? [n] : " r
+    [[ "${r,,}" =~ ^(y|yes|o|oui)$ ]] && EXPORTS+="${EXPORT_LINES[$i]}"$'\n'
+  done
+fi
+
+# Bloc à injecter : exports retenus, sinon un exemple commenté
+if [ -n "${EXPORTS//[$'\n\t ']/}" ]; then
+  EXPORTS_BLOCK="$EXPORTS"
+else
+  EXPORTS_BLOCK='# export WINEDLLOVERRIDES="dinput8.dll=n,b"   # (aucun pour l'\''instant)'
+fi
+
+# =============================================================================
+#  4. Récap
+# =============================================================================
+if [ "$HAS_GUM" = 1 ]; then
+  recap="Jeu : $NAME   |   Refresh : ${REFRESH_RATE} Hz"$'\n'
+  for i in "${!LABELS[@]}"; do
+    if [ "${!VARS[$i]}" = "True" ]; then mark="✓"; else mark="·"; fi
+    recap+="  $mark ${LABELS[$i]}"$'\n'
+  done
+  gum style --border rounded --padding "0 2" --border-foreground 212 "$recap"
+  gum confirm "Créer et enregistrer ?" || { echo "Abandon."; exit 1; }
+fi
+
+# =============================================================================
+#  5. Génération
+# =============================================================================
+cat >"$TARGET" <<EOF
+#!/bin/bash
+# === $NAME ===
+GAME_PERF="$GAME_PERF"
+GAME_VRR="$GAME_VRR"
+GAMESCOPE_OPTIONS="$GAMESCOPE_OPTIONS"
+FSR="$FSR"
+HDR="$HDR"
+MANGOHUD_OPTION="$MANGOHUD_OPTION"
+X11="$X11"
+WAYLAND_NATIVE="$WAYLAND_NATIVE"
+SPLIT_LOCK="$SPLIT_LOCK"
+CPU_CCD="$CPU_CCD"
+REFRESH_RATE="$REFRESH_RATE"
+
+# --- exports spécifiques à ce jeu ---
+$EXPORTS_BLOCK
+
+source "\$(dirname "\$(readlink -f "\$0")")/lib/game-core.sh"
+run_game "\$@"
+EOF
+
+chmod +x "$TARGET"
+
+# =============================================================================
+#  6. Enregistrement (symlink dans le PATH)
+# =============================================================================
+sudo ln -sf "$TARGET" "$DEST_DIR/$NAME"
+
+if [ "$HAS_GUM" = 1 ]; then
+  gum style --foreground 42 "✓ Créé : $TARGET"
+  gum style --foreground 42 "✓ Enregistré : $DEST_DIR/$NAME"
+  gum style --faint "Steam (options de lancement) :  $NAME %command%"
+else
+  echo "Créé : $TARGET"
+  echo "Enregistré : $DEST_DIR/$NAME"
+  echo "Steam (options de lancement) :  $NAME %command%"
+fi

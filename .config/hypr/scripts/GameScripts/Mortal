@@ -1,0 +1,20 @@
+#!/bin/bash
+# === Mortal ===
+GAME_PERF="True"
+GAME_VRR="False"
+GAMESCOPE_OPTIONS="False"
+FSR="False"
+HDR="False"
+MANGOHUD_OPTION="True"
+X11="True"
+WAYLAND_NATIVE="False"
+SPLIT_LOCK="False"
+CPU_CCD="False"
+REFRESH_RATE="165"
+
+# --- exports spécifiques à ce jeu ---
+export WINEDLLOVERRIDES="dwmapi=n,b"
+export RADV_PERFTEST="ngg"
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"

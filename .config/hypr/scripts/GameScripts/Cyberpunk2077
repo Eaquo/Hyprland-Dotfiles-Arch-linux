@@ -1,0 +1,17 @@
+#!/bin/bash
+# === Cyberpunk 2077 ===
+GAME_PERF="True"
+GAME_VRR="False"
+GAMESCOPE_OPTIONS="False"
+FSR="False"
+HDR="False"
+MANGOHUD_OPTION="True"
+ANIMATION="True"
+OPTION_AFTER="--launcher-skip --nojoy"   # args après %command%
+
+# --- exports spécifiques à ce jeu ---
+export mesa_glthread=true
+export WINEDLLOVERRIDES="winmm,version=n,b"
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"

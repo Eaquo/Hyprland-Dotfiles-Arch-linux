@@ -87,7 +87,7 @@ gtk.template = 'templates/pywal/_colors.scss'
 gtk.target = '~/.themes/gtk/scss/gtk-3.0/_colors.scss'
 
 discord.template = 'templates/pywal-discord-abou.css'
-discord.target = '~/.config/BetterDiscord/themes/pywal-discord-abou.theme.css'
+discord.target = '~/.config/Vencord/themes/pywal-wallust.theme.css'
 
 kv.template = 'templates/pywal.kvconfig'
 kv.target = '~/.config/hypr/Kvantum/pywal/pywal.kvconfig'
@@ -102,7 +102,16 @@ openrgb.target = '~/.config/quickshell/rgb-launcher/modules/script/wal_rgb.json'
 wal_colors.template = 'templates/claude.json'
 wal_colors.target = '~/.cache/wal/colors.json'
 
+# kitty 0.49 : shader de traînée de curseur aux couleurs du wallpaper
+kitty_trail.template = 'templates/kitty-cursor-trail.slang'
+kitty_trail.target   = '~/.config/kitty/shaders/cursor-trail-wallust.slang'
+kitty_matrix.template = 'templates/kitty-matrix.slang'
+kitty_matrix.target   = '~/.config/kitty/shaders/matrix-wallust.slang'
+
+# Nebula (Zen Browser): la couleur de l'interface suit le fond d'ecran.
+zen_nebula.template = 'colors-zen-nebula.css'
+zen_nebula.target = '/home/florian/.zen/g1xg0kiw.Default (release)/chrome/wallust-nebula.css'
+
 [misc]
 exec = ["python3 /home/florian/.config/wallust/hooks/windsurf-theme.py"]
-
 

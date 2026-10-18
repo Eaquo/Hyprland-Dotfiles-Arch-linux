@@ -10,6 +10,7 @@ hl.curve("linear", { type = "bezier", points = { {1.0, 1.0}, {1.0, 1.0}  } })
 -- Nouvelles courbes bonus
 hl.curve("smooth", { type = "bezier", points = { {0.25, 1.0}, {0.5, 1.0}  } }) -- fade doux sans rebond
 hl.curve("snappy", { type = "bezier", points = { {0.15, 0.0}, {0.1, 1.0}  } }) -- rapide et précis pour les layers
+hl.curve("layerfade", { type = "bezier", points = { {0.33, 1.0}, {0.68, 1.0} } }) -- ease-out cubique, fade calques doux
 
 -- ── Fenêtres ──────────────────────────────────────────────────────────────────
 hl.animation({ leaf = "windows",     enabled = true, speed = 6, bezier = "wind",   style = "slide" })
@@ -30,9 +31,9 @@ hl.animation({ leaf = "fadeDim",     enabled = true, speed = 8,  bezier = "smoot
 hl.animation({ leaf = "fadeLayers",  enabled = true, speed = 6,  bezier = "smooth" }) -- waybar / rofi / swaync
 
 -- ── Layers (waybar, swaync, rofi...) ─────────────────────────────────────────
-hl.animation({ leaf = "layers",    enabled = true, speed = 4, bezier = "snappy", style = "slide" })
-hl.animation({ leaf = "layersIn",  enabled = true, speed = 4, bezier = "winIn",  style = "slide" })
-hl.animation({ leaf = "layersOut", enabled = true, speed = 3, bezier = "winOut", style = "slide" })
+hl.animation({ leaf = "layers",    enabled = true, speed = 4, bezier = "snappy",    style = "slide" })
+hl.animation({ leaf = "layersIn",  enabled = true, speed = 5, bezier = "layerfade", style = "slide" }) -- fade wlogout doux (override style via layer_rule)
+hl.animation({ leaf = "layersOut", enabled = true, speed = 5, bezier = "layerfade", style = "slide" }) -- fermeture douce (plus de dip winOut)
 
 -- ── Workspaces ────────────────────────────────────────────────────────────────
 hl.animation({ leaf = "workspaces",    enabled = true, speed = 9, bezier = "wind", style = "slidefadevert 20%" })

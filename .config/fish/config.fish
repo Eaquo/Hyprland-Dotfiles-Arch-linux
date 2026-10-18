@@ -499,3 +499,4 @@ end
 set -gx PATH $PATH /home/florian/.lmstudio/bin
 # End of LM Studio CLI section
 
+alias discord='flatpak run com.discordapp.Discord'

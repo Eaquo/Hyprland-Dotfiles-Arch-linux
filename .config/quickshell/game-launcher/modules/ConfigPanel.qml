@@ -44,7 +44,9 @@ Rectangle {
     property bool    eRememberSource:  config?.behavior?.remember_source      ?? true
     property bool    eBigPicture:      config?.behavior?.start_in_bigpicture  ?? false
     // Animations
+    property bool    eAnimEnabled:     config?.animations?.enabled            ?? true
     property int     eAnimDuration:    config?.animations?.duration_ms        ?? 300
+    property bool    eAnimCacheMem:    config?.animations?.cache_in_memory    ?? false
     // Steam
     property bool    eSteamEnabled:    config?.steam?.enabled                 ?? true
     property var     eSteamPaths:      config?.steam?.library_paths           ?? []
@@ -63,6 +65,7 @@ Rectangle {
     property string  eSgdbApiKey:      config?.steamgriddb?.api_key           ?? ""
     property string  eSgdbImageType:   config?.steamgriddb?.image_type        ?? "hero"
     property bool    eSgdbAnimated:    config?.steamgriddb?.prefer_animated   ?? true
+    property int     eSgdbMaxAnimMb:   config?.steamgriddb?.max_animated_mb   ?? 50
     property bool    eSgdbFallback:    config?.steamgriddb?.fallback_to_steam ?? true
     property bool    eSgdbSortLikes:   config?.steamgriddb?.sort_by_likes     ?? true
     property int     eSgdbMinLikes:    config?.steamgriddb?.min_likes         ?? 0
@@ -164,7 +167,9 @@ Rectangle {
                     nc.behavior.default_source_index = panel.eDefaultSource
                     nc.behavior.remember_source      = panel.eRememberSource
                     nc.behavior.start_in_bigpicture  = panel.eBigPicture
+                    nc.animations.enabled            = panel.eAnimEnabled
                     nc.animations.duration_ms        = panel.eAnimDuration
+                    nc.animations.cache_in_memory    = panel.eAnimCacheMem
                     nc.steam.enabled                 = panel.eSteamEnabled
                     nc.steam.library_paths           = panel.eSteamPaths.filter(s => s.trim().length > 0)
                     nc.heroic.enabled                = panel.eHeroicEnabled
@@ -179,6 +184,7 @@ Rectangle {
                     nc.steamgriddb.api_key           = panel.eSgdbApiKey
                     nc.steamgriddb.image_type        = panel.eSgdbImageType
                     nc.steamgriddb.prefer_animated   = panel.eSgdbAnimated
+                    nc.steamgriddb.max_animated_mb   = panel.eSgdbMaxAnimMb
                     nc.steamgriddb.fallback_to_steam = panel.eSgdbFallback
                     nc.steamgriddb.sort_by_likes     = panel.eSgdbSortLikes
                     nc.steamgriddb.min_likes         = panel.eSgdbMinLikes
@@ -220,7 +226,8 @@ Rectangle {
                 close_on_launch: eCloseOnLaunch, default_source_index: eDefaultSource,
                 remember_source: eRememberSource, start_in_bigpicture: eBigPicture
             },
-            animations: { duration_ms: eAnimDuration },
+            animations: { enabled: eAnimEnabled, duration_ms: eAnimDuration,
+                          cache_in_memory: eAnimCacheMem },
             steam:  { enabled: eSteamEnabled,
                       library_paths: eSteamPaths.filter(s => s.trim().length > 0) },
             heroic: { enabled: eHeroicEnabled, scan_epic: eHeroicEpic, scan_gog: eHeroicGog,
@@ -229,7 +236,8 @@ Rectangle {
             lutris: { enabled: eLutrisEnabled, db_path: eLutrisDb },
             steamgriddb: {
                 enabled: eSgdbEnabled, api_key: eSgdbApiKey, image_type: eSgdbImageType,
-                prefer_animated: eSgdbAnimated, fallback_to_steam: eSgdbFallback,
+                prefer_animated: eSgdbAnimated, max_animated_mb: eSgdbMaxAnimMb,
+                fallback_to_steam: eSgdbFallback,
                 sort_by_likes: eSgdbSortLikes, min_likes: eSgdbMinLikes,
                 nsfw: eSgdbNsfw, humor: eSgdbHumor, epilepsy: eSgdbEpilepsy,
                 parallel_requests: eSgdbParallel, max_workers: eSgdbMaxWorkers,
@@ -270,7 +278,9 @@ Rectangle {
         eDefaultSource  = config?.behavior?.default_source_index ?? 0
         eRememberSource = config?.behavior?.remember_source      ?? true
         eBigPicture     = config?.behavior?.start_in_bigpicture  ?? false
+        eAnimEnabled    = config?.animations?.enabled            ?? true
         eAnimDuration   = config?.animations?.duration_ms        ?? 300
+        eAnimCacheMem   = config?.animations?.cache_in_memory    ?? false
         eSteamEnabled   = config?.steam?.enabled                 ?? true
         eSteamPaths     = config?.steam?.library_paths  ?? []
         eHeroicEnabled  = config?.heroic?.enabled                ?? true
@@ -285,6 +295,7 @@ Rectangle {
         eSgdbApiKey     = config?.steamgriddb?.api_key           ?? ""
         eSgdbImageType  = config?.steamgriddb?.image_type        ?? "hero"
         eSgdbAnimated   = config?.steamgriddb?.prefer_animated   ?? true
+        eSgdbMaxAnimMb  = config?.steamgriddb?.max_animated_mb   ?? 50
         eSgdbFallback   = config?.steamgriddb?.fallback_to_steam ?? true
         eSgdbSortLikes  = config?.steamgriddb?.sort_by_likes     ?? true
         eSgdbMinLikes   = config?.steamgriddb?.min_likes         ?? 0
@@ -600,9 +611,43 @@ Rectangle {
                 }
             }
         }
+        // Valeur éditable au clavier (Entrée / perte de focus valide, Échap annule)
         Rectangle {
-            width: 44; height: 32; radius: 8; color: Qt.rgba(1,1,1,0.05)
-            Text { anchors.centerIn: parent; text: spinRoot.value; font.pixelSize: 13; font.bold: true; color: panel.fg }
+            width: 44; height: 32; radius: 8
+            color: spinField.activeFocus ? Qt.rgba(1,1,1,0.10) : Qt.rgba(1,1,1,0.05)
+            border.color: spinField.activeFocus ? panel.accent : "transparent"; border.width: 1
+            TextField {
+                id: spinField
+                anchors.fill: parent
+                padding: 0
+                horizontalAlignment: TextInput.AlignHCenter
+                verticalAlignment: TextInput.AlignVCenter
+                text: spinRoot.value
+                font.pixelSize: 13; font.bold: true; color: panel.fg
+                background: Item {}
+                selectByMouse: true
+                inputMethodHints: Qt.ImhDigitsOnly
+                validator: IntValidator { bottom: 0; top: spinRoot.max }
+
+                function commit() {
+                    const v = parseInt(text)
+                    const c = isNaN(v) ? spinRoot.value
+                                       : Math.max(spinRoot.min, Math.min(spinRoot.max, v))
+                    if (c !== spinRoot.value) {
+                        spinRoot.value = c
+                        panel.hasChanges = true
+                        spinRoot.changed(c)
+                    }
+                    text = c
+                }
+                onActiveFocusChanged: if (activeFocus) selectAll(); else commit()
+                onEditingFinished: { commit(); focus = false }
+                Keys.onEscapePressed: { text = spinRoot.value; focus = false }
+                Connections {
+                    target: spinRoot
+                    function onValueChanged() { spinField.text = spinRoot.value }
+                }
+            }
         }
         Rectangle {
             width: 30; height: 32; radius: 8
@@ -1149,10 +1194,16 @@ Rectangle {
         Column {
             width: parent ? parent.width : 0
             topPadding: 4
+            SRow { lbl: i18n.t("cfg_anim_gradient"); sub: i18n.t("cfg_anim_gradient_sub")
+                CfgToggle { checked: panel.eAnimEnabled; onToggled: v => panel.eAnimEnabled = v }
+            }
             SRow { lbl: i18n.t("cfg_anim_duration"); sub: i18n.t("cfg_anim_duration_sub")
                 CfgSlider { from: 0; to: 1000; value: panel.eAnimDuration; unit: "ms"
                     onChanged: v => panel.eAnimDuration = Math.round(v)
                 }
+            }
+            SRow { lbl: i18n.t("cfg_anim_cache_mem"); sub: i18n.t("cfg_anim_cache_mem_sub")
+                CfgToggle { checked: panel.eAnimCacheMem; onToggled: v => panel.eAnimCacheMem = v }
             }
         }
     }
@@ -1244,6 +1295,11 @@ Rectangle {
             }
             SRow { lbl: i18n.t("cfg_sgdb_animated"); sub: i18n.t("cfg_sgdb_animated_sub")
                 CfgToggle { checked: panel.eSgdbAnimated; onToggled: v => panel.eSgdbAnimated = v }
+            }
+            SRow { lbl: i18n.t("cfg_sgdb_max_anim"); sub: i18n.t("cfg_sgdb_max_anim_sub")
+                CfgSlider { from: 0; to: 100; value: panel.eSgdbMaxAnimMb; unit: "MB"
+                    onChanged: v => panel.eSgdbMaxAnimMb = Math.round(v)
+                }
             }
             SRow { lbl: i18n.t("cfg_sgdb_fallback"); sub: i18n.t("cfg_sgdb_fallback_sub")
                 CfgToggle { checked: panel.eSgdbFallback; onToggled: v => panel.eSgdbFallback = v }

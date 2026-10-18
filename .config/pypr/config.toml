@@ -36,4 +36,14 @@ unfocus = "hide"
 lazy = true
 margin = 1
 
-
+# JARVIS — qutebrowser impose sa classe (org.qutebrowser.qutebrowser), il n'accepte
+# pas d'option equivalente a --class. Sans risque ici: ce navigateur ne sert qu'a
+# JARVIS, via son profil dedie ~/.local/share/jarvis-qute.
+[scratchpads.jarvis]
+animation = "fromTop"
+command = "qutebrowser --basedir /home/florian/.local/share/jarvis-qute --target window 'http://127.0.0.1:8788'"
+class = "org.qutebrowser.qutebrowser"
+size = "50% 40%"
+position = "25% 3%"
+unfocus = "hide"
+lazy = true

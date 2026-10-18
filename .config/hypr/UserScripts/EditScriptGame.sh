@@ -7,25 +7,25 @@ edit=${EDITOR:-nvim}
 tty=kitty
 
 # Paths to scripts directory
-SCRIPTS_DIR="$HOME/.config/hypr/scripts/Gamescope"
-BASE_SCRIPT="Base_Script_Game"  # Script modèle à ne pas afficher dans la liste principale
-UPDATE_SCRIPT="add-script.sh"   # Script de mise à jour à ne pas afficher dans la liste principale
-THIS_SCRIPT="EditScriptGame.sh" # Nom de ce script pour permettre le retour au menu
+SCRIPTS_DIR="$HOME/.config/hypr/scripts/GameScripts"
+BASE_SCRIPT="Base_Script_Game"   # Script modèle à ne pas afficher dans la liste principale
+UPDATE_SCRIPT="add-script.sh"    # Script de mise à jour à ne pas afficher dans la liste principale
+NEW_GAME_SCRIPT="new-game"       # Assistant de création (gum) à ne pas afficher dans la liste
+
+# Liste des scripts de jeu (exclut base, update, assistant et le dossier lib/)
+list_games() {
+    find "$SCRIPTS_DIR" -maxdepth 1 -type f -executable \
+        ! -name "$BASE_SCRIPT" ! -name "$UPDATE_SCRIPT" ! -name "$NEW_GAME_SCRIPT" | sort
+}
 
 # Rofi theme
-rofi_theme="~/.config/rofi/config-edit-game.rasi"
-rofi_theme_name="~/.config/rofi/config-edit-game-name.rasi"
+rofi_theme="$HOME/.config/rofi/config-edit-game.rasi"
 msg="  Choose which game script to View or Edit ($SCRIPTS_DIR)"
-
-# Option de retour au menu
-declare -A back_to_menu=(
- ["Return to menu"]=$HOME/.config/hypr/UserScripts/$THIS_SCRIPT
-)
 
 # Function to display the menu options dynamically
 menu() {
-    # Get list of scripts, excluding base script and update script
-    script_files=$(find "$SCRIPTS_DIR" -type f -executable ! -name "$BASE_SCRIPT" ! -name "$UPDATE_SCRIPT" | sort)
+    # Get list of scripts, excluding base/update/assistant scripts
+    script_files=$(list_games)
     # Count for numbering
     count=1
     
@@ -43,38 +43,6 @@ menu() {
     echo "$count. Run update script"
 }
 
-# Function to create a new script from base
-create_script_from_base() {
-    base_path="$SCRIPTS_DIR/$BASE_SCRIPT"
-    new_script_name=$1
-    new_script_path="$SCRIPTS_DIR/$new_script_name"
-    
-    # Check if base script exists
-    if [[ -f "$base_path" ]]; then
-        # Copy base script
-        cp "$base_path" "$new_script_path"
-        
-        # Make executable
-        chmod +x "$new_script_path"
-    else
-        # Create basic script if base doesn't exist
-        echo "#!/bin/bash" > "$new_script_path"
-        echo "# /* ---- 💫 Game Launch Script: $new_script_name ---- */ ##" >> "$new_script_path"
-        echo "# Description: Custom launch script for game" >> "$new_script_path"
-        echo "# Author: $(whoami)" >> "$new_script_path"
-        echo "# Date: $(date +%Y-%m-%d)" >> "$new_script_path"
-        echo "" >> "$new_script_path"
-        echo "# Game launch code here" >> "$new_script_path"
-        echo "" >> "$new_script_path"
-        
-        # Make executable
-        chmod +x "$new_script_path"
-    fi
-    
-    # Open the new script in editor
-    $tty -e $edit "$new_script_path"
-}
-
 # Function to run the update script
 run_update_script() {
     update_path="$SCRIPTS_DIR/$UPDATE_SCRIPT"
@@ -84,12 +52,6 @@ run_update_script() {
     else
         $tty -e bash -c "echo 'Update script not found or not executable!'; echo 'Press Enter to close'; read"
     fi
-}
-
-# Function to get script name with option to return to menu
-get_script_name() {
-    # Prepare Rofi input with Return to menu option
-    echo "Return to menu" | rofi -i -dmenu -config $rofi_theme_name
 }
 
 # Main function to handle menu selection
@@ -106,22 +68,13 @@ main() {
     choice_num=$(echo "$choice" | cut -d. -f1)
     
     # Get the total number of game scripts
-    script_count=$(find "$SCRIPTS_DIR" -type f -executable ! -name "$BASE_SCRIPT" ! -name "$UPDATE_SCRIPT" | wc -l)
+    script_count=$(list_games | wc -l)
     
     # Check if choice is to create a new script
     if [[ $choice_num -eq $((script_count + 1)) ]]; then
-        # Ask for new script name - avec un placeholder modifié et option de retour
-        new_script_name=$(get_script_name)
-        
-        if [[ -n "$new_script_name" ]]; then
-            if [[ "$new_script_name" == "Return to menu" ]]; then
-                # Relancer ce script pour revenir au menu
-                exec "${back_to_menu[$new_script_name]}"
-            else
-                # Create the new script
-                create_script_from_base "$new_script_name"
-            fi
-        fi
+        # Lance l'assistant gum en une fois (nom + options + exports + symlink)
+        # La fenêtre se ferme d'elle-même à la fin de l'assistant.
+        $tty -e "$SCRIPTS_DIR/$NEW_GAME_SCRIPT"
         return
     fi
     
@@ -143,7 +96,7 @@ main() {
     # Handle regular script selection
     if [[ -n "$choice" ]]; then
         # Find the selected script
-        script_files=$(find "$SCRIPTS_DIR" -type f -executable ! -name "$BASE_SCRIPT" ! -name "$UPDATE_SCRIPT" | sort)
+        script_files=$(list_games)
         
         # Initialize counter
         count=1

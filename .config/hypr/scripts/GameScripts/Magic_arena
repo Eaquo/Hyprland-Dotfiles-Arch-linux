@@ -1,0 +1,20 @@
+#!/bin/bash
+# === Magic_arena ===
+GAME_PERF="False"
+GAME_VRR="False"
+GAMESCOPE_OPTIONS="True"
+GAMESCOPE_FULLSCREEN="False" # MTGA fixe sa taille → gamescope pour que Hyprland puisse le tiler
+FSR="False"
+HDR="False"
+MANGOHUD_OPTION="False"
+X11="False"
+WAYLAND_NATIVE="False"
+SPLIT_LOCK="False"
+CPU_CCD="False"
+REFRESH_RATE="165"
+
+# --- exports spécifiques à ce jeu ---
+# export WINEDLLOVERRIDES="dinput8.dll=n,b"   # (aucun pour l'instant)
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"

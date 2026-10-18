@@ -35,3 +35,7 @@ Thumbs.db
 *.tmp
 *.bak
 *.backup
+
+# Quick-Bar : données utilisateur (kanban, hotspot, screenrec, wallpaper)
+Quick-Bar/user_data/
+Quick-Bar/.dl_secret

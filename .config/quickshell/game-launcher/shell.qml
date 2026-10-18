@@ -32,9 +32,20 @@ ShellRoot {
         }
     })
 
-    property bool launcherVisible: true
+    // Daemon mode: start hidden. The process stays alive in the background
+    // (config + games + cover textures preloaded) and SUPER+G just toggles
+    // visibility over IPC — no cold start, no cover re-decode on each open.
+    property bool launcherVisible: false
     property bool configPanelVisible: false
     property bool configLoaded: false
+
+    // IPC: `qs -c game-launcher ipc call launcher toggle|show|hide`
+    IpcHandler {
+        target: "launcher"
+        function toggle(): void { root.launcherVisible = !root.launcherVisible }
+        function show():   void { root.launcherVisible = true }
+        function hide():   void { root.launcherVisible = false }
+    }
 
     // Load config from backend
     Process {
@@ -70,9 +81,18 @@ ShellRoot {
             id: launcherWindow
             property var modelData
 
+            // Only show on the monitor Hyprland currently has focused (the
+            // "active" screen). Fall back to showing everywhere if Hyprland
+            // hasn't reported a focused monitor yet.
+            property bool onActiveScreen: {
+                const fm = Hyprland.focusedMonitor
+                if (!fm || !modelData) return true
+                return fm.name === modelData.name
+            }
+
             screen: modelData
             exclusionMode: ExclusionMode.Ignore
-            visible: root.launcherVisible
+            visible: root.launcherVisible && onActiveScreen
             color: "transparent"
 
             implicitWidth: screen.width
@@ -88,11 +108,20 @@ ShellRoot {
 
                 Component.onCompleted: rootItem.forceActiveFocus()
 
+                // Re-grab keyboard focus each time the launcher is shown again
+                // (daemon mode: the window is only hidden, never destroyed).
+                Connections {
+                    target: root
+                    function onLauncherVisibleChanged() {
+                        if (root.launcherVisible)
+                            Qt.callLater(launcher.forceActiveFocus)
+                    }
+                }
 
-                // Invisible full-screen area — click outside launcher quits
+                // Invisible full-screen area — click outside hides the launcher
                 MouseArea {
                     anchors.fill: parent
-                    onClicked: Qt.quit()
+                    onClicked: root.launcherVisible = false
                 }
 
                 GameLauncher {
@@ -127,7 +156,7 @@ ShellRoot {
                     Behavior on y       { NumberAnimation { duration: root.config.animations.duration_ms; easing.type: Easing.OutCubic } }
                     Behavior on opacity { NumberAnimation { duration: root.config.animations.duration_ms; easing.type: Easing.OutCubic } }
 
-                    onCloseRequested: Qt.quit()
+                    onCloseRequested: root.launcherVisible = false
                     onOpenConfigRequested: {
                         root.configPanelVisible = true
                         configPanel.forceActiveFocus()
@@ -167,6 +196,10 @@ ShellRoot {
                     onConfigSaved: (newConfig) => {
                         root.config = newConfig
                         root.configPanelVisible = false
+                        // Le démon garde les jeux en mémoire : recharge pour appliquer
+                        // les réglages côté backend (type d'image SGDB, sources…)
+                        launcher.loadGames()
+                        launcher.forceActiveFocus()
                     }
                 }
             }  // End rootItem

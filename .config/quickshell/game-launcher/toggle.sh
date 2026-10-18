@@ -1,16 +1,20 @@
 #!/bin/bash
-# Game Launcher Toggle Script
-# This script toggles the game launcher visibility
+# Game Launcher toggle (daemon mode)
+# The launcher now runs as a persistent (hidden) Quickshell daemon and we just
+# toggle its visibility over IPC — no cold start / no cover re-decode per open.
 
-LAUNCHER_DIR="$HOME/.config/quickshell/game-launcher"
+CONFIG="game-launcher"          # ~/.config/quickshell/game-launcher/shell.qml
 
-# Check if launcher is running via pgrep
-if pgrep -f "^quickshell.*game-launcher" > /dev/null 2>&1; then
-    pkill -f "^quickshell.*game-launcher"
-    pkill -f "gamepad.py" 2>/dev/null || true
-    exit 0
+if pgrep -f "quickshell -c $CONFIG" > /dev/null 2>&1; then
+    # Daemon already running → instant visibility toggle
+    qs -c "$CONFIG" ipc call launcher toggle
+else
+    # First press of the session → start the daemon (hidden), then show it
+    quickshell -c "$CONFIG" > /dev/null 2>&1 &
+    for _ in $(seq 1 100); do          # wait up to ~5s for the IPC handler
+        if qs -c "$CONFIG" ipc call launcher show > /dev/null 2>&1; then
+            break
+        fi
+        sleep 0.05
+    done
 fi
-
-# Launch the game launcher
-quickshell -c "$LAUNCHER_DIR" &
-

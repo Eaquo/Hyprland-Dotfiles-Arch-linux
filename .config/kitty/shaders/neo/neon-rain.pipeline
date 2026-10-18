@@ -1,0 +1,8 @@
+# Neon Rain — Kitty custom shader pipeline
+# Runs continuously while the OS window is focused.
+startgroup
+    shaders neon-rain
+    animation_start os-window-focus-in
+    animation_stop never
+    animation_step 33
+endgroup

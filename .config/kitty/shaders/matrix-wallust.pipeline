@@ -1,0 +1,8 @@
+# Pluie "Inside the Matrix" aux couleurs wallust
+startgroup
+    animation_start os-window-focus-in | user-activity
+    animation_stop os-window-focus-out | user-idle
+    # 0.0 = invisible, 1.0 ~ effet d'origine
+    var float RAIN_OPACITY = 0.35
+    shaders matrix-wallust
+endgroup

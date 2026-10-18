@@ -1,0 +1,29 @@
+#!/bin/bash
+# === FF_Mod ===
+GAME_PERF="True"
+GAME_VRR="False"
+GAMESCOPE_OPTIONS="False"
+FSR="False"
+HDR="False"
+MANGOHUD_OPTION="True"
+X11="False"
+WAYLAND_NATIVE="False"
+SPLIT_LOCK="False"
+CPU_CCD="False"
+REFRESH_RATE="165"
+
+# --- exports spécifiques à ce jeu ---
+export WINEDLLOVERRIDES="dinput8.dll=n,b"
+export RADV_PERFTEST=gpl,ngg
+export XKB_DEFAULT_LAYOUT="fr"
+
+# FF XVI doit être lancé via PortProton (sa couche Steam interne gère le DRM).
+# Le passage par Steam en raccourci non-Steam casse l'auth → "Steam denied appID".
+# Donc si on est lancé sans argument (hors Steam), on appelle le script PortProton.
+PORTPROTON_SCRIPT="$HOME/PortProton/steam_scripts/FINAL FANTASY XVI.sh"
+if [ "$#" -eq 0 ]; then
+  set -- "$PORTPROTON_SCRIPT"
+fi
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"

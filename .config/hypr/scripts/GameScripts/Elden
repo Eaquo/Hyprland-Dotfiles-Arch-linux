@@ -1,0 +1,17 @@
+#!/bin/bash
+# === Elden Ring ===
+GAME_PERF="True"
+GAME_VRR="False"
+GAMESCOPE_OPTIONS="False"
+FSR="False"
+HDR="False"
+MANGOHUD_OPTION="True"
+X11="True"
+SPLIT_LOCK="True"  # désactive split_lock_mitigate pendant le jeu (restauré à la sortie)
+CPU_CCD="True"     # épingle au CCD0 (0-5,12-17) — anti-latence inter-CCD (5900X)
+REFRESH_RATE="125" # cap maison pour Elden Ring
+
+# export WINEDLLOVERRIDES="d3dcompiler_47=n;dxgi=n,b"
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"

@@ -1,87 +1,100 @@
-/* ----------- 💫 https://github.com/JaKooLit 💫 -------- */
-/* wallust-wlogout */
+/* ───────────────────────────────────────────────────────────────────────────
+   wlogout — thème « glass cards » wallust
+   Aligné sur le thème de la barre Quickshell (Appearance.qml) :
+     • couleurs importées depuis wal.json → colors-wlogout.css
+     • cartes verre translucide, hover accent color13, danger rouge
+   colors-wlogout.css est régénéré à chaque lancement par Wlogout.sh.
+   ─────────────────────────────────────────────────────────────────────────── */
 
-/* Importing pywal colors */
+@import "colors-wlogout.css";
 
-@import '../../.config/waybar/wallust/colors-waybar.css';
+* {
+    font-family: "JetBrainsMono Nerd Font", "Fira Code", monospace;
+    font-weight: 600;
+    outline: none;
+    text-shadow: none;
+    -gtk-icon-shadow: none;
+}
 
+/* ── Scrim plein écran (laisse respirer la vidéo) ───────────────────────────── */
 window {
-    font-family: Fira Code Medium;
-    font-size: 16pt;
-    color: #cdd6f4; /* text */
-    background-color: rgba(30, 30, 46, 0.6);
+    color: @foreground;
+    background-color: rgba(0, 0, 0, 0.42);
 }
 
+/* ── Cartes verre ──────────────────────────────────────────────────────────── */
 button {
+    color: alpha(@foreground, 0.90);
+
+    background-color: rgba(16, 18, 20, 0.30);
+    border: 1px solid alpha(@color15, 0.12);
+    border-radius: 26px;
+
+    /* profondeur : ombre portée douce + fin liseré lumineux interne en haut */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35),
+                inset 0 1px 0 alpha(@color15, 0.10);
+
+    /* icône dans le tiers haut ; le label GTK reste centré juste dessous */
     background-repeat: no-repeat;
-    background-position: center;
-    background-size: 20%;
-    background-color: rgba(200, 220, 255, 0);
-    animation: gradient_f 20s ease-in infinite;
-    border-radius: 80px; /* Increased border radius for a more rounded look */
-}
-
-button:focus {
+    background-position: center 36%;
     background-size: 25%;
-	border: 0px;
 
-}
-
-button:hover {
-    background-color: @color12; 
-    color: #1e1e2e;
-    background-size: 50%;
-    margin: 30px;
-    border-radius: 80px; 
-    transition: all 0.3s cubic-bezier(.55, 0.0, .28, 1.682), box-shadow 0.2s ease-in-out, background-color 0.2s ease-in-out;
-    box-shadow: 0 0 50px @color9; 
-	
+    margin: 24px;
+    transition: all 0.24s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* Adjust the size of the icon or content inside the button */
-button span {
-    font-size: 1.2em; /* Increase the font size */
+/* Label sous l'icône */
+button label {
+    font-size: 13pt;
+    font-weight: 600;
 }
 
-
-#lock {
-    background-image: image(url("./icons/lock.png"));
-}
-#lock:hover {
-    background-image: image(url("./icons/lock-hover.png"));
-}
-
-#logout {
-    background-image: image(url("./icons/logout.png"));
-}
-#logout:hover {
-    background-image: image(url("./icons/logout-hover.png"));
+/* Navigation clavier */
+button:focus {
+    background-color: alpha(@color13, 0.10);
+    border-color: alpha(@color13, 0.45);
+    background-size: 28%;
 }
 
-#suspend {
-    background-image: image(url("./icons/sleep.png"));
-}
-#suspend:hover {
-    background-image: image(url("./icons/sleep-hover.png"));
-}
-
-#shutdown {
-    background-image: image(url("./icons/power.png"));
-}
-#shutdown:hover {
-    background-image: image(url("./icons/power-hover.png"));
-}
-
-#reboot {
-    background-image: image(url("./icons/restart.png"));
-}
-#reboot:hover {
-    background-image: image(url("./icons/restart-hover.png"));
-}
-
-#hibernate {
-    background-image: image(url("./icons/hibernate.png"));
-}
+/* ── Hover « sûr » : accent wallust (color13) ──────────────────────────────── */
+#lock:hover,
+#suspend:hover,
 #hibernate:hover {
-    background-image: image(url("./icons/hibernate-hover.png"));
+    color: @foreground;
+    background-color: alpha(@color13, 0.16);
+    border-color: @color13;
+    background-size: 32%;
+    box-shadow: 0 12px 40px alpha(@color13, 0.35),
+                inset 0 1px 0 alpha(@color15, 0.18);
 }
+
+/* ── Hover « danger » : rouge, comme PowerMenu.qml (#ff6b6b) ────────────────── */
+#shutdown:hover,
+#reboot:hover,
+#logout:hover {
+    color: #ffd9d9;
+    background-color: rgba(255, 107, 107, 0.16);
+    border-color: #ff6b6b;
+    background-size: 32%;
+    box-shadow: 0 12px 40px rgba(255, 107, 107, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* ── Icônes (PNG existants dans ./icons) ───────────────────────────────────── */
+#lock       { background-image: image(url("./icons/lock.png")); }
+#lock:hover { background-image: image(url("./icons/lock-hover.png")); }
+
+#logout       { background-image: image(url("./icons/logout.png")); }
+#logout:hover { background-image: image(url("./icons/logout-hover.png")); }
+
+#suspend       { background-image: image(url("./icons/sleep.png")); }
+#suspend:hover { background-image: image(url("./icons/sleep-hover.png")); }
+
+#shutdown       { background-image: image(url("./icons/power.png")); }
+#shutdown:hover { background-image: image(url("./icons/power-hover.png")); }
+
+#reboot       { background-image: image(url("./icons/restart.png")); }
+#reboot:hover { background-image: image(url("./icons/restart-hover.png")); }
+
+#hibernate       { background-image: image(url("./icons/hibernate.png")); }
+#hibernate:hover { background-image: image(url("./icons/hibernate-hover.png")); }

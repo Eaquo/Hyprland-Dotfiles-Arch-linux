@@ -1,0 +1,70 @@
+/* ===========================================================================
+   Nebula (Zen Browser) teinté par wallust — GÉNÉRÉ, ne pas éditer à la main.
+   Source : ~/.config/wallust/templates/colors-zen-nebula.css
+   Cible  : ~/.zen/<profil>/chrome/wallust-nebula.css
+
+   Ce fichier doit être importé APRÈS nebula/chrome.css dans userChrome.css :
+   Nebula pose ses variables avec !important, donc à poids égal c'est la
+   dernière déclaration qui gagne.
+
+   PARTAGE DES RÔLES avec le panneau « Config Variables » de Nebula :
+     - les COULEURS (teintes, onglets, ombres, verre, accent) viennent d'ici
+       et suivent le fond d'écran ; les champs correspondants du panneau
+       n'ont donc plus d'effet ;
+     - tout le reste (flou, saturation, rayon des coins, largeur des
+       essentials, grisage des workspaces, animations) reste piloté par le
+       panneau — rien n'est écrasé ici.
+   =========================================================================== */
+
+:root {
+  /* Palette brute, utile pour bricoler ses propres règles plus bas */
+  --wal-bg: {{background}};
+  --wal-fg: {{foreground}};
+  --wal-0: {{color0}};
+  --wal-1: {{color1}};
+  --wal-2: {{color2}};
+  --wal-3: {{color3}};
+  --wal-4: {{color4}};
+  --wal-5: {{color5}};
+  --wal-6: {{color6}};
+  --wal-7: {{color7}};
+  --wal-8: {{color8}};
+  --wal-9: {{color9}};
+  --wal-10: {{color10}};
+  --wal-11: {{color11}};
+  --wal-12: {{color12}};
+  --wal-13: {{color13}};
+  --wal-14: {{color14}};
+  --wal-15: {{color15}};
+
+  /* ---- Accent principal -------------------------------------------------
+     --zen-primary-color est de loin la variable la plus utilisée par Nebula
+     (29 usages) : bordures actives, surbrillances, indicateurs. */
+  --zen-primary-color: {{color4}} !important;
+  --zen-colors-primary: {{color4}} !important;
+  --zen-colors-secondary: {{color5}} !important;
+  --zen-colors-tertiary: {{color6}} !important;
+  --zen-colors-border: color-mix(in srgb, {{color4}} 45%, transparent) !important;
+
+  /* Accent de Nebula lui-même (fenêtre Picture-in-Picture comprise) */
+  --nebula-primary-color: {{color4}} !important;
+  --nebula-colors-primary: color-mix(in srgb, {{color4}} 22%, {{background}}) !important;
+  --nebula-colors-secondary: color-mix(in srgb, {{color5}} 30%, {{background}}) !important;
+
+  /* ---- Teintes d'interface ---------------------------------------------
+     Voilées : elles se superposent au contenu, une couleur pleine écraserait
+     les pages web. */
+  --nebula-ui-tint: color-mix(in srgb, {{color4}} 16%, transparent) !important;
+  --nebula-website-tint: color-mix(in srgb, {{color4}} 4%, transparent) !important;
+  --nebula-color-glass: color-mix(in srgb, {{background}} 45%, transparent) !important;
+
+  /* ---- États des onglets ------------------------------------------------
+     Opacité croissante : repos < survol < sélectionné, pour que la hiérarchie
+     reste lisible quel que soit le fond d'écran. */
+  --nebula-color-min: color-mix(in srgb, {{color4}} 8%, transparent) !important;
+  --nebula-color: color-mix(in srgb, {{color4}} 16%, transparent) !important;
+  --nebula-color-hover: color-mix(in srgb, {{color4}} 28%, transparent) !important;
+  --nebula-color-selected: color-mix(in srgb, {{color4}} 42%, transparent) !important;
+  --nebula-color-shadow: color-mix(in srgb, {{color0}} 55%, transparent) !important;
+
+}

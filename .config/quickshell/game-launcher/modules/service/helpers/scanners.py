@@ -82,7 +82,7 @@ class GameScanner:
         url = f"heroic://launch/{runner}/{app_name}"
         if self._heroic_bin is None:
             return f"xdg-open {url}"
-        return f"{self._heroic_bin} {url}"
+        return f"{self._heroic_bin} --no-gui {url}"
 
     # ── Steam ──────────────────────────────────────────────────────────────
 
@@ -197,7 +197,7 @@ class GameScanner:
 
             return {
                 "name": name,
-                "exec": f"steam steam://rungameid/{app_id}",
+                "exec": f"steam -silent steam://rungameid/{app_id}",
                 "image": cover_url,
                 "hero_image": f"https://cdn.cloudflare.steamstatic.com/steam/apps/{app_id}/library_hero.jpg",
                 "category": "steam",
@@ -273,7 +273,7 @@ class GameScanner:
         long_appid = self.convert_appid_to_long(appid)
         return {
             "name": name,
-            "exec": f"steam steam://rungameid/{long_appid}",
+            "exec": f"steam -silent steam://rungameid/{long_appid}",
             "image": icon if icon else "",
             "category": "steam-shortcut",
             "favorite": False,
@@ -466,8 +466,11 @@ class GameScanner:
                             if use_parallel or self.sgdb is None:
                                 cover_url = art
                             else:
+                                # Pass the title: sideload ids are Heroic-internal,
+                                # so cover resolution must go through the SGDB name
+                                # search (upstream issue #13).
                                 cover_url = self.sgdb.get_heroic_cover_url(
-                                    app_name, "sideload", art
+                                    app_name, "sideload", art, title
                                 )
                             games.append(
                                 {

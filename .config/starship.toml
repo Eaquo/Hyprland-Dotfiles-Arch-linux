@@ -1,3 +1,6 @@
+# Laisse plus de temps au scan du dossier (dépassait 30ms au démarrage de kitty)
+scan_timeout = 200
+
 ## FIRST LINE/ROW: Info & Status
 # First param ─┌
 [username]
@@ -11,12 +14,12 @@ style_user = "#ff5400"
 disabled = false
 format = "[$hostname]($style) in "
 ssh_only = false
-style = "#8976BB"
+style = "#7E6D5F"
 trim_at = "-"
 
 # Third param
 [directory]
-style = "#B8AFF0"
+style = "#6E7E7B"
 truncate_to_repo = true
 truncation_length = 0
 truncation_symbol = "repo: "
@@ -31,7 +34,7 @@ ahead = "⇡${count}"
 behind = "⇣${count}"
 deleted = "x"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-style = "#D8D4F4"
+style = "#D0C5BA"
 
 [git_metrics]
 disabled = false
@@ -80,30 +83,30 @@ full_symbol = ""
 
 [[battery.display]]  # "bold red" style when capacity is between 0% and 10%
 disabled = false
-style = "#C1BAFA"
+style = "#B29B86"
 threshold = 15
 
 [[battery.display]]  # "bold yellow" style when capacity is between 10% and 30%
 disabled = true
-style = "#D8D4F4"
+style = "#D0C5BA"
 threshold = 50
 
 [[battery.display]]  # "bold green" style when capacity is between 10% and 30%
 disabled = true
-style = "#918CBC"
+style = "#867464"
 threshold = 80
 
 # Prompt: optional param 1
 [time]
 disabled = true
 format = " 🕙 $time($style)\n"
-style = "#D8D4F4"
+style = "#D0C5BA"
 time_format = "%T"
 
 # Prompt: param 2
 [character]
-error_symbol = " [×](#9794AB)"
-success_symbol = " [╰─](#B8AFF0)"
+error_symbol = " [×](#928A82)"
+success_symbol = " [╰─](#6E7E7B)"
 
 # SYMBOLS
 [status]

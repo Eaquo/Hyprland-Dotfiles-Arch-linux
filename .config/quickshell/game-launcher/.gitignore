@@ -36,3 +36,6 @@ cache/
 .claude/
 *.tar
 *.tar.gz
+
+# Claude Code conversation history (migrated after disk swap)
+.claude-history/

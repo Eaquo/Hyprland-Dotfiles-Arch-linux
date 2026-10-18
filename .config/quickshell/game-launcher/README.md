@@ -149,6 +149,23 @@ bind = SUPER, G, exec, quickshell-game
 bind = SUPER, G, exec, ~/.config/quickshell/game-launcher/toggle.sh
 ```
 
+### Instant open (daemon mode)
+
+The launcher runs as a **persistent daemon**: it starts hidden and stays warm
+(config, game list and cover art preloaded), and `SUPER + G` just toggles its
+visibility over IPC — no cold start and no cover re-decoding on each open.
+
+`toggle.sh` starts the daemon automatically on the first press. To make even the
+**first** press of the session instant, pre-warm it at login by adding to your
+Hyprland autostart (`exec-once`):
+
+```conf
+exec-once = quickshell -c game-launcher &
+```
+
+> **Note:** the game list is scanned once when the daemon starts. After
+> installing a new game, press **F5** in the launcher to refresh it.
+
 ---
 
 ## ⚙️ Configuration
@@ -549,6 +566,6 @@ Inspired by [caelestia-dots/shell](https://github.com/caelestia-dots/shell)
 &nbsp;&nbsp;
 [![Reddit](https://img.shields.io/badge/Reddit-Embarrassed--Ad2725-FF4500?style=for-the-badge&logo=reddit&logoColor=white&labelColor=302D41)](https://www.reddit.com/user/Embarrassed-Ad2725/)
 
-**Author** · Florian &nbsp;·&nbsp; **Version** · 2.0.0 &nbsp;·&nbsp; **Date** · 2026-05-31
+**Author** · Florian &nbsp;·&nbsp; **Version** · 2.1.0 &nbsp;·&nbsp; **Date** · 2026-09-28
 
 </div>

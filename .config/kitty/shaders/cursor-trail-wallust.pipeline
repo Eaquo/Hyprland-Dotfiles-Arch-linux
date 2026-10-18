@@ -1,0 +1,6 @@
+# Traînée de curseur "blaze" aux couleurs wallust
+startgroup
+    animation_start cursor-trail-move
+    animation_stop cursor-trail-stop
+    shaders cursor-trail-wallust
+endgroup

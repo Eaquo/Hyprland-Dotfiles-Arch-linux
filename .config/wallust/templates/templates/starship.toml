@@ -1,3 +1,6 @@
+# Laisse plus de temps au scan du dossier (dépassait 30ms au démarrage de kitty)
+scan_timeout = 200
+
 ## FIRST LINE/ROW: Info & Status
 # First param ─┌
 [username]

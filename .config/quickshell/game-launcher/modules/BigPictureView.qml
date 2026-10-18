@@ -50,10 +50,18 @@ Item {
     property var heroImages: {
         var g = currentGame
         if (!g) return []
-        if (g.images && g.images.length > 0) return g.images
         var imgs = []
-        if (g.image) imgs.push(g.image)
-        if (g.hero_image && g.hero_image !== g.image) imgs.push(g.hero_image)
+        // Hero animé (bandeau large) en premier pour qu'il joue dès la 1re slide.
+        // Pas image_animated : c'est le format des cartes (600×900), flou et mal cadré ici
+        var anim = g.hero_animated || ""
+        if (anim && anim.toLowerCase().endsWith(".webp")) imgs.push(anim)
+        if (g.images && g.images.length > 0)
+            imgs = imgs.concat(g.images.filter(u => u !== anim))
+        else {
+            // hero_image (library_hero.jpg 1920×620) avant image (header.jpg 460×215)
+            if (g.hero_image && imgs.indexOf(g.hero_image) === -1) imgs.push(g.hero_image)
+            if (g.image && imgs.indexOf(g.image) === -1) imgs.push(g.image)
+        }
         return imgs
     }
     property int heroSlideIndex: 0
@@ -65,15 +73,8 @@ Item {
         running: bp.heroImages.length > 1
         repeat: true
         onTriggered: {
-            heroFadeOut.start()
+            bp.heroSlideIndex = (bp.heroSlideIndex + 1) % Math.max(bp.heroImages.length, 1)
         }
-    }
-
-    SequentialAnimation {
-        id: heroFadeOut
-        NumberAnimation { target: heroImg; property: "opacity"; to: 0; duration: 400; easing.type: Easing.InQuad }
-        ScriptAction { script: { bp.heroSlideIndex = (bp.heroSlideIndex + 1) % Math.max(bp.heroImages.length, 1) } }
-        NumberAnimation { target: heroImg; property: "opacity"; to: 1; duration: 400; easing.type: Easing.OutQuad }
     }
 
     // Hero toujours statique — slide entre image SGDB et hero Steam CDN
@@ -150,17 +151,42 @@ Item {
         color: "#080808"
     }
 
+    // ── Hero cross-fade double-buffer ───────────────────────────────────────
+    // _flip=false → slot A visible, slot B preloading
+    // _flip=true  → slot B visible, slot A preloading
+    property bool   _heroFlip: false
+    property string _heroSlotA: ""
+    property string _heroSlotB: ""
+    Component.onCompleted: { _heroSlotA = heroSrc }
+    onHeroSrcChanged: {
+        if (!_heroFlip) { _heroSlotB = heroSrc }
+        else            { _heroSlotA = heroSrc }
+    }
+
     // ── Hero image (blurred background) ─────────────────────────────────────
     Image {
-        id: heroBg
+        id: heroBgA
         anchors.fill: parent
-        source: bp.heroSrc
+        source: bp._heroSlotA
         fillMode: Image.PreserveAspectCrop
-        asynchronous: true
-        cache: true
-        opacity: 0.18
+        asynchronous: true; cache: true
+        opacity: bp._heroFlip ? 0 : 0.18
+        Behavior on opacity { NumberAnimation { duration: 280 } }
         layer.enabled: true
         layer.effect: MultiEffect { blurEnabled: true; blur: 1.0; blurMax: 48 }
+        onStatusChanged: if (status === Image.Ready && bp._heroFlip) bp._heroFlip = false
+    }
+    Image {
+        id: heroBgB
+        anchors.fill: parent
+        source: bp._heroSlotB
+        fillMode: Image.PreserveAspectCrop
+        asynchronous: true; cache: true
+        opacity: bp._heroFlip ? 0.18 : 0
+        Behavior on opacity { NumberAnimation { duration: 280 } }
+        layer.enabled: true
+        layer.effect: MultiEffect { blurEnabled: true; blur: 1.0; blurMax: 48 }
+        onStatusChanged: if (status === Image.Ready && !bp._heroFlip) bp._heroFlip = true
     }
 
     // ── TOP BAR ─────────────────────────────────────────────────────────────
@@ -332,21 +358,33 @@ Item {
         anchors.right: parent.right
         anchors.bottom: gameStrip.top
 
-        // Hero statique — Image simple, pas d'animé pour économiser les ressources
-        Image {
-            id: heroImg
+        // Hero — double-buffer cross-fade, AnimatedImage gère WebP animés et statiques
+        AnimatedImage {
+            id: heroImgA
             anchors.fill: parent
-            source: bp.heroSrc
+            source: bp._heroSlotA
             fillMode: Image.PreserveAspectCrop
-            asynchronous: true
-            cache: true
-            smooth: true
+            asynchronous: true; cache: false; smooth: true
+            playing: !bp._heroFlip && source !== ""
+            opacity: bp._heroFlip ? 0 : 1
+            Behavior on opacity { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
+        }
+        AnimatedImage {
+            id: heroImgB
+            anchors.fill: parent
+            source: bp._heroSlotB
+            fillMode: Image.PreserveAspectCrop
+            asynchronous: true; cache: false; smooth: true
+            playing: bp._heroFlip && source !== ""
+            opacity: bp._heroFlip ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 280; easing.type: Easing.OutCubic } }
         }
 
         // Fallback initiales — dernier recours si même la cover est absente
         Rectangle {
             anchors.fill: parent
-            visible: heroImg.status === Image.Error || heroImg.status === Image.Null
+            visible: (heroImgA.status === Image.Error || heroImgA.status === Image.Null) &&
+                     (heroImgB.status === Image.Error || heroImgB.status === Image.Null)
             color: "#111111"
             Text {
                 anchors.centerIn: parent

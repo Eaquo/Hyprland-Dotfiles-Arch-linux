@@ -18,13 +18,15 @@ Rectangle {
     property int lastPlayed: 0  // Unix timestamp
     property real glowStrength: 0.8
     property real glowBlur: 12
-    property bool hasLocalAnimated: gameImageAnimated !== "" &&
-        (gameImageAnimated.startsWith("file://") || gameImageAnimated.startsWith("/"))
-    property string effectiveImage: hasLocalAnimated ? gameImageAnimated : gameImage
+    property bool hasAnimated: gameImageAnimated !== ""
+    property string effectiveImage: hasAnimated ? gameImageAnimated : gameImage
     property bool isWebM: effectiveImage.toLowerCase().endsWith(".webm")
     property bool isAnimatedWebP: effectiveImage.toLowerCase().endsWith(".webp")
     property bool isAnimated: isWebM || isAnimatedWebP
     property real glowOpacity: 0.8
+
+    // Opt-in RAM cache for the big animated WebP cover ([animations] cache_in_memory)
+    property bool cacheInMemory: false
 
     // Source WebM gérée manuellement pour contrôler le cycle vie RAM/réseau
     property string _webmSource: ""
@@ -148,6 +150,9 @@ Rectangle {
                 visible: card.isAnimatedWebP && (!card.isSelected || animCover.status !== Image.Ready)
                 source: visible ? card.effectiveImage : ""
                 fillMode: Image.PreserveAspectCrop
+                // Decode at card size instead of full hero resolution (big speedup)
+                sourceSize.width: Math.round(card.width)
+                sourceSize.height: Math.round(card.height)
                 asynchronous: true
                 cache: true
             }
@@ -177,6 +182,9 @@ Rectangle {
                 visible: !card.isAnimated
                 source: visible ? card.effectiveImage : ""
                 fillMode: Image.PreserveAspectCrop
+                // Decode at card size instead of full hero resolution (big speedup)
+                sourceSize.width: Math.round(card.width)
+                sourceSize.height: Math.round(card.height)
                 asynchronous: true
                 smooth: true
                 cache: true
@@ -222,7 +230,7 @@ Rectangle {
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
                 smooth: true
-                cache: false
+                cache: card.cacheInMemory
                 playing: true
                 paused: false
 

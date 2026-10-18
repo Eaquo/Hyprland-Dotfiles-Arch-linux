@@ -1,0 +1,47 @@
+#!/bin/bash
+# === MTG Arena ===
+# Fenêtre flottante récalcitrante : on la force en tiled + fullscreen.
+GAME_PERF="False"
+GAME_VRR="True"
+GAMESCOPE_OPTIONS="False"
+FSR="False"
+HDR="False"
+MANGOHUD_OPTION="False"
+ANIMATION="True"
+WAYLAND_NATIVE="True"
+
+# Détection : MTGA via Steam ne matche pas toujours le PID → fallback par classe
+GAME_CLASS_MATCH="MTGA|steam_app"
+DETECT_TIMEOUT="60"
+
+export DXVK_STATE_CACHE=1
+export DXVK_STATE_CACHE_PATH="$HOME/.cache/dxvk"
+export PROTON_NO_ESYNC=0
+export PROTON_NO_FSYNC=0
+export PROTON_USE_NTSYNC=1
+
+# Hook : force la fenêtre en tiled + plein écran après détection
+game_post_window() {
+  local c="$1"
+  hyprctl --batch "\
+    keyword windowrulev2 'tile, class:^($c)$';\
+    keyword windowrulev2 'fullscreen, class:^($c)$';\
+    keyword windowrulev2 'workspace 1 silent, class:^($c)$'"
+  sleep 0.5
+  hyprctl dispatch focuswindow "class:^($c)$"
+  sleep 0.3
+  if [ "$(hyprctl activewindow -j | jq -r '.floating')" = "true" ]; then
+    hyprctl dispatch togglefloating active
+    sleep 0.2
+  fi
+  hyprctl dispatch fullscreen 2
+}
+
+# Hook : retire les windowrules à la sortie
+game_on_exit() {
+  [ -n "$GAME_WINDOW_CLASS" ] && \
+    hyprctl --batch "keyword windowrulev2 'unset, class:^($GAME_WINDOW_CLASS)$'"
+}
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"

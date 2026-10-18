@@ -1,0 +1,72 @@
+#!/bin/bash
+# === Elden Ring (Modded / PortProton) ===
+# Gestionnaire de profils de sauvegarde + affinité CPU runtime.
+GAME_PERF="True"
+GAME_VRR="False"
+GAMESCOPE_OPTIONS="False"
+FSR="True"
+HDR="False"
+MANGOHUD_OPTION="True"
+ANIMATION="True"
+GAME_CLASS_MATCH="eldenring"
+CPU_CCD="False"          # 5900X : test baseline sans pin (le mauvais taskset 12-23 = SMT-only causait les 24fps). Mettre "True" = pin CCD0 (0-5,12-17).
+
+# --- exports spécifiques à ce jeu ---
+export VKD3D_CONFIG=no_upload_hvv
+export WINEDLLOVERRIDES="dinput8.dll=n,b"
+export DXVK_FRAME_RATE=165
+export RADV_PERFTEST="gpl,ngg"   # TEST 24fps : neutralise gpl. Remettre "gpl" si ça ne change rien.
+
+# =============================================================================
+#  Gestionnaire de profils de sauvegarde (s'exécute AVANT le lancement)
+# =============================================================================
+SAVE_DIR="$HOME/.config/eldenring-saves"
+GAME_SAVE_PATH="$HOME/PortProton/prefixes/DEFAULT/drive_c/users/steamuser/Application Data/EldenRing/76561197960271872"
+ACTIVE_PROFILE_FILE="$SAVE_DIR/.active_profile"
+PROFILE_LABELS=("⚔️  Elden Ring Vanilla" "🔧  Elden Ring Modded" "🎲  Random")
+
+mkdir -p "$SAVE_DIR/vanilla" "$SAVE_DIR/modded" "$SAVE_DIR/random"
+
+SELECTED=$(printf '%s\n' "${PROFILE_LABELS[@]}" | rofi -dmenu -p "🎮 Choisir profil de sauvegarde :" -theme config-wallpaper 'window {width: 420px;}')
+case "$SELECTED" in
+  "${PROFILE_LABELS[0]}") PROFILE="vanilla" ;;
+  "${PROFILE_LABELS[1]}") PROFILE="modded" ;;
+  "${PROFILE_LABELS[2]}") PROFILE="random" ;;
+  *) notify-send -e -u critical "⚠️ Aucun profil sélectionné — abandon."; exit 1 ;;
+esac
+notify-send -e -u normal "💾 Profil sélectionné : $PROFILE"
+
+# Sauvegarde de l'ancien profil actif avant de switcher
+if [ -f "$ACTIVE_PROFILE_FILE" ]; then
+  PREV_PROFILE=$(cat "$ACTIVE_PROFILE_FILE")
+  if [ -d "$GAME_SAVE_PATH" ]; then
+    notify-send -e -u normal "💾 Sauvegarde profil précédent : $PREV_PROFILE"
+    rsync -a --delete "$GAME_SAVE_PATH/" "$SAVE_DIR/$PREV_PROFILE/"
+  fi
+fi
+
+# Restauration du profil choisi
+if [ "$(ls -A "$SAVE_DIR/$PROFILE" 2>/dev/null)" ]; then
+  notify-send -e -u normal "📂 Restauration du profil : $PROFILE"
+  rsync -a --delete "$SAVE_DIR/$PROFILE/" "$GAME_SAVE_PATH/"
+else
+  notify-send -e -u normal "🆕 Nouveau profil $PROFILE — aucune sauvegarde existante"
+fi
+echo "$PROFILE" >"$ACTIVE_PROFILE_FILE"
+
+# =============================================================================
+#  Hooks moteur
+# =============================================================================
+# L'affinité CPU est gérée par CPU_CCD="True" (pin V-cache 0-7,16-23 au lancement).
+
+# Sauvegarde automatique du profil à la sortie
+game_on_exit() {
+  if [ -f "$ACTIVE_PROFILE_FILE" ] && [ -d "$GAME_SAVE_PATH" ]; then
+    local p; p=$(cat "$ACTIVE_PROFILE_FILE")
+    notify-send -e -u normal "💾 Sauvegarde du profil $p en sortie..."
+    rsync -a --delete "$GAME_SAVE_PATH/" "$SAVE_DIR/$p/"
+  fi
+}
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"

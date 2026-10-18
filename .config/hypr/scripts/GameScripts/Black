@@ -1,0 +1,26 @@
+#!/bin/bash
+# === Black Myth: Wukong ===
+# UE5 + AMD + Ultrawide 3440x1440. Gamescope OFF (UE5 + gamescope = crashs).
+GAME_PERF="True"
+GAME_VRR="True"
+GAMESCOPE_OPTIONS="False"
+FSR="True"
+HDR="False"
+MANGOHUD_OPTION="True"
+X11="True"            # BMW tourne mieux sous XWayland (Proton)
+
+# --- exports spécifiques à ce jeu ---
+export mesa_glthread=true                                  # multi-thread GL côté CPU
+export VKD3D_CONFIG=dxr                                    # Ray Tracing DX12 (surcharge le défaut)
+export DXVK_STATE_CACHE_PATH="$HOME/.cache/dxvk/blackmyth" # cache shaders dédié
+export AMD_VULKAN_ICD=RADV                                 # force le driver RADV
+export RADV_DEBUG=noamdvrs                                 # désactive le VRS agressif AMD
+export PROTON_ENABLE_NVAPI=0                               # inutile sur AMD
+export WINE_LARGE_ADDRESS_AWARE=1                          # BMW utilise beaucoup de VRAM
+export STAGING_SHARED_MEMORY=1
+export WINEDLLOVERRIDES="dwmapi.dll=n,b"
+export PULSE_LATENCY_MSEC=60                               # réduit les craquements audio
+export VKD3D_CONFIG=pipeline_library
+
+source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
+run_game "$@"
