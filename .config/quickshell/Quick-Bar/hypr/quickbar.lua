@@ -26,12 +26,21 @@ hl.bind("SUPER + F1", hl.dsp.exec_cmd(qb .. "settings toggle"), { description = 
 hl.bind("SUPER + SHIFT + D", hl.dsp.exec_cmd(qb .. "dashboard-home toggle"), { description = "Dashboard" })
 hl.bind("SUPER + SHIFT + S", hl.dsp.exec_cmd(qb .. "spotify toggle"), { description = "Panneau Spotify" })
 hl.bind("SUPER + A", hl.dsp.exec_cmd(qb .. "overview toggle"), { description = "Vue d'ensemble des espaces" })
+hl.bind("SUPER + SHIFT + N", hl.dsp.exec_cmd(qb .. "notifications toggle"), { description = "Centre de notifications" })
+hl.bind("SUPER + L", hl.dsp.exec_cmd(qb .. "lock lock"), { description = "Verrouiller" })
+hl.bind("CTRL + ALT + L", hl.dsp.exec_cmd(qb .. "lock lock"), { description = "Verrouiller" })
 hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(qb .. "session toggle"), { description = "Session (verrouiller, éteindre…)" })
 
 -- Menus
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qb .. "menu run apps"), { description = "Lanceur d'applications (Super seul)", release = true })
 hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd(qb .. "menu run game-scripts"), { description = "Scripts de jeux" })
+hl.bind("CTRL + B", hl.dsp.exec_cmd(qb .. "menu run bluetooth"), { description = "Bluetooth" })
 hl.bind("SUPER + SHIFT + E", hl.dsp.exec_cmd(qb .. "menu run quickedit"), { description = "Éditer une config" })
+
+-- Fenêtres
+hl.bind("ALT + Tab", hl.dsp.exec_cmd(qb .. "alttab next"), { description = "Changer de fenêtre" })
+hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd(qb .. "alttab prev"), { description = "Changer de fenêtre (retour)" })
+hl.bind("ALT + ALT_L", hl.dsp.exec_cmd(qb .. "alttab commit"), { description = "Aller sur la fenêtre (relâcher Alt)", release = true })
 
 -- Fond d'écran
 hl.bind("SUPER + W", hl.dsp.exec_cmd(qb .. "wallpicker toggle"), { description = "Fond d'écran : carrousel" })

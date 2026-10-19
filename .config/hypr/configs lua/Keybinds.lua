@@ -33,10 +33,12 @@ local guitare = "ToneLib-Metal"
 -- ╚══════════════════════════════════════════════════════════════════════════╝
 
 hl.bind("CTRL + ALT + Delete", hl.dsp.exit())
-hl.bind("CTRL + ALT + L", hl.dsp.exec_cmd("hyprlock -q"))
+-- verrouillage Quick-Bar (panels/LockScreen.qml, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind("CTRL + ALT + L", hl.dsp.exec_cmd("hyprlock -q"))
 -- → déplacé dans Quick-Bar/hypr/quickbar.lua (Réglages › Raccourcis de Quick-Bar)
 -- hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(scripts .. "/Wlogout.sh"))
-hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(scripts .. "/LockScreen.sh"))
+-- verrouillage Quick-Bar (panels/LockScreen.qml, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(scripts .. "/LockScreen.sh"))
 
 -- Fenêtres
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
@@ -95,7 +97,8 @@ hl.bind("SUPER + O", hl.dsp.exec_cmd(home .. "/.config/quickshell/rgb-launcher/t
 -- hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd(userScripts .. "/EditScriptGame.sh"))
 -- SUPER+SHIFT+E : éditer une config, menu Quick-Bar (menus/scripts/quickedit.sh, bind généré dans Quick-Bar/hypr/quickbar.lua)
 -- hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(userScripts .. "/QuickEdit.sh"))
-hl.bind("CTRL + B", hl.dsp.exec_cmd("rofi-bluetooth"))
+-- CTRL+B : menu Bluetooth Quick-Bar (menus/scripts/bluetooth.sh, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind("CTRL + B", hl.dsp.exec_cmd("rofi-bluetooth"))
 
 -- Master layout
 hl.bind(mainMod .. " + I", hl.dsp.layout("togglesplit"))
@@ -111,7 +114,8 @@ hl.bind(mainMod .. " + ALT + E", hl.dsp.exec_cmd(scripts .. "/RofiEmoji.sh"))
 hl.bind(mainMod .. " + SHIFT + Z", hl.dsp.exec_cmd(scripts .. "/RofiSearch.sh"))
 hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd(scripts .. "/ChangeBlur.sh"))
 hl.bind(mainMod .. " + ALT + V", hl.dsp.exec_cmd(scripts .. "/ClipManager.sh"))
-hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
+-- SUPER+SHIFT+N : centre de notifications Quick-Bar (panels/NotifCenter.qml, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
 
 -- Wallpaper
 -- Sélecteurs de Quick-Bar : SUPER+W carrousel, ALT+W « Cinéma », CTRL+ALT+W fond au hasard
@@ -140,7 +144,8 @@ hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "u" }))
 hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "d" }))
 
 -- Cycle fenêtres (corrigé : "cyclenext, prev~/.config/..." → cyclenext prev)
-hl.bind("ALT + Tab", hl.dsp.window.cycle_next({ prev = true }))
+-- ALT+Tab : changeur de fenêtres Quick-Bar (panels/AltTab.qml, binds générés dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind("ALT + Tab", hl.dsp.window.cycle_next({ prev = true }))
 
 -- Déplacer fenêtres
 hl.bind(mainMod .. " + CTRL + left", hl.dsp.window.move({ direction = "l" }))

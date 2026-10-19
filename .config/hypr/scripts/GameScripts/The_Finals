@@ -8,5 +8,8 @@ HDR="False"
 MANGOHUD_OPTION="True"
 ANIMATION="True"
 
+# Ray tracing DX12 coupé : la trace RTXGI faisait planter le GPU (ring gfx timeout → reset → crash Hyprland, 18/10/2026)
+export VKD3D_CONFIG="pipeline_library,nodxr"
+
 source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
 run_game "$@"

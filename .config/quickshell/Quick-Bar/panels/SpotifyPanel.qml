@@ -44,7 +44,10 @@ PanelWindow {
     WlrLayershell.keyboardFocus: (windowVisible && Popups.spotifyOpen) ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     property bool windowVisible: false
+    // créé par un LazyLoader (shell.qml) quand on l'ouvre, détruit après la fermeture : aucune RAM fermé
+    Component.onCompleted: { if (Popups.spotifyOpen) openConn.onSpotifyOpenChanged() }
     Connections {
+        id: openConn
         target: Popups
         function onSpotifyOpenChanged() {
             if (Popups.spotifyOpen) { closeTimer.stop(); root.windowVisible = true; keys.forceActiveFocus(); slideTimer.restart() }
@@ -58,13 +61,7 @@ PanelWindow {
     // La fenêtre reste affichée le temps de l'animation de fermeture (reveal.closeAnim)
     Timer { id: closeTimer; interval: 1550; onTriggered: root.windowVisible = false }
 
-    IpcHandler {
-        target: "spotify"
-        function toggle() {
-            if (!Popups.spotifyOpen) Popups.closeAll()
-            Popups.spotifyOpen = !Popups.spotifyOpen
-        }
-    }
+    // commandes IPC : dans shell.qml (le panneau n'existe que lorsqu'il est ouvert)
 
     // ── Spotify (MPRIS) ───────────────────────────────────────────────────────
     readonly property var player: Mpris.players.values.find(p =>
@@ -164,14 +161,15 @@ PanelWindow {
             readonly property real fullH: root.screen?.height ?? sizer.height
             // Corps du panneau sans ses raccords : le déroulé s'arrête là
             readonly property real bodyH: root.panelHeight
-            property real rw: root.panelWidth       // largeur du corps, comptée depuis le bord droit
-            property real rh: bodyH                 // hauteur du corps
-            property real mr: Appearance.cornerRadius   // rayon des coins de gauche
-            property real flare: 1                  // taille des raccords creux (0 → 1)
-            property real content: 1
-            property real lineH: fullH              // longueur du trait du bord droit
-            property real lineOp: 0                 // opacité de la forme animée (0 = vrai panneau)
-            property bool done: true                // animation finie : plus de découpe
+            // état de départ = fermé (le panneau est créé à l'ouverture) ; finish() pose l'état final
+            property real rw: 0                     // largeur du corps, comptée depuis le bord droit
+            property real rh: 0                     // hauteur du corps
+            property real mr: 0                     // rayon des coins de gauche
+            property real flare: 0                  // taille des raccords creux (0 → 1)
+            property real content: 0
+            property real lineH: 0                  // longueur du trait du bord droit
+            property real lineOp: 1                 // opacité de la forme animée (0 = vrai panneau)
+            property bool done: false               // animation finie : plus de découpe
             // État final (aussi appliqué si l'animation est interrompue)
             function finish() {
                 rw = Qt.binding(() => root.panelWidth); rh = Qt.binding(() => bodyH)

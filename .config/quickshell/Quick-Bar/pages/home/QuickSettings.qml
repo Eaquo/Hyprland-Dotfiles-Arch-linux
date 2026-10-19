@@ -783,6 +783,7 @@ StatCard {
                     property  string sublabel: ""
                     signal toggled()
                     signal rightClicked()
+                    signal middleClicked()
 
                     radius: 10
                     color: on
@@ -828,8 +829,9 @@ StatCard {
                     HoverHandler { id: bH; cursorShape: Qt.PointingHandCursor }
                     MouseArea {
                         anchors.fill: parent
-                        acceptedButtons: Qt.LeftButton | Qt.RightButton
-                        onClicked: (m) => m.button === Qt.RightButton ? btn.rightClicked() : btn.toggled()
+                        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+                        onClicked: (m) => m.button === Qt.RightButton ? btn.rightClicked()
+                                        : m.button === Qt.MiddleButton ? btn.middleClicked() : btn.toggled()
                     }
                 }
 
@@ -873,6 +875,8 @@ StatCard {
                         sublabel: root.btOn && root.btDevice !== "" ? root.btDevice : ""
                         onToggled: root._btToggle()
                         onRightClicked: root._launch("blueman-manager")
+                        // clic molette : le menu Bluetooth Quick-Bar (comme CTRL+B)
+                        onMiddleClicked: { Popups.closeAll(); Quickshell.execDetached([Quickshell.shellDir + "/menus/run.sh", "bluetooth"]) }
                     }
                     TglBtn {
                         width: tileGrid.btnW; height: tileGrid.btnH

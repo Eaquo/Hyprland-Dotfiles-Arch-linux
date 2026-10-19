@@ -29,7 +29,7 @@ PanelWindow {
     readonly property int animDuration: Appearance.animDuration
 
     property string page: "home"
-    Component.onCompleted: page = homeKey
+    // (ouverture à la création : voir plus bas)
 
     // ── Onglets et taille : [dashboard] dans config.toml (Réglages › Panneaux › Dashboard) ──
     readonly property var allTabs: [
@@ -70,7 +70,18 @@ PanelWindow {
     readonly property bool fromBottom: false
     property bool windowVisible: false
 
+    // créé par un LazyLoader (shell.qml) quand on l'ouvre, détruit après la fermeture : aucune RAM fermé
+    // ouvert « visuellement » : suit Popups.dashboardOpen, mais seulement une fois créé (sinon pas de transition)
+    property bool isOpen: false
+    Component.onCompleted: {
+        page = homeKey
+        if (Popups.dashboardOpen) openConn.onDashboardOpenChanged()
+        openDelay.start()
+    }
+    // un court délai : la fenêtre doit être affichée pour que la transition se joue (comme Spotify)
+    Timer { id: openDelay; interval: 60; onTriggered: root.isOpen = Qt.binding(() => Popups.dashboardOpen) }
     Connections {
+        id: openConn
         target: Popups
         function onDashboardOpenChanged() {
             if (Popups.dashboardOpen) {
@@ -84,23 +95,7 @@ PanelWindow {
     }
 
     // ── IPC handlers for external toggle requests ─────────────────────────────
-    IpcHandler {
-        target: "dashboard-home"
-        function toggle() {
-            if(Popups.anyOpen && !Popups.dashboardOpen){
-                Popups.closeAll()
-                Popups.dashboardOpen = true
-                root.page = root.homeKey
-            } else if(Popups.dashboardOpen && root.page != root.homeKey) {
-                root.page = root.homeKey
-            } else if(Popups.dashboardOpen && root.page == root.homeKey) {
-                Popups.dashboardOpen = false
-            } else {
-                Popups.dashboardOpen = !Popups.dashboardOpen
-                root.page = root.homeKey
-            }
-        }
-    }
+    // commandes IPC : dans shell.qml (le panneau n'existe que lorsqu'il est ouvert)
 
 
     Timer {
@@ -130,8 +125,8 @@ PanelWindow {
         anchors.horizontalCenter: parent.horizontalCenter
         clip: true
 
-        width:  Popups.dashboardOpen ? Popups.dashboardPageWidth + 2 * root.fw : Appearance.cNotchMinWidth + 2 * root.fw
-        height: Popups.dashboardOpen ? Appearance.dashboardHeight : Appearance.notchHeight / 2
+        width:  root.isOpen ? Popups.dashboardPageWidth + 2 * root.fw : Appearance.cNotchMinWidth + 2 * root.fw
+        height: root.isOpen ? Appearance.dashboardHeight : Appearance.notchHeight / 2
 
         Behavior on width  { NumberAnimation { duration: root.animDuration; easing.type: Easing.InOutCubic } }
         Behavior on height { NumberAnimation { duration: root.animDuration; easing.type: Easing.InOutCubic } }
@@ -172,10 +167,10 @@ PanelWindow {
             }
             height: Appearance.dashboardHeight - root.fh - 16
 
-            opacity: Popups.dashboardOpen ? 1 : 0
+            opacity: root.isOpen ? 1 : 0
             Behavior on opacity {
                 NumberAnimation {
-                    duration: Popups.dashboardOpen
+                    duration: root.isOpen
                         ? root.animDuration * 0.5
                         : root.animDuration * 0.15
                 }

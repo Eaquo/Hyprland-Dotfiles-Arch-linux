@@ -98,21 +98,13 @@ PanelWindow {
     // ── ouverture / réponse ───────────────────────────────────────────────
     property bool open: false
     property bool shown: false
-    Process { id: loadProc; stdout: StdioCollector { onStreamFinished: { try { root.start(JSON.parse(text)) } catch (e) {} } } }
-    IpcHandler {
-        target: "menu"
-        function open(path: string) { loadProc.command = ["cat", path]; loadProc.running = true }
-        function apps() { if (root.open && root.tpl === "apps") root.finish(1, ""); else root.start({ template: "apps", prompt: "Apps", icon: "󰀻" }) }
-        function close() { root.finish(1, "") }
-        // id de la demande affichée ("" si aucune) : qbmenu abandonne si ce n'est plus la sienne (rechargement…)
-        function current(): string { return root.open ? (root.req.id || "") : "" }
-        // menus/scripts/<name>.sh (raccourcis Quick-Bar) ; relancer le même menu le referme
-        function run(name: string) {
-            if (root.open && root.req.script === name) { root.finish(1, ""); return }
-            tabProc.command = ["setsid", "-f", Quickshell.shellDir + "/menus/run.sh", name]
-            tabProc.running = false; tabProc.running = true
-        }
-    }
+    Process { id: loadProc; stdout: StdioCollector { onStreamFinished: { try { root.start(JSON.parse(text)) } catch (e) {} root.loading = false } } }
+    // créé par un LazyLoader (shell.qml) à la première demande, détruit après la fermeture : aucune RAM fermé.
+    // Les commandes IPC « menu » sont dans shell.qml et passent par loadPath().
+    property bool loading: false
+    function loadPath(path) { loading = true; loadProc.command = ["cat", path]; loadProc.running = true }
+    // différé : changer menuRequest pendant la création relancerait la liaison « active » du LazyLoader
+    Component.onCompleted: if (Popups.menuRequest !== "") loadPath(Popups.menuRequest)   // remise à zéro par shell.qml
     readonly property var tabs: req.tabs || []
     Process { id: tabProc }
     function switchTab(i) {
@@ -135,6 +127,12 @@ PanelWindow {
         }
         settled = false
         crtX = 1; crtY = 1; flash = 0; gl = 0; draw = 1; bgA = 1; scan = -1; fade = 1
+        // état de départ du style, posé AVANT l'affichage (sinon 1re image à pleine taille, puis l'animation)
+        if (style === "matrix") { crtX = 0; crtY = 0.004 }
+        else if (style === "cyber") fade = 0
+        else if (style === "jarvis") { draw = 0; bgA = 0 }
+        else if (style === "minimal") { fade = 0; crtX = 0.96; crtY = 0.96 }
+        mw = 2; mh = 2; intro = 0
         const name = tpl.charAt(0).toUpperCase() + tpl.slice(1)
         view.setSource(Quickshell.shellDir + "/menus/templates/" + name + ".qml", { menu: root })
         if (r.live) runLive()

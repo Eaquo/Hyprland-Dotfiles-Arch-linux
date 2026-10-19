@@ -75,7 +75,10 @@ PanelWindow {
 
     // ── Ouverture / fermeture ─────────────────────────────────────────────
     property bool windowVisible: false
+    // créé par un LazyLoader (shell.qml) quand on l'ouvre, détruit après la fermeture : aucune RAM fermé
+    Component.onCompleted: { if (Popups.settingsOpen) openConn.onSettingsOpenChanged() }
     Connections {
+        id: openConn
         target: Popups
         function onSettingsOpenChanged() {
             if (Popups.settingsOpen) {
@@ -96,18 +99,7 @@ PanelWindow {
     }
     Timer { id: closeTimer; interval: 760; onTriggered: root.windowVisible = false }
 
-    IpcHandler {
-        target: "settings"
-        function toggle() {
-            if (!Popups.settingsOpen) Popups.closeAll()
-            Popups.settingsOpen = !Popups.settingsOpen
-        }
-        function open(p: string) {
-            Popups.closeAll()
-            Popups.settingsPage = p
-            Popups.settingsOpen = true
-        }
-    }
+    // commandes IPC : dans shell.qml (le panneau n'existe que lorsqu'il est ouvert)
 
     Item {
         id: keys
@@ -119,10 +111,11 @@ PanelWindow {
     // ── Fenêtre : forme animée (ligne → pilule → déroulé) ─────────────────
     readonly property real fullW: Math.min(1180, scrW - 80)
     readonly property real fullH: Math.min(780, scrH - 100)
-    property real mw: fullW
-    property real mh: fullH
+    // état de départ = fermé (le panneau est créé à l'ouverture : sinon 1re image en grand, puis l'animation)
+    property real mw: 2
+    property real mh: 2
     property real mr: Appearance.cornerRadius
-    property real content: 1
+    property real content: 0
 
     SequentialAnimation {
         id: openAnim

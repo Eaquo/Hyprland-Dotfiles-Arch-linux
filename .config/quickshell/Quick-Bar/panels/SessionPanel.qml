@@ -38,7 +38,7 @@ PanelWindow {
     // ── Actions ───────────────────────────────────────────────────────────
     // [clé, icône, libellé, touche, couleur (slot palette), confirmation, commande]
     readonly property var actions: [
-        ["lock",     "󰌾", "Verrouiller", "l", 12, false, ["bash", Quickshell.env("HOME") + "/.config/hypr/scripts/LockScreen.sh"]],
+        ["lock",     "󰌾", "Verrouiller", "l", 12, false, ["loginctl", "lock-session"]],
         ["suspend",  "󰤄", "Veille",      "u", 14, false, ["systemctl", "suspend"]],
         ["logout",   "󰍃", "Déconnexion", "e", 11, true,  ["sh", "-c", "loginctl terminate-session \"$XDG_SESSION_ID\" || hyprctl dispatch exit"]],
         ["reboot",   "󰜉", "Redémarrer",  "r", 13, true,  ["systemctl", "reboot"]],
@@ -80,7 +80,10 @@ PanelWindow {
     // ── Ouverture / fermeture ─────────────────────────────────────────────
     property bool windowVisible: false
     property real intro: 0
+    // créé par un LazyLoader (shell.qml) quand on l'ouvre, détruit après la fermeture : aucune RAM fermé
+    Component.onCompleted: { if (Popups.sessionOpen) openConn.onSessionOpenChanged() }
     Connections {
+        id: openConn
         target: Popups
         function onSessionOpenChanged() {
             if (Popups.sessionOpen) {
@@ -98,8 +101,9 @@ PanelWindow {
         }
     }
     // ouverture : ligne → pilule → déroulé (comme les Réglages et le sélecteur de fond)
-    property real mw: fullW
-    property real mh: fullH
+    // état de départ = fermé (le panneau est créé à l'ouverture : sinon 1re image en grand, puis l'animation)
+    property real mw: 2
+    property real mh: 2
     readonly property real fullW: Math.min(1080, width - 120)
     readonly property real fullH: 400
     SequentialAnimation {
@@ -130,11 +134,7 @@ PanelWindow {
     }
     Timer { id: closeTimer; interval: Appearance.dur(700) + 40; onTriggered: root.windowVisible = false }
 
-    IpcHandler {
-        target: "session"
-        function toggle() { Popups.sessionOpen = !Popups.sessionOpen }
-        function open()   { Popups.sessionOpen = true }
-    }
+    // commandes IPC : dans shell.qml (le panneau n'existe que lorsqu'il est ouvert)
 
     // ── Clavier ───────────────────────────────────────────────────────────
     Item {

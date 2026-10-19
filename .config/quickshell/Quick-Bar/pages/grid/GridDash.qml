@@ -186,7 +186,8 @@ Item {
         { type: "pomodoro", cat: "Outils", label: "Pomodoro",      icon: "󰔟", w: 3, h: 3, col: "#f38ba8" },
         { type: "notif",    cat: "Outils", label: "Notifications", icon: "󰂚", w: 4, h: 3, col: Appearance.colors.color10 },
         { type: "note",     cat: "Outils", label: "Pense-bête",    icon: "󰎞", w: 4, h: 3, col: Appearance.colors.color5  },
-        { type: "power",    cat: "Outils", label: "Power",         icon: "󰐥", w: 3, h: 3, col: "#f38ba8" }
+        { type: "power",    cat: "Outils", label: "Power",         icon: "󰐥", w: 3, h: 3, col: "#f38ba8" },
+        { type: "updates",  cat: "Outils", label: "Mises à jour",  icon: "󰚰", w: 4, h: 3, col: Appearance.colors.color12 }
     ]
     function catalogFor(t) {
         for (var i = 0; i < catalog.length; i++) if (catalog[i].type === t) return catalog[i]
@@ -298,7 +299,7 @@ Item {
         "apps": cApps, "volume": cVolume, "uptime": cUptime,
         "load": cLoad, "temp": cTemp,
         "disks": cDisks, "pomodoro": cPomodoro, "notif": cNotif,
-        "analog": cAnalog, "palette": cPalette, "wall": cWall, "note": cNote, "power": cPower,
+        "analog": cAnalog, "palette": cPalette, "wall": cWall, "note": cNote, "power": cPower, "updates": cUpdates,
         "tgpu": cTgpu, "tnvme": cTnvme, "gpupow": cGpuPow, "freq": cFreq, "swap": cSwap,
         "sys_cpu": cSysCpu, "sys_ram": cSysRam, "sys_tcpu": cSysTcpu, "sys_gpu": cSysGpu,
         "sys_nvme": cSysNvme, "sys_disk": cSysDisk, "sys_net": cSysNet
@@ -966,6 +967,45 @@ Item {
         }
     }
     // Power (verrou / quitter / reboot / arrêt) — 2 taps pour confirmer
+    // Mises à jour : nombre (dépôts / AUR), premiers paquets, tout mettre à jour ; toucher la liste = le menu
+    Component { id: cUpdates
+        Item {
+            id: up
+            readonly property color col: Appearance.colors.color12
+            CardHead { icon: "󰚰"; label: "Mises à jour"; col: up.col }
+            Column {
+                anchors { left: parent.left; right: parent.right; top: parent.top; bottom: upBtn.top; topMargin: 26; bottomMargin: 8 }
+                spacing: 4
+                clip: true
+                Row {
+                    spacing: 10
+                    Text { text: Updates.count; font.family: Appearance.font.family; font.pixelSize: 34; font.weight: Font.Bold
+                           color: Updates.count > 0 ? up.col : Appearance.colors.dim }
+                    Text { anchors.bottom: parent.bottom; anchors.bottomMargin: 6
+                           text: Updates.checking ? "vérification…" : Updates.count === 0 ? "système à jour" : Updates.repoCount + " dépôts · " + Updates.aurCount + " AUR"
+                           font.family: Appearance.font.family; font.pixelSize: 12; color: Appearance.colors.dim }
+                }
+                Repeater {
+                    model: Updates.list.slice(0, 12)
+                    Text { required property var modelData
+                           width: parent.width; elide: Text.ElideRight
+                           text: (modelData.aur ? "󰣇 " : "󰏗 ") + modelData.name + "  " + modelData.to
+                           font.family: "JetBrains Mono"; font.pixelSize: 11; color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.75) }
+                }
+            }
+            MouseArea { anchors.fill: parent; anchors.bottomMargin: upBtn.height + 8; onClicked: Updates.openMenu() }
+            Rectangle {
+                id: upBtn
+                anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+                height: 34; radius: 10
+                visible: Updates.count > 0
+                color: ColorUtils.applyAlpha(up.col, upMa.pressed ? 0.95 : 0.8)
+                Text { anchors.centerIn: parent; text: "󰚰  Tout mettre à jour"; font.family: Appearance.font.family; font.pixelSize: 13
+                       font.weight: Font.DemiBold; color: Appearance.textOn(up.col) }
+                MouseArea { id: upMa; anchors.fill: parent; onClicked: Updates.upgrade() }
+            }
+        }
+    }
     Component { id: cPower
         Item {
             id: pw

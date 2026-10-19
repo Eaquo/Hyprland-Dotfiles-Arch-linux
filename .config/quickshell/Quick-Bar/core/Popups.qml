@@ -10,7 +10,13 @@ QtObject {
     property bool archMenuOpen:      false
     property bool dashboardOpen:     false
     property bool wallpaperOpen:     false   // sélecteur de fond SUPER+W (carrousel)
+    property string wallKind:        "image" // ce qu'il montre à l'ouverture : image · video
     property bool wallCinemaOpen:    false   // sélecteur de fond ALT+W (Cinéma)
+    property string cinemaKind:      "image"
+    property bool notifCenterOpen:   false   // centre de notifications (SUPER+MAJ+N)
+    property bool altTabWanted:      false   // ALT+Tab demandé avant la création du panneau
+    property bool overviewWanted:    false   // vue d'ensemble demandée (SUPER+A) avant sa création
+    property string menuRequest:     ""      // demande de menu (qbmenu) arrivée avant la création du menu
     property bool sessionOpen:       false   // panneau de session CTRL+ALT+P (verrouiller, éteindre…)
     property bool notificationToastOpen: false
     property bool quickOpen:         false
@@ -77,6 +83,7 @@ QtObject {
         networkOpen       = false
         batteryOpen       = false
         notificationsOpen = false
+        notifCenterOpen   = false
         archMenuOpen      = false
         dashboardOpen     = false
         wallpaperOpen     = false

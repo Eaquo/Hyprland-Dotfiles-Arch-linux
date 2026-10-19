@@ -107,3 +107,6 @@ tile_size = 155
 labels = false
 
 [menu]
+
+[lock]
+auto_minutes = 10

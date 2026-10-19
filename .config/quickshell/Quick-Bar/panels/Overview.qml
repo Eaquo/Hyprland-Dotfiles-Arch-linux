@@ -102,7 +102,9 @@ PanelWindow {
 
     function open() { if (shown || pending) return; pending = true; _loaded = 0; refresh() }
     function toggle() { if (shown) leave(startIdx, "", false); else open() }
-    IpcHandler { target: "overview"; function toggle() { root.toggle() } function open() { root.open() } }
+    // créé par un LazyLoader (shell.qml) à l'ouverture, détruit après : aucune RAM fermé. IPC « overview » dans shell.qml.
+    // ouvrir AVANT de baisser la demande (sinon le LazyLoader se désactive aussitôt), et en différé
+    Component.onCompleted: if (Popups.overviewWanted) open()   // remise à zéro par shell.qml
 
     // ── actions ───────────────────────────────────────────────────────────
     Process { id: act }

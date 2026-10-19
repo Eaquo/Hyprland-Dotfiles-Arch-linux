@@ -82,8 +82,7 @@ QtObject {
     onTouchTabsChanged:    _save()
     onStatsPrefsChanged:   _save()
     onSettingsTabChanged:  _save()
-    // « Ne pas déranger » suit aussi swaync (toasts du système)
-    onDndChanged: Quickshell.execDetached(["swaync-client", dnd ? "-dn" : "-df"])
+    // « Ne pas déranger » : appliqué par le démon de notifications de Quick-Bar (NotificationService)
 
     // WiFi — false quand la radio est coupée OU que le hotspot occupe l'interface
     property bool wifiOn: false

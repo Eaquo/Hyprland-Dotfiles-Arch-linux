@@ -69,24 +69,22 @@ PanelWindow {
 
     // ── Ouverture / fermeture ─────────────────────────────────────────────
     property bool windowVisible: false
+    // Créé à l'ouverture et détruit après la fermeture (LazyLoader dans shell.qml) : rien en mémoire
+    // quand il est fermé. Les commandes IPC « wallpicker » sont dans shell.qml.
+    function openNow() {
+        closeTimer.stop(); root.windowVisible = true; root.query = ""; search.text = ""
+        root.load(); keys.forceActiveFocus()
+        closeAnim.stop(); openAnim.restart()
+    }
+    Component.onCompleted: { root.kind = Popups.wallKind; if (Popups.wallpaperOpen) openNow() }
     Connections {
         target: Popups
         function onWallpaperOpenChanged() {
-            if (Popups.wallpaperOpen) {
-                closeTimer.stop(); root.windowVisible = true; root.query = ""; search.text = ""
-                root.load(); keys.forceActiveFocus()
-                closeAnim.stop(); openAnim.restart()
-            } else { openAnim.stop(); closeAnim.restart(); closeTimer.restart() }
+            if (Popups.wallpaperOpen) root.openNow()
+            else { openAnim.stop(); closeAnim.restart(); closeTimer.restart() }
         }
     }
     Timer { id: closeTimer; interval: Appearance.dur(700) + 40; onTriggered: root.windowVisible = false }
-
-    IpcHandler {
-        target: "wallpicker"
-        function toggle() { if (!Popups.wallpaperOpen) root.kind = "image"; Popups.wallpaperOpen = !Popups.wallpaperOpen }
-        function videos() { root.kind = "video"; Popups.wallpaperOpen = true }
-        function random() { WallpaperState.randomWall() }
-    }
 
     // ── Clavier ───────────────────────────────────────────────────────────
     Item {
@@ -143,9 +141,10 @@ PanelWindow {
     // ── Fenêtre : forme animée (ligne → pilule → déroulé) ─────────────────
     readonly property real fullW: Math.min(1700, width - 120)
     readonly property real fullH: Math.min(560, height - 160)
-    property real mw: fullW
-    property real mh: fullH
-    property real content: 1
+    // état de départ = fermé (le panneau est créé à l'ouverture : sinon 1re image en grand, puis l'animation)
+    property real mw: 2
+    property real mh: 2
+    property real content: 0
     SequentialAnimation {
         id: openAnim
         ScriptAction { script: { root.mw = 2; root.mh = 2; root.content = 0 } }

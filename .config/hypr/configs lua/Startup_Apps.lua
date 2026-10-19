@@ -31,7 +31,8 @@ hl.on("hyprland.start", function()
 	-- MALLOC_MMAP_THRESHOLD_ : les gros tampons (décodage des wallpapers 5K…) sont
 	-- rendus au système une fois libérés au lieu de rester dans le tas (~80 Mo).
 	hl.exec_cmd("env MALLOC_MMAP_THRESHOLD_=131072 quickshell -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml")
-	hl.exec_cmd("swaync")
+	-- swaync remplacé par le démon de notifications de Quick-Bar (services/NotificationService.qml)
+	-- hl.exec_cmd("swaync")
 
 	-- Système
 	hl.exec_cmd("nm-applet --indicator")

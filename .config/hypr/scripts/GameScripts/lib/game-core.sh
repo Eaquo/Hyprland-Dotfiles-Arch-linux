@@ -110,10 +110,20 @@ run_game() {
   # ------------------------- ENVIRONNEMENT (AMD) ----------------------------
   # Valeurs par défaut, surchargeables depuis le script de jeu (export VAR=...).
   # Note : '-' (et non ':-') → une valeur explicitement vide est respectée (= désactivé).
-  export RADV_PERFTEST="${RADV_PERFTEST-gpl,ngg}"             # pipeline library : anti-stutter
+  # RADV_PERFTEST : plus de valeur forcée (gpl et ngg sont actifs par défaut dans Mesa récent) ;
+  # un script de jeu peut toujours l'exporter lui-même.
   export VKD3D_CONFIG="${VKD3D_CONFIG-pipeline_library}"  # cache pipelines DX12 (vkd3d-proton)
   MANGOHUD=$([ "$MANGOHUD_OPTION" = "True" ] && echo 1 || echo 0)
   export MANGOHUD
+  # Quick-Bar : avec MangoHud, un journal continu (FPS, temps de trame) pour la page Game du tactile.
+  # Copie de ta config + 4 lignes, dans /tmp (RAM) : MangoHud.conf et tes enregistrements manuels ne changent pas.
+  if [ "$MANGOHUD" = 1 ]; then
+    mkdir -p /tmp/qb-mangohud
+    find /tmp/qb-mangohud -name '*.csv' -mmin +360 -delete 2>/dev/null
+    { cat "$HOME/.config/MangoHud/MangoHud.conf" 2>/dev/null
+      printf 'autostart_log=1\nlog_interval=500\nlog_duration=0\noutput_folder=/tmp/qb-mangohud\n'; } > /tmp/qb-mangohud/MangoHud.conf
+    export MANGOHUD_CONFIGFILE=/tmp/qb-mangohud/MangoHud.conf
+  fi
   [ "$HDR" = "True" ] && export DXVK_HDR=1
 
   # UE4SS : override dwmapi pour que Proton charge le bootstrap UE4SS.
@@ -141,9 +151,8 @@ run_game() {
   # export mesa_glthread=true
 
   # ------------------------- CONSTRUCTION COMMANDE --------------------------
-  local -a LAUNCH=(env \
-SDL_VIDEO_DRIVER=wayland \
-PROTON_ENABLE_WAYLAND=1)
+  # PROTON_ENABLE_WAYLAND n'est plus forcé ici : seulement avec WAYLAND_NATIVE="True" (voir plus haut)
+  local -a LAUNCH=(env SDL_VIDEO_DRIVER=wayland)
 
   if [ "$CPU_CCD" = "True" ]; then
     LAUNCH+=(taskset -c "$CPU_CORES")

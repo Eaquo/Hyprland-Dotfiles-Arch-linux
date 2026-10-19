@@ -50,7 +50,10 @@ PanelWindow {
     // ── Ouverture / fermeture ─────────────────────────────────────────────
     property bool windowVisible: false
     property real intro: 0            // 0 → 1 : fond, puis texte et pellicule
+    // créé par un LazyLoader (shell.qml) quand on l'ouvre, détruit après la fermeture : aucune RAM fermé
+    Component.onCompleted: { root.kind = Popups.cinemaKind; if (Popups.wallCinemaOpen) openConn.onWallCinemaOpenChanged() }
     Connections {
+        id: openConn
         target: Popups
         function onWallCinemaOpenChanged() {
             if (Popups.wallCinemaOpen) {
@@ -64,11 +67,7 @@ PanelWindow {
     NumberAnimation { id: outAnim; target: root; property: "intro"; to: 0; duration: Appearance.dur(380); easing.type: Easing.InCubic }
     Timer { id: closeTimer; interval: Appearance.dur(400) + 40; onTriggered: root.windowVisible = false }
 
-    IpcHandler {
-        target: "wallcinema"
-        function toggle() { if (!Popups.wallCinemaOpen) root.kind = "image"; Popups.wallCinemaOpen = !Popups.wallCinemaOpen }
-        function videos() { root.kind = "video"; Popups.wallCinemaOpen = true }
-    }
+    // commandes IPC : dans shell.qml (le panneau n'existe que lorsqu'il est ouvert)
 
     // ── Appliquer : le cercle de révélation part de la vignette ──────────
     property bool applying: false

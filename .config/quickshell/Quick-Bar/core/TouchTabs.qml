@@ -16,7 +16,7 @@ QtObject {
         { key: "home",    icon: "󰋜", label: "Home",    src: "../pages/home/TouchHome.qml",  keep: true },
         { key: "grid",    icon: "󰕰", label: "Grid",    src: "../pages/grid/GridDash.qml" },
         { key: "ws",      icon: "󱂬", label: "Spaces",  src: "../pages/spaces/WorkspacesTab.qml" },
-        { key: "stats",   icon: "󰻠", label: "System",  src: "../pages/stats/TouchStats.qml", keep: true, scale: 1.15 },
+        { key: "stats",   icon: "󰻠", label: "System",  src: "../pages/stats/TouchStats.qml", scale: 1.15 },
         { key: "kanban",  icon: "󰄬", label: "Tasks",   src: "../pages/kanban/KanbanBoard.qml", scale: 1.15, def: false },
         { key: "files",   icon: "󰉋", label: "Files",   src: "../pages/files/FileBrowser.qml", scale: 1.35 },
         { key: "wall",    icon: "󰸉", label: "Wall",    src: "../pages/wall/WallpaperTab.qml" },
@@ -25,7 +25,7 @@ QtObject {
         { key: "mixer",   icon: "󰕾", label: "Mixer",   src: "../pages/mixer/MixerTab.qml" },
         { key: "discord", icon: "󰙯", label: "Discord", src: "../pages/discord/DiscordChat.qml" },
         { key: "deck",    icon: "󰀻", label: "Apps",    src: "../pages/apps/StreamDeck.qml" },
-        { key: "games",   icon: "󰊴", label: "Games",   src: "../pages/games/GameTab.qml",   keep: true },   // évite le re-scan des jeux
+        { key: "games",   icon: "󰊴", label: "Games",   src: "../pages/games/GameTab.qml" },   // déchargé hors de l'onglet : le scan des jeux ne prend que 0,1 s
         { key: "rgb",     icon: "󰌵", label: "RGB",     src: "../pages/rgb/RgbTab.qml" },
         { key: "health",  icon: "󰓙", label: "Santé",   src: "../pages/health/HealthTab.qml" },
     ]
