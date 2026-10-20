@@ -51,7 +51,7 @@ on_select() {              # $1 = l'id du choix (ou son texte s'il n'a pas d'id)
 
 | Variable | Rôle | Défaut |
 |---|---|---|
-| `TEMPLATE` | `list` · `grid` · `apps` · `emoji` · `files` · `input` · `confirm` · `info` · `theme` | `list` |
+| `TEMPLATE` | `list` · `grid` · `apps` · `emoji` · `files` · `input` · `confirm` · `info` · `theme` · `scan` | `list` |
 | `POSITION` | `center` · `top` · `bottom` · `left` · `right` · `top-left` · `top-right` · `bottom-left` · `bottom-right` | `center` |
 | `WIDTH` / `HEIGHT` | largeur de la boîte, hauteur maximale du contenu (px) | selon le template |
 | `COLUMNS` | colonnes (`list`, `grid`, `theme`, `apps`) | selon le template |
@@ -74,6 +74,7 @@ on_select() {              # $1 = l'id du choix (ou son texte s'il n'a pas d'id)
 | `on_key_N "$choix"` | la Nᵉ touche de `KEYS` |
 | `on_cancel` | Échap ou clic à côté |
 | `live "$saisie"` | (facultatif) relancée à chaque frappe ; sa sortie devient la liste (calculatrice, recherche de fichiers…) |
+| `run.sh <menu> --call <fonction>` | appelle une fonction du script depuis l'extérieur (la commande `cmd=` d'un scan) |
 
 ### Les choix : `item` et `section`
 
@@ -118,6 +119,7 @@ section "Titre de section"     # une ligne non sélectionnable
 | `confirm` | une question et des boutons |
 | `info` | un affichage (aide-mémoire) : 1re colonne en touches de clavier |
 | `theme` | des cartes avec bande de couleurs ou aperçu |
+| `scan` | une tâche longue avec barre de progression (style du thème) : le 1er item porte `cmd=`, dont la sortie pilote l'affichage (`STEP i n libellé`, `SUB k m`, `ITEM texte`, `DONE`) — voir `updates.sh` |
 
 Ajouter un template : un fichier `menus/templates/MonTemplate.qml` (nom en majuscule) et
 `TEMPLATE=montemplate`. Il reçoit `menu` (le cadre) et expose `prefW`, `contentH`, `cols`, `filter`,
@@ -158,7 +160,7 @@ Rien à régler dans les scripts : la boîte suit Quick-Bar.
 | `game-scripts` | scripts de jeux (gamescope, MangoHud…) : ouvrir, créer, modifier le modèle | SUPER+MAJ+G |
 | `quickedit` | éditer une config : Lua, conf de base ou Quick-Bar, puis le fichier (aperçu, ← retour) | SUPER+MAJ+E |
 | `bluetooth` | allumer, connecter, appairer, oublier | CTRL+B · clic molette sur la tuile Bluetooth |
-| `updates` | paquets à mettre à jour (dépôts et AUR), tout mettre à jour | clic sur le module de la barre |
+| `updates` | paquets à mettre à jour avec leur changelog à droite (notes de version GitHub, commits pour les `-git`, historique Arch/AUR) ; un paquet AUR seul ou tout | clic sur le module de la barre |
 | `files` | chercher un fichier ; entrée l'ouvre avec le programme par défaut (`~/.config/mimeapps.list`) | onglet de `apps` |
 | `command` | lancer une commande (Maj+Entrée : dans un terminal) | onglet de `apps` |
 | `windows` | aller sur une fenêtre ouverte | onglet de `apps` |

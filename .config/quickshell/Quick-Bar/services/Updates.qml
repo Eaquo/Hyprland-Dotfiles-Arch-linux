@@ -22,7 +22,8 @@ Singleton {
 
     property var _query: Process {
         id: query
-        command: ["bash", "-c", "checkupdates 2>/dev/null | sed 's/^/R /'; paru -Qua 2>/dev/null | sed 's/^/A /'"]
+        // la liste sert aussi de cache au menu (ouverture directe, sans re-scan)
+        command: ["bash", "-c", "d=${XDG_RUNTIME_DIR:-/tmp}/qb-updates; mkdir -p \"$d\"; { checkupdates 2>/dev/null | sed 's/^/R /'; paru -Qua 2>/dev/null | sed 's/^/A /'; } > \"$d/list.tmp\"; mv \"$d/list.tmp\" \"$d/list.txt\"; cat \"$d/list.txt\""]
         stdout: StdioCollector {
             onStreamFinished: {
                 const l = text.trim().split("\n").filter(x => x.length > 2).map(x => {

@@ -16,6 +16,8 @@ source "$SCRIPT"
 
 # appelé par le menu à chaque frappe quand le script définit live()
 if [ "${1:-}" = "--live-query" ]; then live "${2:-}"; exit; fi
+# appelle une fonction du script (ex. une tâche lancée par le template scan) : run.sh <script> --call <fonction> [args]
+if [ "${1:-}" = "--call" ]; then shift; "$@"; exit; fi
 
 args=(--template "$TEMPLATE" --position "$POSITION" --script "$name")
 [ -n "$WIDTH" ]       && args+=(--width "$WIDTH")

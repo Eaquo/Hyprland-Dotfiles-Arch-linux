@@ -305,35 +305,36 @@ PanelWindow {
                 }
 
                 // ── Spotify fermé ─────────────────────────────────────────────
-                ColumnLayout {
+                Item {
                     visible: root.player === null
                     Layout.fillWidth: true; Layout.fillHeight: true
-                    spacing: 16
-                    Item { Layout.fillHeight: true }
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: "󰓇"; font.family: Appearance.font.family; font.pixelSize: 90
-                        color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.15)
-                    }
-                    Text {
-                        Layout.alignment: Qt.AlignHCenter
-                        text: "Spotify n'est pas lancé"
-                        font.family: Appearance.font.family; font.pixelSize: 16
-                        color: Appearance.colors.dim
-                    }
-                    Rectangle {
-                        Layout.alignment: Qt.AlignHCenter
-                        width: launchTxt.implicitWidth + 44; height: 46; radius: 23
-                        color: Appearance.colors.accent
+                    Column {
+                        anchors.centerIn: parent
+                        spacing: 16
                         Text {
-                            id: launchTxt
-                            anchors.centerIn: parent; text: "Lancer Spotify"
-                            font.family: Appearance.font.family; font.pixelSize: 15; font.weight: Font.Bold
-                            color: Appearance.textOn(Appearance.colors.accent)
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "󰓇"; font.family: Appearance.font.family; font.pixelSize: 90
+                            color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.15)
                         }
-                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.openWindow() }
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: "Spotify n'est pas lancé"
+                            font.family: Appearance.font.family; font.pixelSize: 16
+                            color: Appearance.colors.dim
+                        }
+                        Rectangle {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            width: launchTxt.implicitWidth + 44; height: 46; radius: 23
+                            color: Appearance.colors.accent
+                            Text {
+                                id: launchTxt
+                                anchors.centerIn: parent; text: "Lancer Spotify"
+                                font.family: Appearance.font.family; font.pixelSize: 15; font.weight: Font.Bold
+                                color: Appearance.textOn(Appearance.colors.accent)
+                            }
+                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.openWindow() }
+                        }
                     }
-                    Item { Layout.fillHeight: true }
                 }
 
                 // ── Lecteur ───────────────────────────────────────────────────

@@ -13,6 +13,7 @@ T.List {
     hints: "↑↓ choisir  ·  maj+↑↓ ou molette : défiler l'aperçu  ·  entrée ouvrir"
     function scrollPreview(d) { flick.contentY = Math.max(0, Math.min(flick.contentHeight - flick.height, flick.contentY + d * 120)) }
     rows: 11
+    minRows: 11
     listW: width * 0.46
     readonly property var it: menu.items[menu.cur] || null
     readonly property string path: { const p = it ? (it.path || it.id || it.t) : ""; return p.startsWith("/") ? p : "" }
@@ -56,7 +57,7 @@ T.List {
         }
         Text {
             anchors { left: parent.left; right: parent.right; bottom: parent.bottom; margins: 10 }
-            text: f.path; elide: Text.ElideMiddle
+            text: f.it && f.it.sub ? f.it.sub : f.path; elide: Text.ElideMiddle   // sub : un libellé à la place du chemin
             font.family: Appearance.font.family; font.pixelSize: 11; color: Appearance.colors.dim
         }
     }

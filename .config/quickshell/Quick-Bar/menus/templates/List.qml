@@ -13,7 +13,8 @@ Item {
     property real rowH: menu.req.rowHeight > 0 ? menu.req.rowHeight : 58
     property int rows: 9
     property int cols: menu.req.columns > 0 ? menu.req.columns : 1
-    readonly property real contentH: Math.min(Math.ceil(menu.items.length / cols), rows) * rowH
+    property int minRows: 0         // hauteur minimale (Files : l'aperçu garde sa taille quand on filtre)
+    readonly property real contentH: Math.max(minRows, Math.min(Math.ceil(menu.items.length / cols), rows)) * rowH
     property bool filter: true
     property bool search: true
     property string hints: "↑↓ choisir  ·  entrée valider"

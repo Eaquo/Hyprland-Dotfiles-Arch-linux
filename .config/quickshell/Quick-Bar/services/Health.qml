@@ -76,7 +76,7 @@ QtObject {
         case "openrgb":     return { icon: "󰌵", label: "OpenRGB", cmd: ["sh", "-c", "setsid -f openrgb >/dev/null 2>&1"] }
         case "easyeffects": return { icon: "󰓃", label: "EasyEffects", cmd: ["sh", "-c", "setsid -f easyeffects >/dev/null 2>&1"] }
         case "hy3":
-        case "hyprpm":      return { icon: "󰆍", label: "Plugins", cmd: Config.term("hyprpm", ["sh", "-c", "hyprpm list; read -p 'Entrée pour fermer' _"]) }
+        case "hyprpm":      return { icon: "", label: "Plugins", cmd: Config.term("hyprpm", ["sh", "-c", "hyprpm list; read -p 'Entrée pour fermer' _"]) }
         case "instances":   return { icon: "󰆍", label: "Processus", cmd: Config.term("Instances", ["sh", "-c", "pgrep -af 'quickshell|qs ' ; read -p 'Entrée pour fermer' _"]) }
         }
         return null

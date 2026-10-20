@@ -8,10 +8,10 @@ FSR="False"
 HDR="False"
 MANGOHUD_OPTION="False"
 X11="False"
-WAYLAND_NATIVE="False"
+WAYLAND_NATIVE="True"
 SPLIT_LOCK="False"
 CPU_CCD="False"
-REFRESH_RATE="165"
+REFRESH_RATE="100"
 
 # --- exports spécifiques à ce jeu ---
 # export WINEDLLOVERRIDES="dinput8.dll=n,b"   # (aucun pour l'instant)

@@ -212,14 +212,14 @@ box_art_dir = "~/.config/quickshell/game-launcher/box-art"
 [[manual.entries]]
 title = "Game Library"
 launch_command = "~/.config/quickshell/game-launcher/modules/service/run_in_terminal.sh python3 ~/.config/quickshell/game-launcher/modules/service/list_games.py"
-path_box_art = "library.png"
+path_box_art = "Library.png"
 
 [[manual.entries]]
 title = "Script Games"
-launch_command = "/home/florian/.config/hypr/UserScripts/EditScriptGame.sh"
-path_box_art = "Eaquo.jpg"
+launch_command = "qs -p /home/florian/.config/quickshell/Quick-Bar/shell.qml ipc call menu run game-scripts"
+path_box_art = "eaquo.png"
 
 [[manual.entries]]
 title = "Neightreign mod"
 launch_command = "/home/florian/.local/bin/me3 launch -g nightreign -p \"/home/florian/ME3/Nightreign Mods/More Map Variations 2.1.7-hotfix1/MMV v2.1.7-hotfix1.me3\""
-path_box_art = "night.png"
+path_box_art = "Elden.png"

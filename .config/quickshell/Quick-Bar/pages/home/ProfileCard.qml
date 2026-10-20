@@ -116,7 +116,7 @@ StatCard {
             Row {
                 spacing: 8
                 Text {
-                    text: "󰣇"; font.pixelSize: 12; color: Appearance.active
+                    text: ""; font.pixelSize: 12; color: Appearance.active   // logo Hyprland
                     anchors.verticalCenter: parent.verticalCenter
                 }
                 Text {
