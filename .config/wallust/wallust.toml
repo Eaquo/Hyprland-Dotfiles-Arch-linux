@@ -29,6 +29,9 @@ palette = "dark16"
 threshold = 10
 
 [templates]
+nvim_lua.template = "templates/nvim-palette.lua"   # thème nvim « wallust » (~/.config/nvim/colors/wallust.lua)
+nvim_lua.target   = "~/.cache/wallust/nvim-palette.lua"
+
 cava.template = 'templates/colors-cava'
 cava.target = '~/.config/cava/config'
 

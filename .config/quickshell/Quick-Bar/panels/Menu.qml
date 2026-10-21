@@ -49,7 +49,7 @@ PanelWindow {
     readonly property var items: {
         if (req.live || !filtering || query.trim() === "") return source
         const q = query.toLowerCase().trim(), words = q.split(/\s+/)
-        const hit = source.filter(it => !isHead(it) && words.every(w => (it.t + " " + (it.sub || "")).toLowerCase().indexOf(w) >= 0))
+        const hit = source.filter(it => !isHead(it) && words.every(w => (it.t + " " + (it.sub || "") + " " + (it.kw || "")).toLowerCase().indexOf(w) >= 0))   // kw : mots-clés cachés
         return hit.filter(it => it.t.toLowerCase().startsWith(q)).concat(hit.filter(it => !it.t.toLowerCase().startsWith(q)))
     }
     // texte avec les caractères trouvés surlignés (gras, couleur du menu) — pour Text.StyledText
@@ -142,7 +142,7 @@ PanelWindow {
         ;(({ matrix: mxIn, cyber: cyIn, jarvis: jvIn, minimal: miIn })[style] || inAnim).restart()
     }
     function stopAll() { [inAnim, outAnim, mxIn, mxOut, cyIn, cyOut, jvIn, jvOut, miIn, miOut].forEach(a => a.stop()) }
-    NumberAnimation { id: swapAnim; target: root; property: "intro"; from: 0.2; to: 1; duration: Appearance.dur(260); easing.type: Easing.OutCubic }
+    NumberAnimation { id: swapAnim; target: root; property: "intro"; from: 0.2; to: 1; duration: root.md(260); easing.type: Easing.OutCubic }
     Process { id: replyProc }
     function reply(code, text) {
         if (!req.out) return
@@ -162,7 +162,7 @@ PanelWindow {
         if (custom || tpl === "input" && !req.live || !items.length) { if (typed || tpl === "input") finish(0, query); return }
         choose(cur)
     }
-    Timer { id: closeT; interval: Appearance.dur(420); onTriggered: { root.shown = false; view.source = "" } }
+    Timer { id: closeT; interval: root.md(420); onTriggered: { root.shown = false; view.source = "" } }
 
     // --live : relancé à chaque frappe, la saisie en $1
     Process { id: liveProc; stdout: StdioCollector { onStreamFinished: root.liveItems = text.split("\n").filter(l => l !== "").map(l => ({ t: l })) } }
@@ -174,7 +174,7 @@ PanelWindow {
     readonly property color accentGlow: Appearance.contrastRatio(Appearance.colors.accent, Appearance.colors.bg) < 3.5
                                         ? Qt.lighter(Appearance.colors.accent, 1.7) : Appearance.colors.accent
     property color glow: accentGlow
-    Behavior on glow { ColorAnimation { duration: Appearance.dur(300) } }
+    Behavior on glow { ColorAnimation { duration: root.md(300) } }
     readonly property var curItem: items[cur] || null
     Canvas {
         id: sampler
@@ -218,34 +218,37 @@ PanelWindow {
     SequentialAnimation {
         id: inAnim
         ScriptAction { script: { root.mw = 2; root.mh = 2; root.intro = 0 } }
-        NumberAnimation { target: root; property: "mw"; to: root.fullW * 0.7; duration: Appearance.dur(300); easing.type: Easing.OutCubic }
+        NumberAnimation { target: root; property: "mw"; to: root.fullW * 0.7; duration: root.md(300); easing.type: Easing.OutCubic }
         ParallelAnimation {
-            NumberAnimation { target: root; property: "mh"; to: 46; duration: Appearance.dur(260); easing.type: Easing.OutBack; easing.overshoot: 1.6 }
-            NumberAnimation { target: root; property: "mw"; to: root.fullW; duration: Appearance.dur(260); easing.type: Easing.OutCubic }
+            NumberAnimation { target: root; property: "mh"; to: 46; duration: root.md(260); easing.type: Easing.OutBack; easing.overshoot: 1.6 }
+            NumberAnimation { target: root; property: "mw"; to: root.fullW; duration: root.md(260); easing.type: Easing.OutCubic }
         }
         ParallelAnimation {
-            NumberAnimation { target: root; property: "mh"; to: root.fullH; duration: Appearance.dur(420); easing.type: Easing.OutCubic }
+            NumberAnimation { target: root; property: "mh"; to: root.fullH; duration: root.md(420); easing.type: Easing.OutCubic }
             SequentialAnimation {
-                PauseAnimation { duration: Appearance.dur(180) }
-                NumberAnimation { target: root; property: "intro"; to: 1; duration: Appearance.dur(300); easing.type: Easing.OutCubic }
+                PauseAnimation { duration: root.md(180) }
+                NumberAnimation { target: root; property: "intro"; to: 1; duration: root.md(300); easing.type: Easing.OutCubic }
             }
         }
         ScriptAction { script: { root.mw = Qt.binding(() => root.fullW); root.mh = Qt.binding(() => root.fullH); root.settled = true } }
     }
     SequentialAnimation {
         id: outAnim
-        NumberAnimation { target: root; property: "intro"; to: 0; duration: Appearance.dur(130) }
-        NumberAnimation { target: root; property: "mh"; to: 46; duration: Appearance.dur(240); easing.type: Easing.InOutCubic }
+        NumberAnimation { target: root; property: "intro"; to: 0; duration: root.md(130) }
+        NumberAnimation { target: root; property: "mh"; to: 46; duration: root.md(240); easing.type: Easing.InOutCubic }
         ParallelAnimation {
-            NumberAnimation { target: root; property: "mw"; to: 2; duration: Appearance.dur(200); easing.type: Easing.InCubic }
-            NumberAnimation { target: root; property: "mh"; to: 2; duration: Appearance.dur(200); easing.type: Easing.InCubic }
+            NumberAnimation { target: root; property: "mw"; to: 2; duration: root.md(200); easing.type: Easing.InCubic }
+            NumberAnimation { target: root; property: "mh"; to: 2; duration: root.md(200); easing.type: Easing.InCubic }
         }
     }
-    Behavior on mh { enabled: root.settled; NumberAnimation { duration: Appearance.dur(240); easing.type: Easing.OutCubic } }
-    Behavior on mw { enabled: root.settled; NumberAnimation { duration: Appearance.dur(240); easing.type: Easing.OutCubic } }
+    Behavior on mh { enabled: root.settled; NumberAnimation { duration: root.md(240); easing.type: Easing.OutCubic } }
+    Behavior on mw { enabled: root.settled; NumberAnimation { duration: root.md(240); easing.type: Easing.OutCubic } }
 
     // ── animations selon le style (celui de l'écran de session, ou [menu] style) ──
     readonly property string style: String(Config.get("menu.style", Config.get("session.style", "matrix")))
+    // vitesse propre aux menus ([menu] speed : 0 instantané, 0.4 rapide (défaut), 1 animation complète)
+    readonly property real menuSpeed: Math.max(0, Math.min(1, Number(Config.get("menu.speed", 0.4))))
+    function md(ms) { return Math.round(Appearance.dur(ms) * menuSpeed) }
     property real crtX: 1            // matrix : allumage cathodique
     property real crtY: 1
     property real flash: 0
@@ -283,18 +286,18 @@ PanelWindow {
     // Matrix : un trait lumineux, l'écran s'ouvre, les textes se déchiffrent
     SequentialAnimation { id: mxIn
         ScriptAction { script: { root.fullNow(); root.crtX = 0; root.crtY = 0.004; root.intro = 0 } }
-        NumberAnimation { target: root; property: "crtX"; to: 1; duration: Appearance.dur(170); easing.type: Easing.OutCubic }
+        NumberAnimation { target: root; property: "crtX"; to: 1; duration: root.md(170); easing.type: Easing.OutCubic }
         ParallelAnimation {
-            NumberAnimation { target: root; property: "crtY"; to: 1; duration: Appearance.dur(260); easing.type: Easing.OutBack; easing.overshoot: 1.2 }
-            NumberAnimation { target: root; property: "flash"; from: 0.6; to: 0; duration: Appearance.dur(420) }
-            NumberAnimation { target: root; property: "intro"; to: 1; duration: Appearance.dur(260) }
+            NumberAnimation { target: root; property: "crtY"; to: 1; duration: root.md(260); easing.type: Easing.OutBack; easing.overshoot: 1.2 }
+            NumberAnimation { target: root; property: "flash"; from: 0.6; to: 0; duration: root.md(420) }
+            NumberAnimation { target: root; property: "intro"; to: 1; duration: root.md(260) }
         }
         ScriptAction { script: root.done() } }
     SequentialAnimation { id: mxOut
         ParallelAnimation {
-            NumberAnimation { target: root; property: "crtY"; to: 0.004; duration: Appearance.dur(170); easing.type: Easing.InCubic }
-            NumberAnimation { target: root; property: "flash"; to: 0.5; duration: Appearance.dur(170) } }
-        NumberAnimation { target: root; property: "crtX"; to: 0; duration: Appearance.dur(150); easing.type: Easing.InCubic } }
+            NumberAnimation { target: root; property: "crtY"; to: 0.004; duration: root.md(170); easing.type: Easing.InCubic }
+            NumberAnimation { target: root; property: "flash"; to: 0.5; duration: root.md(170) } }
+        NumberAnimation { target: root; property: "crtX"; to: 0; duration: root.md(150); easing.type: Easing.InCubic } }
 
     // Netrunner : la carte surgit dans un glitch, split RVB, textes brouillés
     SequentialAnimation { id: cyIn
@@ -309,46 +312,46 @@ PanelWindow {
                 NumberAnimation { target: root; property: "gl"; to: 0.3; duration: 70 }
                 NumberAnimation { target: root; property: "gl"; to: 0.9; duration: 50 }
                 NumberAnimation { target: root; property: "gl"; to: 0; duration: 240 } }
-            NumberAnimation { target: root; property: "intro"; to: 1; duration: Appearance.dur(200) }
+            NumberAnimation { target: root; property: "intro"; to: 1; duration: root.md(200) }
         }
         ScriptAction { script: root.done() } }
     SequentialAnimation { id: cyOut
         NumberAnimation { target: root; property: "gl"; to: 1; duration: 50 }
         ParallelAnimation {
-            NumberAnimation { target: root; property: "fade"; to: 0; duration: Appearance.dur(220); easing.type: Easing.InCubic }
-            NumberAnimation { target: root; property: "gl"; to: 0.4; duration: Appearance.dur(220) } } }
+            NumberAnimation { target: root; property: "fade"; to: 0; duration: root.md(220); easing.type: Easing.InCubic }
+            NumberAnimation { target: root; property: "gl"; to: 0.4; duration: root.md(220) } } }
 
     // Jarvis : le contour se trace, puis un balayage révèle le contenu
     SequentialAnimation { id: jvIn
         ScriptAction { script: { root.fullNow(); root.draw = 0; root.bgA = 0; root.intro = 0; root.scan = -1 } }
-        NumberAnimation { target: root; property: "draw"; to: 1; duration: Appearance.dur(460); easing.type: Easing.InOutCubic }
+        NumberAnimation { target: root; property: "draw"; to: 1; duration: root.md(460); easing.type: Easing.InOutCubic }
         ParallelAnimation {
-            NumberAnimation { target: root; property: "bgA"; to: 1; duration: Appearance.dur(300) }
-            NumberAnimation { target: root; property: "scan"; from: 0; to: 1; duration: Appearance.dur(560); easing.type: Easing.InOutSine }
-            NumberAnimation { target: root; property: "intro"; to: 1; duration: Appearance.dur(500) }
+            NumberAnimation { target: root; property: "bgA"; to: 1; duration: root.md(300) }
+            NumberAnimation { target: root; property: "scan"; from: 0; to: 1; duration: root.md(560); easing.type: Easing.InOutSine }
+            NumberAnimation { target: root; property: "intro"; to: 1; duration: root.md(500) }
         }
         ScriptAction { script: { root.scan = -1; root.done() } } }
     SequentialAnimation { id: jvOut
-        NumberAnimation { target: root; property: "intro"; to: 0; duration: Appearance.dur(120) }
+        NumberAnimation { target: root; property: "intro"; to: 0; duration: root.md(120) }
         ParallelAnimation {
-            NumberAnimation { target: root; property: "bgA"; to: 0; duration: Appearance.dur(200) }
-            NumberAnimation { target: root; property: "draw"; to: 0; duration: Appearance.dur(260); easing.type: Easing.InCubic } } }
+            NumberAnimation { target: root; property: "bgA"; to: 0; duration: root.md(200) }
+            NumberAnimation { target: root; property: "draw"; to: 0; duration: root.md(260); easing.type: Easing.InCubic } } }
 
     // Minimal : fondu, léger zoom, contenu en cascade
     SequentialAnimation { id: miIn
         ScriptAction { script: { root.fullNow(); root.fade = 0; root.crtX = 0.96; root.crtY = 0.96; root.intro = 1 } }
         ParallelAnimation {
-            NumberAnimation { target: root; property: "fade"; to: 1; duration: Appearance.dur(360) }
-            NumberAnimation { target: root; property: "crtX"; to: 1; duration: Appearance.dur(420); easing.type: Easing.OutCubic }
-            NumberAnimation { target: root; property: "crtY"; to: 1; duration: Appearance.dur(420); easing.type: Easing.OutCubic }
+            NumberAnimation { target: root; property: "fade"; to: 1; duration: root.md(360) }
+            NumberAnimation { target: root; property: "crtX"; to: 1; duration: root.md(420); easing.type: Easing.OutCubic }
+            NumberAnimation { target: root; property: "crtY"; to: 1; duration: root.md(420); easing.type: Easing.OutCubic }
         }
-        PauseAnimation { duration: Appearance.dur(250) }
+        PauseAnimation { duration: root.md(250) }
         ScriptAction { script: root.done() } }
     SequentialAnimation { id: miOut
         ParallelAnimation {
-            NumberAnimation { target: root; property: "fade"; to: 0; duration: Appearance.dur(260) }
-            NumberAnimation { target: root; property: "crtX"; to: 0.97; duration: Appearance.dur(260) }
-            NumberAnimation { target: root; property: "crtY"; to: 0.97; duration: Appearance.dur(260) } } }
+            NumberAnimation { target: root; property: "fade"; to: 0; duration: root.md(260) }
+            NumberAnimation { target: root; property: "crtX"; to: 0.97; duration: root.md(260) }
+            NumberAnimation { target: root; property: "crtY"; to: 0.97; duration: root.md(260) } } }
 
     // ── voile, halo ───────────────────────────────────────────────────────
     MouseArea { anchors.fill: parent; onClicked: root.finish(1, "") }
@@ -502,7 +505,7 @@ PanelWindow {
                                 readonly property bool on: modelData.run === root.req.tab
                                 width: (parent.width - 6 * (root.tabs.length - 1)) / root.tabs.length; height: 48; radius: root.rad(height)
                                 color: on ? ColorUtils.applyAlpha(root.glow, 0.88) : tMa.containsMouse ? ColorUtils.applyAlpha(Appearance.colors.bg, 0.55) : "transparent"
-                                Behavior on color { ColorAnimation { duration: Appearance.dur(180) } }
+                                Behavior on color { ColorAnimation { duration: root.md(180) } }
                                 Text { anchors.centerIn: parent; width: parent.width - 16; horizontalAlignment: Text.AlignHCenter; elide: Text.ElideRight
                                        text: parent.modelData.icon + "  " + parent.modelData.label
                                        font.family: Appearance.font.family; font.pixelSize: 15; font.weight: Font.DemiBold
@@ -527,9 +530,9 @@ PanelWindow {
                     visible: root.hasMesg
                     width: Math.min(parent.width - 36, mTxt.implicitWidth + 56)
                     x: (parent.width - width) / 2; y: root.headH; height: 46; radius: root.rad(height)
-                    Behavior on width { NumberAnimation { duration: Appearance.dur(220); easing.type: Easing.OutCubic } }
+                    Behavior on width { NumberAnimation { duration: root.md(220); easing.type: Easing.OutCubic } }
                     color: ColorUtils.applyAlpha(root.glow, 0.85)
-                    Behavior on color { ColorAnimation { duration: Appearance.dur(300) } }
+                    Behavior on color { ColorAnimation { duration: root.md(300) } }
                     Text {
                         id: mTxt
                         anchors.centerIn: parent; width: Math.min(implicitWidth, parent.width - 30); horizontalAlignment: Text.AlignHCenter

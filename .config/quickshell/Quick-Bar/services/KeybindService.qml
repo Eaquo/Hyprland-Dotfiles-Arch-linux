@@ -35,6 +35,7 @@ QtObject {
         "overview":         { mods: "SUPER",       key: "A",      label: "Vue d'ensemble des espaces",   group: "Panneaux",       target: "overview" },
         "apps":             { mods: "SUPER",       key: "SUPER_L", label: "Lanceur d'applications (Super seul)", group: "Menus", target: "menu", fn: "run apps", release: true },
         "game-scripts":     { mods: "SUPER + SHIFT", key: "G",    label: "Scripts de jeux",              group: "Menus",          target: "menu", fn: "run game-scripts" },
+        "keyhints":         { mods: "SUPER",       key: "H",      label: "Aide-mémoire des raccourcis",  group: "Menus",          target: "menu", fn: "run keyhints" },
         "alttab-next":      { mods: "ALT",         key: "Tab",    label: "Changer de fenêtre",           group: "Fenêtres",       target: "alttab", fn: "next" },
         "alttab-prev":      { mods: "ALT + SHIFT", key: "Tab",    label: "Changer de fenêtre (retour)",  group: "Fenêtres",       target: "alttab", fn: "prev" },
         "alttab-go":        { mods: "ALT",         key: "ALT_L",  label: "Aller sur la fenêtre (relâcher Alt)", group: "Fenêtres", target: "alttab", fn: "commit", release: true },

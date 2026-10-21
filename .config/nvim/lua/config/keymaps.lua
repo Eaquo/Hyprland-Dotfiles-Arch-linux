@@ -22,10 +22,12 @@ keymap.del("n", "<C-Down>")
 keymap.del("n", "<C-Up>")
 keymap.del("n", "<C-Right>")
 
-keymap.set("n", "<M-h>", '<Cmd>lua require("tmux").resize_left()<CR>', { silent = true })
-keymap.set("n", "<M-j>", '<Cmd>lua require("tmux").resize_bottom()<CR>', { silent = true })
-keymap.set("n", "<M-k>", '<Cmd>lua require("tmux").resize_top()<CR>', { silent = true })
-keymap.set("n", "<M-l>", '<Cmd>lua require("tmux").resize_right()<CR>', { silent = true })
+-- Passer d'une fenêtre à l'autre avec Alt+h/j/k/l, partout — même depuis un terminal (Claude, lazygit…)
+-- où Ctrl+h/j/k/l sont gardés par le programme. (Ctrl+h/j/k/l restent actifs en mode normal, LazyVim.)
+for key, dir in pairs({ h = "h", j = "j", k = "k", l = "l" }) do
+  keymap.set({ "n", "t" }, "<M-" .. key .. ">", "<Cmd>wincmd " .. dir .. "<CR>", { desc = "Fenêtre " .. dir })
+  keymap.set("i", "<M-" .. key .. ">", "<Esc><Cmd>wincmd " .. dir .. "<CR>", { desc = "Fenêtre " .. dir })
+end
 
 local set_keymap = vim.api.nvim_set_keymap
 
@@ -37,35 +39,3 @@ keymap.set("n", "sv", ":split<Return>", opts)
 keymap.set("n", "te", ":tabedit", opts)
 keymap.set("n", "<tab>", ":tabnext<Return>", opts)
 keymap.set("n", "<s-tab>", ":tabprev<Return>", opts)
-
--- package-info keymaps
-set_keymap(
-  "n",
-  "<leader>cpt",
-  "<cmd>lua require('package-info').toggle()<cr>",
-  { silent = true, noremap = true, desc = "Toggle" }
-)
-set_keymap(
-  "n",
-  "<leader>cpd",
-  "<cmd>lua require('package-info').delete()<cr>",
-  { silent = true, noremap = true, desc = "Delete package" }
-)
-set_keymap(
-  "n",
-  "<leader>cpu",
-  "<cmd>lua require('package-info').update()<cr>",
-  { silent = true, noremap = true, desc = "Update package" }
-)
-set_keymap(
-  "n",
-  "<leader>cpi",
-  "<cmd>lua require('package-info').install()<cr>",
-  { silent = true, noremap = true, desc = "Install package" }
-)
-set_keymap(
-  "n",
-  "<leader>cpc",
-  "<cmd>lua require('package-info').change_version()<cr>",
-  { silent = true, noremap = true, desc = "Change package version" }
-)

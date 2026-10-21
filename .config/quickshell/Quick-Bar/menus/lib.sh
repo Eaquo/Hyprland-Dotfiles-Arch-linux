@@ -13,11 +13,28 @@ item() {
     if [ -n "$meta" ]; then printf '%s\0%s\n' "$text" "${meta%$'\x1f'}"; else printf '%s\n' "$text"; fi
 }
 section() { item "$1" nonselectable=true; }      # titre de section (non sélectionnable)
+# cached <clé> <secondes> commande… : sortie de la commande gardée en cache ; affichée tout de suite,
+#   relancée en fond quand elle a plus de <secondes> (la 1re fois : lancée et attendue)
+cached() {
+    local f="${XDG_CACHE_HOME:-$HOME/.cache}/quickbar/menus/$1" ttl=$2; shift 2
+    mkdir -p "${f%/*}"
+    if [ -s "$f" ]; then
+        cat "$f"
+        [ $(( $(date +%s) - $(stat -c %Y "$f") )) -gt "$ttl" ] && { ( "$@" > "$f.tmp" 2>/dev/null && mv "$f.tmp" "$f" ) >/dev/null 2>&1 & }
+    else
+        "$@" 2>/dev/null | tee "$f"
+    fi
+}
 
 # ── actions (dans on_select) ──────────────────────────────────────────────
 launch() { setsid -f "$QB_DIR/scripts/hypr/launch-main.sh" "$@" >/dev/null 2>&1; }   # app sur l'écran principal
 term()   { launch kitty "$@"; }                                   # term -e htop · term --hold -e cmd
-edit()   { term -e "${EDITOR:-nvim}" "$@"; }                      # ouvrir un fichier dans l'éditeur
+edit() {                                                         # ouvrir dans l'éditeur (edit +ligne fichier)
+    local e=${EDITOR:-nvim}
+    # nvim : le panneau latéral (neo-tree / nvim-tree) ouvert au démarrage est refermé, on arrive sur le fichier
+    if [ "${e##*/}" = nvim ]; then term -e "$e" -c "lua vim.defer_fn(function() pcall(vim.cmd, 'Neotree close'); pcall(vim.cmd, 'NvimTreeClose') end, 150)" "$@"
+    else term -e "$e" "$@"; fi
+}
 copy()   { printf '%s' "$*" | wl-copy; }                          # copier dans le presse-papiers
 open()   { setsid -f xdg-open "$@" >/dev/null 2>&1; }             # URL ou fichier
 notify() { notify-send -a Quick-Bar "$@"; }

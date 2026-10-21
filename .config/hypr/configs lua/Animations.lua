@@ -44,3 +44,4 @@ hl.animation({ leaf = "workspacesOut", enabled = true, speed = 7, bezier = "winO
 hl.animation({ leaf = "specialWorkspace",    enabled = true, speed = 5, bezier = "wind",   style = "slidevert" })
 hl.animation({ leaf = "specialWorkspaceIn",  enabled = true, speed = 5, bezier = "winIn",  style = "slidevert" })
 hl.animation({ leaf = "specialWorkspaceOut", enabled = true, speed = 4, bezier = "winOut", style = "slidevert" })
+

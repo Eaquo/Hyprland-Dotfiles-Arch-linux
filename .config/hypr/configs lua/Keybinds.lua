@@ -41,7 +41,15 @@ hl.bind("CTRL + ALT + Delete", hl.dsp.exit())
 -- hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(scripts .. "/LockScreen.sh"))
 
 -- Fenêtres
-hl.bind(mainMod .. " + Q", hl.dsp.window.close())
+-- Fermer la fenêtre active (gamescope : tué, il ne se ferme pas proprement autrement)
+hl.bind(mainMod .. " + Q", function()
+	local w = hl.get_active_window()
+	if w and w.class == "gamescope" then
+		hl.exec_cmd("pkill -9 gamescope")
+	else
+		hl.dispatch(hl.dsp.window.close())
+	end
+end)
 hl.bind(mainMod .. " + SHIFT + Q", hl.dsp.window.kill())
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }))
@@ -92,7 +100,8 @@ end)
 -- Launchers
 hl.bind("SUPER + G", hl.dsp.exec_cmd(home .. "/.config/quickshell/game-launcher/toggle.sh"))
 hl.bind("F9", hl.dsp.exec_cmd(home .. "/.config/quickshell/game-launcher/toggle.sh"))
-hl.bind("SUPER + O", hl.dsp.exec_cmd(home .. "/.config/quickshell/rgb-launcher/toggle.sh"))
+-- rgb-launcher retiré (plus utilisé) : SUPER+O = envoyer la fenêtre sur l'autre écran
+-- hl.bind("SUPER + O", hl.dsp.exec_cmd(home .. "/.config/quickshell/rgb-launcher/toggle.sh"))
 -- SUPER+SHIFT+G : scripts de jeux Quick-Bar (menus/scripts/game-scripts.sh, bind généré dans Quick-Bar/hypr/quickbar.lua)
 -- hl.bind(mainMod .. " + SHIFT + G", hl.dsp.exec_cmd(userScripts .. "/EditScriptGame.sh"))
 -- SUPER+SHIFT+E : éditer une config, menu Quick-Bar (menus/scripts/quickedit.sh, bind généré dans Quick-Bar/hypr/quickbar.lua)
@@ -127,8 +136,8 @@ hl.bind(mainMod .. " + ALT + V", hl.dsp.exec_cmd(scripts .. "/ClipManager.sh"))
 -- → déplacé dans Quick-Bar/hypr/quickbar.lua (Réglages › Raccourcis de Quick-Bar)
 -- hl.bind("CTRL + ALT + W", hl.dsp.exec_cmd("qs -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml ipc call wallpicker random"))
 
--- Cheat sheet
-hl.bind(mainMod .. " + H", hl.dsp.exec_cmd(scripts .. "/KeyHints.sh"))
+-- Cheat sheet → menu Quick-Bar automatique (menus/scripts/keyhints.sh, bind généré dans Quick-Bar/hypr/quickbar.lua)
+-- hl.bind(mainMod .. " + H", hl.dsp.exec_cmd(scripts .. "/KeyHints.sh"))
 
 -- Bascule DP-1 SDR <-> HDR (hdredid) — bref écran noir : mode-set colorimétrie
 hl.bind(mainMod .. " + SHIFT + H", hl.dsp.exec_cmd(scripts .. "/HdrToggle.sh toggle"))
@@ -157,11 +166,11 @@ hl.bind(mainMod .. " + CTRL + mouse_down", hl.dsp.window.move({ direction = "u" 
 hl.bind(mainMod .. " + CTRL + down", hl.dsp.window.move({ direction = "d" }))
 hl.bind(mainMod .. " + CTRL + mouse_up", hl.dsp.window.move({ direction = "d" }), { mouse = true })
 
--- Redimensionner (repeating)
-hl.bind(mainMod .. " + left", hl.dsp.window.resize({ x = -50, y = 0, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + right", hl.dsp.window.resize({ x = 50, y = 0, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + up", hl.dsp.window.resize({ x = 0, y = -50, relative = true }), { repeating = true })
-hl.bind(mainMod .. " + down", hl.dsp.window.resize({ x = 0, y = 50, relative = true }), { repeating = true })
+-- Redimensionner (repeating) → retiré : SUPER+flèches = focus (plus haut), en double
+-- hl.bind(mainMod .. " + left", hl.dsp.window.resize({ x = -50, y = 0, relative = true }), { repeating = true })
+-- hl.bind(mainMod .. " + right", hl.dsp.window.resize({ x = 50, y = 0, relative = true }), { repeating = true })
+-- hl.bind(mainMod .. " + up", hl.dsp.window.resize({ x = 0, y = -50, relative = true }), { repeating = true })
+-- hl.bind(mainMod .. " + down", hl.dsp.window.resize({ x = 0, y = 50, relative = true }), { repeating = true })
 
 -- Souris drag / resize
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
@@ -189,15 +198,15 @@ hl.bind(mainMod .. " + comma", hl.dsp.focus({ workspace = "e-1" }))
 -- ✅ Version AZERTY avec noms de touches
 local azerty = {
 	"ampersand", -- 1
-	"eacute", -- 2
-	"quotedbl", -- 3
+	"eacute",    -- 2
+	"quotedbl",  -- 3
 	"apostrophe", -- 4
 	"parenleft", -- 5
-	"minus", -- 6
-	"egrave", -- 7
+	"minus",     -- 6
+	"egrave",    -- 7
 	"underscore", -- 8
-	"ccedilla", -- 9
-	"agrave", -- 10
+	"ccedilla",  -- 9
+	"agrave",    -- 10
 }
 
 for i, key in ipairs(azerty) do

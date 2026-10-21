@@ -18,7 +18,7 @@ T.List {
     readonly property var it: menu.items[menu.cur] || null
     readonly property string path: { const p = it ? (it.path || it.id || it.t) : ""; return p.startsWith("/") ? p : "" }
     readonly property bool isImg: /\.(png|jpe?g|webp|gif|bmp|svg)$/i.test(path)
-    onPathChanged: { prev.text = ""; if (path && !isImg) { cat.command = ["sh", "-c", 'file -b "$1" | grep -qi text && head -c 60000 "$1" || file -b "$1"', "_", path]; cat.running = true } }
+    onPathChanged: { prev.text = ""; if (path && !isImg) { cat.command = ["sh", "-c", 'case "$1" in *.txt|*.md|*.log) head -c 60000 "$1" ;; *) file -b "$1" | grep -qi text && head -c 60000 "$1" || file -b "$1" ;; esac', "_", path]; cat.running = true } }
     Process { id: cat; stdout: StdioCollector { onStreamFinished: prev.text = text } }
 
     ClippingRectangle {

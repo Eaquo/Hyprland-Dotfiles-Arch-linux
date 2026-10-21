@@ -14,12 +14,12 @@ style_user = "#ff5400"
 disabled = false
 format = "[$hostname]($style) in "
 ssh_only = false
-style = "#BB1A5A"
+style = "#CF1D39"
 trim_at = "-"
 
 # Third param
 [directory]
-style = "#C61B5D"
+style = "#F66890"
 truncate_to_repo = true
 truncation_length = 0
 truncation_symbol = "repo: "
@@ -34,7 +34,7 @@ ahead = "⇡${count}"
 behind = "⇣${count}"
 deleted = "x"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-style = "#F2DDD4"
+style = "#F2E7EF"
 
 [git_metrics]
 disabled = false
@@ -83,30 +83,30 @@ full_symbol = ""
 
 [[battery.display]]  # "bold red" style when capacity is between 0% and 10%
 disabled = false
-style = "#F6CBBB"
+style = "#F6DFF0"
 threshold = 15
 
 [[battery.display]]  # "bold yellow" style when capacity is between 10% and 30%
 disabled = true
-style = "#F2DDD4"
+style = "#F2E7EF"
 threshold = 50
 
 [[battery.display]]  # "bold green" style when capacity is between 10% and 30%
 disabled = true
-style = "#B8988C"
+style = "#B8A7B4"
 threshold = 80
 
 # Prompt: optional param 1
 [time]
 disabled = true
 format = " 🕙 $time($style)\n"
-style = "#F2DDD4"
+style = "#F2E7EF"
 time_format = "%T"
 
 # Prompt: param 2
 [character]
-error_symbol = " [×](#A99A95)"
-success_symbol = " [╰─](#C61B5D)"
+error_symbol = " [×](#A9A1A7)"
+success_symbol = " [╰─](#F66890)"
 
 # SYMBOLS
 [status]

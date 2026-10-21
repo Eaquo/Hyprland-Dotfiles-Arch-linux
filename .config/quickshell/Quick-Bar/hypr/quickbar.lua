@@ -34,6 +34,7 @@ hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(qb .. "session toggle"), { description
 -- Menus
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qb .. "menu run apps"), { description = "Lanceur d'applications (Super seul)", release = true })
 hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd(qb .. "menu run game-scripts"), { description = "Scripts de jeux" })
+hl.bind("SUPER + H", hl.dsp.exec_cmd(qb .. "menu run keyhints"), { description = "Aide-mémoire des raccourcis" })
 hl.bind("CTRL + B", hl.dsp.exec_cmd(qb .. "menu run bluetooth"), { description = "Bluetooth" })
 hl.bind("SUPER + SHIFT + E", hl.dsp.exec_cmd(qb .. "menu run quickedit"), { description = "Éditer une config" })
 

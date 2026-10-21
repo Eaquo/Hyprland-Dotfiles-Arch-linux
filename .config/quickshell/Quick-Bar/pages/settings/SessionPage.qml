@@ -30,6 +30,14 @@ ColumnLayout {
             }
         }
         SetRow {
+            title: "Ouverture des menus"; desc: "le lanceur (Super) et les autres menus : instantané comme rofi, rapide, ou l'animation complète"
+            SetSeg {
+                options: [["0", "Instantané"], ["0.4", "Rapide"], ["1", "Complète"]]
+                current: String(Config.get("menu.speed", 0.4))
+                onPicked: (v) => Config.set("menu.speed", v === "0.4" ? null : Number(v))
+            }
+        }
+        SetRow {
             title: "Aperçu"; desc: "ouvre l'écran de session (Échap pour revenir)"
             SetButton { label: "󰐥  Ouvrir"; onTap: Popups.sessionOpen = true }
         }

@@ -1,26 +1,24 @@
-# Aide-mémoire des raccourcis clavier — SUPER+H
-TEMPLATE=info
+# Aide-mémoire des raccourcis, construit automatiquement depuis la config Hyprland — SUPER+H
+# (keyhints.py suit hyprland.lua et ses require/dofile : rien à tenir à jour à la main)
+TEMPLATE=files
 PROMPT="Raccourcis"
 ICON="󰌌"
-PLACEHOLDER="Filtrer : wallpaper, SHIFT, jeu…"
+WIDTH=1500
+PLACEHOLDER="Filtrer : SUPER, SHIFT, fenêtre, steam…"
+MESSAGE="entrée / clic : lancer le raccourci  ·  ctrl+entrée : ouvrir sa config à la ligne  ·  ⚠ = en double"
+NO_CUSTOM=1
+KEYS=("Control-Return")
 
-# la liste vit dans ~/.config/hypr/scripts/KeyHints.sh (triplets touche / description / commande)
-items() {
-    python3 - "$HOME/.config/hypr/scripts/KeyHints.sh" <<'PY'
-import shlex, sys
-src = open(sys.argv[1]).read().split("--timeout-indicator=bottom", 1)[-1]
-rows = []
-for line in src.splitlines()[1:]:          # les lignes de la liste finissent par « \ »
-    rows.append(line.rstrip().rstrip("\\"))
-    if not line.rstrip().endswith("\\"):
-        break
-parts = shlex.split(" ".join(rows))
-for k, d, c in zip(parts[0::3], parts[1::3], parts[2::3]):
-    if k.startswith("━"):
-        print(k + "\0nonselectable\x1ftrue")
-    elif k.strip() and k not in ("ESC", " = "):
-        k = ("SUPER " + k.strip()) if k.startswith(" ") else k.strip()
-        print(f"{k}\t{d}\t{c.strip('()')}")
-PY
+items() { python3 "$QB_DIR/menus/scripts/keyhints.py" menu; }
+
+# entrée : lancer l'action, une fois le menu fermé et le focus rendu à la fenêtre d'avant
+on_select() {
+    sleep 0.35
+    local msg; msg=$(python3 "$QB_DIR/menus/scripts/keyhints.py" run "$1")
+    [ -n "$msg" ] && notify "Raccourci" "$msg"
 }
-on_select() { :; }
+# ctrl+entrée : l'éditeur directement sur la ligne du raccourci (id = fichier:ligne)
+on_key_1() {
+    local file=${1%:*} line=${1##*:}
+    [ -f "$file" ] && edit "+$line" "$file"
+}

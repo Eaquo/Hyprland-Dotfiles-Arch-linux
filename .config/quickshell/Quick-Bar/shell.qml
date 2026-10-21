@@ -23,6 +23,7 @@ import Quickshell.Wayland
 import Quickshell.Io
 
 ShellRoot {
+    id: root
     Wallpaper {}
     LockScreen {}   // toujours chargé (léger) : les surfaces ne sont créées que verrouillé
     TouchPanel {}
@@ -115,7 +116,12 @@ ShellRoot {
         function toggle() { if (overviewL.item) overviewL.item.toggle(); else Popups.overviewWanted = true }
         function open()   { if (overviewL.item) overviewL.item.open();   else Popups.overviewWanted = true }
     }
-    LazyLoader { id: menuL; property bool alive: false; active: Popups.menuRequest !== "" || alive
+    // Le menu (Super, SUPER+MAJ+G…) reste chargé : créé 4 s après le démarrage, avec la liste des
+    // applications, pour que même la 1re ouverture soit instantanée (sinon ~2 s)
+    property bool menuWarm: false
+    Timer { interval: 4000; running: true; onTriggered: root.menuWarm = true }
+    readonly property int _appsWarm: menuWarm ? DesktopEntries.applications.values.length : 0
+    LazyLoader { id: menuL; property bool alive: false; active: root.menuWarm || Popups.menuRequest !== "" || alive
         onAliveChanged: if (alive) Popups.menuRequest = ""             // la demande est prise en charge
         Menu { readonly property bool busy: shown || loading; onBusyChanged: Qt.callLater(() => menuL.alive = busy) } }
     Process { id: menuRun }

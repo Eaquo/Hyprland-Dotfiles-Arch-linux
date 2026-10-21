@@ -107,8 +107,10 @@ hl.window_rule({
 	match = { title = "^(MTGA).*" },
 	workspace = "1",
 	content = "game",
+	-- pas de maximize : MTGA refuse le 21:9 (« not an allowable ratio »), se redimensionne à chaque
+	-- scène et se figeait ; il refuse aussi le plein écran 3440x1440 → lancé dans gamescope en
+	-- 2560x1440 (script Magic_arena). Repli sans gamescope : float + size { 2488, 1400 } + move { 476, 40 } + dim_around
 	center = true,
-	maximize = true,
 	no_blur = true,
 	idle_inhibit = "focus",
 	immediate = true,

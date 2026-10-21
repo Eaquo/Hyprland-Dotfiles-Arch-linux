@@ -143,6 +143,8 @@ run_game() {
     export QT_QPA_PLATFORM=xcb
   elif [ "$WAYLAND_NATIVE" = "True" ]; then
     export PROTON_ENABLE_WAYLAND=1
+  else
+    unset PROTON_ENABLE_WAYLAND   # hérité de Steam/Hyprland sinon : XWayland par défaut
   fi
 
   # Décommente au besoin (opt-in) :
@@ -165,7 +167,7 @@ run_game() {
     LAUNCH+=(gamescope)
     [ "${GAMESCOPE_FULLSCREEN:-True}" = "True" ] && LAUNCH+=(-f)   # False = fenêtre tilable
     LAUNCH+=(-W "$RES_WIDTH" -H "$RES_HEIGHT" -r "$REFRESH_RATE"
-             -w "$RES_WIDTH" -h "$RES_HEIGHT")
+             -w "${GAME_WIDTH:-$RES_WIDTH}" -h "${GAME_HEIGHT:-$RES_HEIGHT}")   # GAME_* : résolution vue par le jeu (bandes noires si autre format)
     [ "$FSR" = "True" ] && LAUNCH+=(-F fsr --fsr-sharpness "$FSR_SHARPNESS")
     [ "$HDR" = "True" ] && LAUNCH+=(--hdr-enabled)
     LAUNCH+=(--force-grab-cursor --)

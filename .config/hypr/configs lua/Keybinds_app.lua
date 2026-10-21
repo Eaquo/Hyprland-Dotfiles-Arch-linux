@@ -17,8 +17,8 @@ hl.bind("PAUSE", hl.dsp.exec_cmd("wl-freeze -a"))
 -- 	{ release = true }
 -- )
 
--- Rofi via Super+D
-hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("pkill rofi || rofi -show drun -modi drun,filebrowser,run,window"))
+-- Rofi via Super+D → retiré : SUPER+D = Discord (Keybinds.lua), le lanceur d'applis = Super seul (Quick-Bar)
+-- hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("pkill rofi || rofi -show drun -modi drun,filebrowser,run,window"))
 
 -- Claude.ai
 hl.bind("ALT + C", hl.dsp.exec_cmd("claude-desktop"))
@@ -55,8 +55,8 @@ hl.bind(mainMod .. " + SHIFT + T", hl.dsp.exec_cmd(home .. "/.local/bin/jarvis-p
 -- ── Performance / Utilitaires ─────────────────────────────────────────────────
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.exec_cmd(userScripts .. "/Performance.sh"))
 
--- Gamescope force quit
-hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd("pkill -9 gamescope"))
+-- Gamescope force quit → fusionné dans SUPER+Q (Keybinds.lua : tue gamescope seulement s'il a le focus)
+-- hl.bind(mainMod .. " + Q", hl.dsp.exec_cmd("pkill -9 gamescope"))
 
 -- ── Build / Monitoring ────────────────────────────────────────────────────────
 hl.bind(mainMod .. " + F5", hl.dsp.exec_cmd(term .. " --title 'Build Monitor' -e htop"))
@@ -69,9 +69,9 @@ hl.bind(mainMod .. " + grave", hl.dsp.exec_cmd("hyprctl dispatch togglespecialwo
 
 hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd(scripts .. "/build_layout.sh"))
 
--- ── Redimensionnement ─────────────────────────────────────────────────────────
-hl.bind(mainMod .. " + CTRL + left", hl.dsp.window.resize({ x = -60, y = 0, relative = true }))
-hl.bind(mainMod .. " + CTRL + right", hl.dsp.window.resize({ x = 60, y = 0, relative = true }))
+-- ── Redimensionnement ── retiré : SUPER+CTRL+flèches = déplacer la fenêtre (Keybinds.lua), en double
+-- hl.bind(mainMod .. " + CTRL + left", hl.dsp.window.resize({ x = -60, y = 0, relative = true }))
+-- hl.bind(mainMod .. " + CTRL + right", hl.dsp.window.resize({ x = 60, y = 0, relative = true }))
 
 -- ── Submap : passthru (VM / Gamescope) ───────────────────────────────────────
 hl.bind(mainMod .. " + ALT + P", hl.dsp.submap("passthru"))

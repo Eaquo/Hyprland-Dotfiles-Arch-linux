@@ -16,29 +16,22 @@ require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
-    -- import any extras modules here
-    { import = "lazyvim.plugins.extras.dap.core" },
-    { import = "lazyvim.plugins.extras.editor.aerial" },
+    -- extras : seulement ce qui sert aux dotfiles (Lua, QML, bash, Python, TOML, JSON, YAML, Markdown,
+    -- Hyprlang, rasi) — le web, Go, Java, Docker, les tests et le débogueur sont retirés (sauvegarde :
+    -- ~/.config/nvim.bak-20261020). Les langages eux-mêmes : lua/plugins/lang.lua
+    { import = "lazyvim.plugins.extras.ai.claudecode" },   -- Claude Code dans nvim (<leader>a…), voir plugins/claude.lua
+    { import = "lazyvim.plugins.extras.ai.codeium" },      -- suggestions IA pendant la frappe (compte Windsurf, :Codeium Auth)
     { import = "lazyvim.plugins.extras.editor.fzf" },
     { import = "lazyvim.plugins.extras.editor.navic" },
-    { import = "lazyvim.plugins.extras.editor.refactoring" },
-    { import = "lazyvim.plugins.extras.formatting.prettier" },
-    { import = "lazyvim.plugins.extras.lang.astro" },
-    { import = "lazyvim.plugins.extras.lang.docker" },
-    { import = "lazyvim.plugins.extras.lang.go" },
+    { import = "lazyvim.plugins.extras.formatting.prettier" },   -- JSON, YAML, Markdown, CSS
     { import = "lazyvim.plugins.extras.lang.json" },
     { import = "lazyvim.plugins.extras.lang.markdown" },
-    { import = "lazyvim.plugins.extras.lang.prisma" },
     { import = "lazyvim.plugins.extras.lang.python" },
-    { import = "lazyvim.plugins.extras.lang.tailwind" },
-    { import = "lazyvim.plugins.extras.lang.typescript" },
+    { import = "lazyvim.plugins.extras.lang.toml" },
     { import = "lazyvim.plugins.extras.lang.yaml" },
-    { import = "lazyvim.plugins.extras.linting.eslint" },
-    { import = "lazyvim.plugins.extras.test.core" },
     { import = "lazyvim.plugins.extras.ui.treesitter-context" },
-    { import = "lazyvim.plugins.extras.util.dot" },
-    { import = "lazyvim.plugins.extras.util.mini-hipatterns" },
-    { import = "lazyvim.plugins.extras.vscode" },
+    { import = "lazyvim.plugins.extras.util.dot" },               -- Hyprlang, bash, rasi, kitty, fichiers de conf
+    { import = "lazyvim.plugins.extras.util.mini-hipatterns" },   -- couleurs #rrggbb affichées dans le texte
     -- import/override with your plugins
     { import = "plugins" },
   },
@@ -51,7 +44,7 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  install = { colorscheme = { "luashwal" } },
+  install = { colorscheme = { "wallust", "habamax" } },
   checker = { enabled = true }, -- automatically check for plugin updates
   performance = {
     rtp = {
@@ -70,4 +63,3 @@ require("lazy").setup({
   },
 })
 
-vim.cmd("highlight Visual ctermbg=0 guibg=#ffffff")

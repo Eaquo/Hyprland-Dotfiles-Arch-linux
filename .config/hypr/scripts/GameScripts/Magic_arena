@@ -2,16 +2,18 @@
 # === Magic_arena ===
 GAME_PERF="False"
 GAME_VRR="False"
-GAMESCOPE_OPTIONS="True"
-GAMESCOPE_FULLSCREEN="False" # MTGA fixe sa taille → gamescope pour que Hyprland puisse le tiler
+GAMESCOPE_OPTIONS="True"    # gamescope = seulement l'image : le jeu voit un écran 16:9 (il refuse le 21:9 et se figeait)
+GAMESCOPE_FULLSCREEN="True" # plein écran, bandes noires sur les côtés
+GAME_WIDTH="2560"            # résolution vue par le jeu
+GAME_HEIGHT="1440"
 FSR="False"
 HDR="False"
 MANGOHUD_OPTION="False"
 X11="False"
-WAYLAND_NATIVE="True"
+WAYLAND_NATIVE="False"      # XWayland : comme avant les blocages
 SPLIT_LOCK="False"
 CPU_CCD="False"
-REFRESH_RATE="100"
+REFRESH_RATE="165"
 
 # --- exports spécifiques à ce jeu ---
 # export WINEDLLOVERRIDES="dinput8.dll=n,b"   # (aucun pour l'instant)

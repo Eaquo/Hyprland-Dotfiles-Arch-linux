@@ -14,8 +14,8 @@ static const float SPEED = 0.5f;
 // ~/.config/kitty/shaders/matrix-wallust.pipeline
 static const float RAIN_OPACITY = 0.35f;
 // Couleurs injectées par wallust (template: ~/.config/wallust/templates/templates/kitty-matrix.slang)
-static const float3 RAIN_HEAD = float3(249.0f, 219.0f, 207.0f) / 255.0f;
-static const float3 RAIN_BODY = float3(147.0f, 92.0f, 135.0f) / 255.0f;
+static const float3 RAIN_HEAD = float3(249.0f, 233.0f, 245.0f) / 255.0f;
+static const float3 RAIN_BODY = float3(164.0f, 93.0f, 105.0f) / 255.0f;
 static const float STRIP_CHARS_MIN = 7.0f;
 static const float STRIP_CHARS_MAX = 40.0f;
 static const float STRIP_CHAR_HEIGHT = 0.15f;

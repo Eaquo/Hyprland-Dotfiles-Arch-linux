@@ -87,6 +87,7 @@ section "Titre de section"     # une ligne non sélectionnable
 - `icon` : un nom d'icône du thème (`firefox`, `steam`) ou le chemin d'une image (`/…/jaquette.png`).
 - `glyph` : un glyphe Nerd Font, si pas d'icône.
 - `sub` : un texte secondaire à droite (`list`) ou sous le nom.
+- `kw` : des mots-clés cachés, pris en compte par la recherche (ex. la commande d'un raccourci).
 - Tabulations dans le texte : des **colonnes** (`list`, `info`).
 - `path` : le fichier à prévisualiser (`files`) · `colors` : la bande de couleurs (`theme`).
 
@@ -104,6 +105,7 @@ section "Titre de section"     # une ligne non sélectionnable
 | `ask "titre" a b c` | petit sous-menu : imprime le choix |
 | `confirm "question ?"` | Oui / Non : code 0 si Oui |
 | `input "titre" "aide"` | saisie libre : imprime le texte |
+| `cached clé secondes cmd…` | la sortie de `cmd` en cache : affichée tout de suite, rafraîchie en fond après `secondes` (listes lentes à construire) |
 | `$QBMENU` | la commande `qbmenu` elle-même, pour un sous-menu sur mesure |
 
 ## Les templates
@@ -168,7 +170,7 @@ Rien à régler dans les scripts : la boîte suit Quick-Bar.
 | `emoji` | emojis, entrée copie | — |
 | `calc` | calculatrice (qalculate), résultat en direct | — |
 | `search` | recherche web | — |
-| `keyhints` | aide-mémoire des raccourcis | — |
+| `keyhints` | aide-mémoire construit tout seul depuis la config Hyprland (`keyhints.py` suit `hyprland.lua` et ses `require`/`dofile`) : fiche à droite, doublons signalés, entrée = ouvrir la ligne | SUPER+H |
 | `themes` | palettes prêtes à l'emploi, aperçu des couleurs | — |
 | `menus` | tous les menus de ce dossier | — |
 

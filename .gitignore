@@ -1,3 +1,5 @@
+# profil de navigateur Zen : jamais dans le dépôt (mots de passe, cookies, historique)
+.zen/
 # Backups générés par le script
 .config-backup-*/
 

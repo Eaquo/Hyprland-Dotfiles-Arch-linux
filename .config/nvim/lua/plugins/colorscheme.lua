@@ -1,27 +1,34 @@
+-- Thème « wallust » (colors/wallust.lua) : les couleurs suivent le fond d'écran comme le reste du système.
+-- wallust réécrit ~/.cache/wallust/nvim-palette.lua → chaque nvim ouvert se recolore tout seul.
+-- (ancien thème : cyberdream, voir ~/.config/nvim.bak-20261020)
+
+local palette = vim.fn.expand("~/.cache/wallust/nvim-palette.lua")
+
+-- surveille le dossier (wallust remplace le fichier : surveiller le fichier seul perdrait la trace)
+local function watch()
+  local w = vim.uv.new_fs_event()
+  if not w then return end
+  local pending = false
+  w:start(vim.fn.fnamemodify(palette, ":h"), {}, function(_, name)
+    if name ~= "nvim-palette.lua" or pending then return end
+    pending = true
+    vim.defer_fn(function()             -- laisse wallust finir d'écrire
+      pending = false
+      if vim.g.colors_name == "wallust" then vim.cmd.colorscheme("wallust") end
+    end, 300)
+  end)
+end
+
 return {
   {
-    "scottmckendry/cyberdream.nvim",
-    lazy = false,
-    priority = 1000,
-    opts = function(_, opts)
-      opts.transparent = true
-      opts.italic_comments = true
-      opts.borderless_telescope = false
-    end,
-  },
-  {
     "LazyVim/LazyVim",
-    opts = {
-      colorscheme = "cyberdream",
-    },
+    opts = { colorscheme = "wallust" },
+    init = function() vim.api.nvim_create_autocmd("VimEnter", { once = true, callback = watch }) end,
   },
-
-  -- modicator (auto color line number based on vim mode)
+  -- numéro de ligne coloré selon le mode (normal, insertion, visuel…)
   {
     "mawkler/modicator.nvim",
-    dependencies = "scottmckendry/cyberdream.nvim",
     init = function()
-      -- These are required for Modicator to work
       vim.o.cursorline = false
       vim.o.number = true
       vim.o.termguicolors = true

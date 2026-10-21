@@ -396,7 +396,8 @@ if type "wallust" >> /dev/null 2>&1
 end
 
 ## Run paleofetch if session is interactive
-if status --is-interactive
+## (pas dans les terminaux de nvim — $NVIM — : le petit terminal de <leader>ac reste propre)
+if status --is-interactive; and not set -q NVIM
    clear && fastfetch
 end
 

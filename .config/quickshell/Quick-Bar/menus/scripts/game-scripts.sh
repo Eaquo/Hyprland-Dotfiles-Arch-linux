@@ -17,7 +17,7 @@ items() {
         [ -f "$f" ] && [ -x "$f" ] && [[ $HIDE != *" $n "* ]] && names+=("$n")
     done
     # jaquette du game-launcher dont le nom contient tous les mots du script (Elden_Mod → Elden Ring_Mod)
-    python3 "$HOME/.config/quickshell/game-launcher/modules/service/backend.py" 2>/dev/null | python3 -c '
+    cached game-launcher 300 python3 "$HOME/.config/quickshell/game-launcher/modules/service/backend.py" | python3 -c '
 import json, re, sys
 games = [(re.sub(r"[^a-z0-9]", "", g["name"].lower()), g.get("image", "")) for g in json.load(sys.stdin).get("games", [])]
 for n in sys.argv[1:]:
