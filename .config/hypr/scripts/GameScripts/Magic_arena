@@ -4,6 +4,7 @@ GAME_PERF="False"
 GAME_VRR="False"
 GAMESCOPE_OPTIONS="True"    # gamescope = seulement l'image : le jeu voit un écran 16:9 (il refuse le 21:9 et se figeait)
 GAMESCOPE_FULLSCREEN="True" # plein écran, bandes noires sur les côtés
+GAMESCOPE_GRAB="False"      # curseur libre : la capture (FPS) le perdait après un popup / le Xeneon
 GAME_WIDTH="2560"            # résolution vue par le jeu
 GAME_HEIGHT="1440"
 FSR="False"

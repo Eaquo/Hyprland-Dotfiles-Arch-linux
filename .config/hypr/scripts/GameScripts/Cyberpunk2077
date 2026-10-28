@@ -7,11 +7,19 @@ FSR="False"
 HDR="False"
 MANGOHUD_OPTION="True"
 ANIMATION="True"
-OPTION_AFTER="--launcher-skip --nojoy"   # args après %command%
+OPTION_AFTER=" -modded --nojoy"   # args après %command% ; -modded : charge les REDmod (mods/)
 
 # --- exports spécifiques à ce jeu ---
 export mesa_glthread=true
-export WINEDLLOVERRIDES="winmm,version=n,b"
+# vkBasalt : netteté CAS + Clarity + Deband (~/.config/vkBasalt/cyberpunk.conf) ; touche Début = activer/couper
+export ENABLE_VKBASALT=1
+export VKBASALT_CONFIG_FILE="$HOME/.config/vkBasalt/cyberpunk.conf"
+# RED4ext (winmm.dll) : ses plugins ArchiveXL/TweakXL/Codeware plantent sur la 2.5 (ABI du SDK changée,
+# recompilation en attente : psiberx/cp2077-archive-xl #30 / PR #31). "False" = RED4ext coupé, CET et ses mods gardés.
+# Repasser à "True" quand ArchiveXL, TweakXL et Codeware sortent en version 2.5.
+RED4EXT="True"
+if [ "$RED4EXT" = "True" ]; then export WINEDLLOVERRIDES="winmm=n,b;version=n,b"
+else export WINEDLLOVERRIDES="winmm=b;version=n,b"; fi
 
 source "$(dirname "$(readlink -f "$0")")/lib/game-core.sh"
 run_game "$@"

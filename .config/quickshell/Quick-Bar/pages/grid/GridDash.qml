@@ -169,6 +169,12 @@ Item {
         { type: "sys_disk", cat: "Cartes système", label: "Disques",         icon: "󰋊", w: 4, h: 4, col: Appearance.colors.color14 },
         { type: "sys_net",  cat: "Cartes système", label: "Réseau",          icon: "󰛳", w: 4, h: 3, col: Appearance.colors.color14 },
 
+        // Batteries (services/Batteries.qml : UPower, sans sondage)
+        { type: "bat_all",     cat: "Batteries", label: "Batteries", icon: "󰁹", w: 4, h: 3, col: Appearance.colors.accent },
+        { type: "bat_mouse",   cat: "Batteries", label: "Souris",    icon: "󰍽", w: 3, h: 2, col: Appearance.colors.accent },
+        { type: "bat_headset", cat: "Batteries", label: "Casque",    icon: "󰋋", w: 3, h: 2, col: Appearance.colors.accent },
+        { type: "bat_pad",     cat: "Batteries", label: "Manette",   icon: "󰊴", w: 3, h: 2, col: Appearance.colors.accent },
+
         { type: "media",  cat: "Média", label: "Media",  icon: "󰎈", w: 5, h: 2, col: Appearance.colors.color13 },
         { type: "cava",   cat: "Média", label: "Cava",   icon: "󰝚", w: 5, h: 2, col: Appearance.colors.color11 },
         { type: "volume", cat: "Média", label: "Volume", icon: "󰕾", w: 3, h: 2, col: Appearance.colors.color14 },
@@ -302,7 +308,8 @@ Item {
         "analog": cAnalog, "palette": cPalette, "wall": cWall, "note": cNote, "power": cPower, "updates": cUpdates,
         "tgpu": cTgpu, "tnvme": cTnvme, "gpupow": cGpuPow, "freq": cFreq, "swap": cSwap,
         "sys_cpu": cSysCpu, "sys_ram": cSysRam, "sys_tcpu": cSysTcpu, "sys_gpu": cSysGpu,
-        "sys_nvme": cSysNvme, "sys_disk": cSysDisk, "sys_net": cSysNet
+        "sys_nvme": cSysNvme, "sys_disk": cSysDisk, "sys_net": cSysNet,
+        "bat_all": cBatAll, "bat_mouse": cBatMouse, "bat_headset": cBatHeadset, "bat_pad": cBatPad
     })
 
     // Catégories de la palette (ordre d'apparition dans le catalogue)
@@ -437,6 +444,60 @@ Item {
         Metric { icon: "󰾴"; label: "Swap"; col: Appearance.colors.color6
             value: SysData.d ? SysData.d.mem.swapUsed / 1073741824 : 0; decimals: 1; unit: "Go"
             rightText: SysData.d ? "sur " + SysData.gb(SysData.d.mem.swapTotal) : "" }
+    }
+
+    // ── Batteries ────────────────────────────────────────────────────────────
+    component BatMetric: Metric {
+        property var dev: null
+        readonly property int p: Batteries.pct(dev)
+        col: Batteries.col(p)
+        spark: false
+        valueText: p >= 0 ? p + " %" : "—"
+        rightText: dev ? (Batteries.charging(dev) ? "󱐋 " : "") + (dev.model || "") : ""
+        sub: Batteries.stateText(dev)
+    }
+    Component { id: cBatMouse;   BatMetric { icon: "󰍽"; label: "Souris";  dev: Batteries.mouse } }
+    Component { id: cBatHeadset; BatMetric { icon: "󰋋"; label: "Casque";  dev: Batteries.headset } }
+    Component { id: cBatPad;     BatMetric { icon: "󰊴"; label: "Manette"; dev: Batteries.pad } }
+    Component { id: cBatAll
+        Item {
+            CardHead { id: bh; icon: "󰁹"; label: "Batteries"; col: Appearance.colors.accent }
+            Text {
+                anchors.centerIn: parent; visible: Batteries.devices.length === 0
+                text: "aucun appareil"; font.family: Appearance.font.family; font.pixelSize: 12; color: Appearance.colors.dim
+            }
+            Column {
+                anchors { left: parent.left; right: parent.right; top: bh.bottom; topMargin: 10 }
+                spacing: 10
+                clip: true
+                Repeater {
+                    model: Batteries.devices
+                    delegate: RowLayout {
+                        id: br
+                        required property var modelData
+                        readonly property int p: Batteries.pct(modelData)
+                        readonly property color c: root.legible(Batteries.col(p))
+                        width: parent.width
+                        spacing: 8
+                        Text { text: Batteries.charging(br.modelData) ? "󱐋" : Batteries.icon(br.modelData.type)
+                               font.family: Appearance.font.family; font.pixelSize: 15; color: br.c }
+                        ColumnLayout {
+                            Layout.fillWidth: true
+                            spacing: 3
+                            Text { Layout.fillWidth: true; elide: Text.ElideRight; text: br.modelData.model || Batteries.kind(br.modelData.type)
+                                   font.family: Appearance.font.family; font.pixelSize: 12; color: Appearance.colors.fg }
+                            Rectangle {
+                                Layout.fillWidth: true; height: 6; radius: 3
+                                color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.08)
+                                Rectangle { height: parent.height; radius: 3; color: br.c; width: parent.width * Math.max(0, br.p) / 100
+                                            Behavior on width { NumberAnimation { duration: Appearance.dur(450) } } }
+                            }
+                        }
+                        Text { text: br.p + " %"; font.family: Appearance.font.family; font.pixelSize: 14; font.weight: Font.Bold; color: br.c }
+                    }
+                }
+            }
+        }
     }
 
     // ── Cartes détaillées de la page System, ajustées à la taille du widget ──

@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import Quickshell
-import Quickshell.Io
 import qs.core
 
 Text {
@@ -12,14 +11,15 @@ Text {
     font.pixelSize: Appearance.bar.icon + 2
     color: Appearance.colors.color15
 
-    Process { id: rofiProc; command: ["bash", "-c", "pkill rofi || rofi -show drun -modi run,drun,filebrowser,window"] }
+    // même lanceur que Super seul (menus/scripts/apps.sh, IPC menu run apps) ; recliquer le referme
+    function toggle() { Quickshell.execDetached(["qs", "-p", Quickshell.shellDir + "/shell.qml", "ipc", "call", "menu", "run", "apps"]) }
 
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
         hoverEnabled: true
         onEntered: root.color = Appearance.colors.color5
-        onExited:  root.color = Appearance.colors.color3
-        onClicked: rofiProc.running = true
+        onExited:  root.color = Appearance.colors.color15
+        onClicked: root.toggle()
     }
 }

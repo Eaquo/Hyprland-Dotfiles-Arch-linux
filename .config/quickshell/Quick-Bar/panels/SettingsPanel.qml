@@ -51,6 +51,7 @@ PanelWindow {
         { key: "barint", group: "Barre", ic: "󰔛", name: "Rafraîchissement", kw: "intervalles mises à jour réseau bluetooth stats volume santé secondes cpu", src: "refresh" },
         { key: "dash", group: "Panneaux", ic: "󰕮", name: "Dashboard", kw: "taille onglets accueil", src: "dashboard" },
         { key: "touch", group: "Panneaux", ic: "󰦧", name: "Panneau tactile", kw: "zoom onglets pause jeu xeneon", src: "touch" },
+        { key: "devices", group: "Panneaux", ic: "󰁹", name: "Périphériques", kw: "périphériques devices batterie photo image souris manette casque notification connexion boutique", src: "devices" },
         { key: "apps", group: "Panneaux", ic: "󰀻", name: "Apps", kw: "applications lanceurs deck tuiles sections raccourcis apps", src: "apps" },
         { key: "spotify", group: "Panneaux", ic: "󰓇", name: "Spotify et média", kw: "spotify lecteur pochette", src: "spotify" },
         { key: "session", group: "Panneaux", ic: "󰐥", name: "Écran de session", kw: "session déconnexion éteindre redémarrer verrouiller veille bios matrix minimal ctrl alt p", src: "session" },
@@ -301,7 +302,7 @@ PanelWindow {
                         }
                         Component.onCompleted: tabChanged()
                         onLoaded: if (item) item.width = Qt.binding(() => pageLoader.width)
-                        readonly property var pages: ({ colors: colorsC, fonts: fontsC, deps: depsC, bar: barC, theme: themeC, general: generalC, anim: animC, refresh: refreshC, dashboard: dashboardC, touch: touchC, spotify: spotifyC, notif: notifC, wall: wallC, audio: audioC, capture: captureC, game: gameC, stats: statsC, health: healthC, keys: keysC, data: dataC, apps: appsC, session: sessionC, plan: planC })
+                        readonly property var pages: ({ colors: colorsC, fonts: fontsC, deps: depsC, bar: barC, theme: themeC, general: generalC, anim: animC, refresh: refreshC, dashboard: dashboardC, touch: touchC, devices: devicesC, spotify: spotifyC, notif: notifC, wall: wallC, audio: audioC, capture: captureC, game: gameC, stats: statsC, health: healthC, keys: keysC, data: dataC, apps: appsC, session: sessionC, plan: planC })
                         Component { id: colorsC; ColorsPage {} }
                         Component { id: fontsC; FontsPage {} }
                         Component { id: depsC; DepsPage {} }
@@ -312,6 +313,7 @@ PanelWindow {
                         Component { id: refreshC; RefreshPage {} }
                         Component { id: dashboardC; DashboardPage {} }
                         Component { id: touchC; TouchPage {} }
+                        Component { id: devicesC; DevicesPage {} }
                         Component { id: spotifyC; SpotifyPage {} }
                         Component { id: notifC; NotifPage {} }
                         Component { id: wallC; WallPage {} }

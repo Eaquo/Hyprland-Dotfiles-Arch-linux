@@ -575,28 +575,66 @@ Scope {
 
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: "Onglets — tap pour activer, ◀ ▶ pour réorganiser"
+                    text: "Onglets — glisser pour parcourir, tap pour activer, ◀ ▶ pour réorganiser"
                     font.family: Appearance.font.family; font.pixelSize: 22; font.weight: Font.Bold
                     color: Appearance.colors.fg
                 }
 
-                Row {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 12
-                    Repeater {
-                        model: root.tabs
+                // Carrousel (même esprit que le sélecteur de fonds) : glisser au doigt ou à la molette, toucher une
+                // carte la centre ; la carte du centre en grand, les voisines réduites et inclinées. ListView et pas
+                // PathView : pas de boucle, l'ordre des onglets reste lisible de gauche à droite.
+                ListView {
+                    id: tabView
+                    width: parent.parent.width; height: 340
+                    orientation: ListView.Horizontal
+                    model: root.tabs
+                    spacing: 14
+                    clip: true
+                    preferredHighlightBegin: width / 2 - 84; preferredHighlightEnd: width / 2 + 84
+                    highlightRangeMode: ListView.StrictlyEnforceRange
+                    highlightMoveDuration: Appearance.dur(320)
+                    snapMode: ListView.SnapToItem
+                    boundsBehavior: Flickable.StopAtBounds
+                    // après un déplacement ou un interrupteur, le modèle est recréé (index remis à 0) : on recentre
+                    // la carte touchée, mémorisée au moment du toucher (pas via currentIndex, déjà remis à 0 ici)
+                    property int keep: 0
+                    // molette : un cran (120) = une carte ; les petits pas d'un pavé tactile sont cumulés
+                    property real wheelAcc: 0
+                    WheelHandler {
+                        onWheel: (e) => {
+                            tabView.wheelAcc += e.angleDelta.y !== 0 ? e.angleDelta.y : e.angleDelta.x
+                            while (Math.abs(tabView.wheelAcc) >= 120) {
+                                const step = tabView.wheelAcc < 0 ? 1 : -1
+                                tabView.wheelAcc += step * 120
+                                tabView.currentIndex = Math.max(0, Math.min(tabView.count - 1, tabView.currentIndex + step))
+                            }
+                            GameBreak.extend()
+                        }
+                    }
+                    onModelChanged: Qt.callLater(() => { tabView.positionViewAtIndex(Math.min(keep, count - 1), ListView.Center)
+                                                         tabView.currentIndex = Math.min(keep, count - 1) })
                         delegate: Rectangle {
                             id: card
                             required property var modelData
                             required property int index
                             readonly property color wcol: Qt.lighter(root._wpal[index % root._wpal.length], 1.35)
+                            // distance au centre, en cartes : échelle, opacité et inclinaison
+                            readonly property real dist: (x + width / 2 - tabView.contentX - tabView.width / 2) / (width + tabView.spacing)
+                            readonly property real ad: Math.min(Math.abs(dist), 4)
+                            // carte centrale agrandie (×1,2), puis décroissance douce vers les bords
+                            scale: ad < 1 ? 1.2 - ad * 0.3 : 0.9 - (ad - 1) * 0.08
+                            z: 10 - ad
+                            transform: Rotation { origin.x: card.width / 2; origin.y: card.height / 2; axis { x: 0; y: 1; z: 0 }
+                                                  angle: Math.max(-40, Math.min(40, -card.dist * 14)) }
+                            anchors.verticalCenter: parent ? parent.verticalCenter : undefined   // y est ignoré par ListView
                             width: 168; height: 250; radius: 20
                             color: modelData.on ? ColorUtils.applyAlpha(wcol, 0.22) : ColorUtils.applyAlpha(Appearance.colors.bg, 0.6)
                             border.width: modelData.on ? 2 : 1
                             border.color: modelData.on ? wcol : ColorUtils.applyAlpha(Appearance.colors.fg, 0.1)
-                            opacity: modelData.on ? 1 : 0.55
+                            opacity: (modelData.on ? 1 : 0.55) * (1 - ad * 0.16)
                             Behavior on color { ColorAnimation { duration: Appearance.dur(140) } }
-                            MouseArea { anchors.fill: parent }   // absorbe (ne ferme pas)
+                            MouseArea { anchors.fill: parent; onClicked: tabView.currentIndex = card.index   // centre (et ne ferme pas)
+                                        onWheel: (w) => w.accepted = false }          // une MouseArea garde la molette : on la laisse au carrousel
 
                             Column {
                                 anchors.horizontalCenter: parent.horizontalCenter
@@ -625,7 +663,8 @@ Scope {
                                         color: Appearance.colors.bg
                                         Behavior on x { NumberAnimation { duration: Appearance.dur(120) } }
                                     }
-                                    MouseArea { anchors.fill: parent; anchors.margins: -10; onClicked: { root.toggleTab(card.index); GameBreak.extend() } }
+                                    MouseArea { anchors.fill: parent; anchors.margins: -10; onWheel: (w) => w.accepted = false
+                                                 onClicked: { tabView.keep = card.index; root.toggleTab(card.index); GameBreak.extend() } }
                                 }
                             }
 
@@ -650,13 +689,13 @@ Scope {
                                         }
                                         MouseArea {
                                             anchors.fill: parent; enabled: parent.can
-                                            onClicked: { root.moveTab(card.index, parent.modelData.d); GameBreak.extend() }
+                                            onWheel: (w) => w.accepted = false
+                                            onClicked: { tabView.keep = card.index + parent.modelData.d; root.moveTab(card.index, parent.modelData.d); GameBreak.extend() }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
                 }
 
                 // Réinitialiser l'ordre/état par défaut.

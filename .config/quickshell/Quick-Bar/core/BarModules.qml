@@ -16,6 +16,8 @@ QtObject {
         { key: "layout",        name: "Disposition",       ic: "󰕴", desc: "disposition des fenêtres" },
         { key: "localsend",     name: "LocalSend",         ic: "󰒗", desc: "partage de fichiers en local" },
         { key: "updates",       name: "Mises à jour",      ic: "󰚰", desc: "paquets à mettre à jour" },
+        { key: "minimized",     name: "Fenêtres réduites", ic: "󱂩", desc: "SUPER + molette / boutons latéraux (remplace niflveil)" },
+        { key: "proxmox",       name: "Proxmox",           ic: "󰒋", desc: "mises à jour de l'hôte et des LXC" },
         { key: "media",         name: "Lecteur",           ic: "󰝚", desc: "titre en cours (masqué sans musique)" },
         { key: "eq",            name: "Égaliseur",         ic: "󰓃", desc: "presets EasyEffects" },
         { key: "tray",          name: "Zone de notification", ic: "󰀻", desc: "icônes des applications" },

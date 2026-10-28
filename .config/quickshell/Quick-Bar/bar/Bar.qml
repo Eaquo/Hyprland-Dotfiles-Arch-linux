@@ -120,7 +120,7 @@ Scope {
         // Composants des modules, par clé de BarModules
         readonly property var mods: ({
             launcher: launcherC, stats: statsC, notifications: notifC, cava: cavaC, clock: clockC,
-            workspaces: wsC, layout: layoutC, localsend: lsC, updates: updC, media: mediaC, eq: eqC,
+            workspaces: wsC, layout: layoutC, localsend: lsC, updates: updC, proxmox: pveC, minimized: minC, media: mediaC, eq: eqC,
             tray: trayC, network: netC, bluetooth: btC, audio: audioC, power: powerC
         })
         Component { id: launcherC; AppLauncher {} }
@@ -132,6 +132,8 @@ Scope {
         Component { id: layoutC; LayoutDisplayer {} }
         Component { id: lsC; LocalSend {} }
         Component { id: updC; Updates {} }
+        Component { id: pveC; Proxmox {} }
+        Component { id: minC; Minimized {} }
         Component { id: mediaC; MediaPlayer {} }
         Component { id: eqC; Eq {} }
         Component { id: trayC; SysTray {} }

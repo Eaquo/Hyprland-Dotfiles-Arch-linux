@@ -1,0 +1,5 @@
+{
+  "_aide": "Nom du modèle tel qu'UPower le donne → fiche produit d'une boutique Shopify et numéro de la photo (0 = première). \"fond\": \"tout\" retire aussi le fond enfermé (arceau de casque). Ou déposez directement <nom-en-slug>.png ici (nom Bluetooth renommé : wax.png pour « WAX »).",
+  "Logitech PRO X": { "url": "https://maxesport.gg/fr/products/logitech-g-pro-x-superlight-2-8k-wireless-rose", "image": 0 },
+  "Flydigi Vader 5 Pro": { "url": "https://shops.flydigi.com/products/vader5pro", "image": 0 }
+}

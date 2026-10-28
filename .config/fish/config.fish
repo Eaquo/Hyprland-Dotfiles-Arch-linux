@@ -396,8 +396,8 @@ if type "wallust" >> /dev/null 2>&1
 end
 
 ## Run paleofetch if session is interactive
-## (pas dans les terminaux de nvim — $NVIM — : le petit terminal de <leader>ac reste propre)
-if status --is-interactive; and not set -q NVIM
+## (pas dans les terminaux de nvim — $NVIM — ni ceux du menu de cours — $QB_CLEAN — : terminaux propres)
+if status --is-interactive; and not set -q NVIM; and not set -q QB_CLEAN
    clear && fastfetch
 end
 
@@ -490,10 +490,10 @@ if type "wallust" >> /dev/null 2>&1
    cat ~/.cache/wallust/sequences
 end
 
-## Run paleofetch if session is interactive
-if status --is-interactive
-   neofetch
-end
+## neofetch : coupé, fastfetch (plus haut) suffit — les deux s'affichaient l'un après l'autre
+# if status --is-interactive; and not set -q NVIM; and not set -q QB_CLEAN
+#    neofetch
+# end
 
 
 # Added by LM Studio CLI (lms)

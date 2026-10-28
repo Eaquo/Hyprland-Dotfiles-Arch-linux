@@ -176,11 +176,11 @@ hl.bind(mainMod .. " + CTRL + mouse_up", hl.dsp.window.move({ direction = "d" })
 hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
--- Niflveil (minimise / restore)
-hl.bind(mainMod .. " + mouse:276", hl.dsp.exec_cmd("/usr/local/bin/niflveil minimize"))
-hl.bind(mainMod .. " + mouse:275", hl.dsp.exec_cmd("/usr/local/bin/niflveil restore-last"))
-hl.bind(mainMod .. " + mouse_up", hl.dsp.exec_cmd("niflveil restore-all"))
-hl.bind(mainMod .. " + mouse_down", hl.dsp.exec_cmd("niflveil minimize"))
+-- Niflveil (minimise / restore) → remplacé par Quick-Bar (services/Minimize.qml, binds générés dans quickbar.lua)
+-- hl.bind(mainMod .. " + mouse:276", hl.dsp.exec_cmd("/usr/local/bin/niflveil minimize"))
+-- hl.bind(mainMod .. " + mouse:275", hl.dsp.exec_cmd("/usr/local/bin/niflveil restore-last"))
+-- hl.bind(mainMod .. " + mouse_up", hl.dsp.exec_cmd("niflveil restore-all"))
+-- hl.bind(mainMod .. " + mouse_down", hl.dsp.exec_cmd("niflveil minimize"))
 
 -- Groupes
 hl.bind("CTRL + Tab + Escape", hl.dsp.exec_cmd("hyprctl dispatch changegroupactive"))

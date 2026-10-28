@@ -7,7 +7,7 @@
 -- <leader>at  seulement le petit terminal          <leader>af  aller dans Claude
 -- <leader>as  envoyer la sélection                 <leader>ab  ajouter le fichier courant
 -- <leader>aa / <leader>ad  accepter / refuser le diff         <leader>ar  reprendre une session
--- :Claude     pareil que <leader>ac
+-- :Claude [message]  pareil que <leader>ac ; Claude démarre avec le message (:Claude corrige exo2)
 -- Alt+h/j/k/l passer d'une fenêtre à l'autre, même depuis un terminal (config/keymaps.lua)
 
 local M = { buf = nil, win = nil }   -- le petit terminal de droite (gardé entre deux ouvertures)
@@ -50,14 +50,15 @@ local function close_side()
   M.win = nil
 end
 
-local function workspace()
+-- prompt (facultatif) : Claude démarre avec ce message déjà envoyé (« corrige exo2 »…)
+local function workspace(prompt)
   require("lazy").load({ plugins = { "claudecode.nvim" } })   -- :Claude avant le 1er raccourci
   if claude_win() then                                  -- ouvert : on range tout
     close_side()
     vim.cmd("ClaudeCode")
     return
   end
-  vim.cmd("ClaudeCode")
+  vim.cmd("ClaudeCode" .. (prompt and prompt ~= "" and " " .. vim.fn.shellescape(prompt) or ""))
   vim.defer_fn(open_side, 150)                          -- laisse Claude créer sa fenêtre
 end
 
@@ -72,11 +73,12 @@ return {
     diff_opts = { vertical_split = true, open_in_current_tab = true },
   },
   keys = {
-    { "<leader>ac", workspace, desc = "Claude + terminal (espace de travail)" },
+    { "<leader>ac", function() workspace() end, desc = "Claude + terminal (espace de travail)" },
     { "<leader>at", function() if M.win and vim.api.nvim_win_is_valid(M.win) then close_side() else open_side() end end,
       desc = "Petit terminal (tests)" },
   },
   init = function()
-    vim.api.nvim_create_user_command("Claude", workspace, { desc = "Claude en bas + terminal à droite" })
+    vim.api.nvim_create_user_command("Claude", function(o) workspace(o.args) end,
+      { nargs = "*", desc = "Claude en bas + terminal à droite (:Claude corrige exo2)" })
   end,
 }

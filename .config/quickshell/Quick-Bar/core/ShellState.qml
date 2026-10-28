@@ -30,6 +30,9 @@ QtObject {
     // des températures CPU (tempAlert), GPU junction et NVMe.
     property string settingsTab: "general"   // dernier onglet ouvert des Réglages
     property var  statsPrefs:   ({ ramPct: false, diskFree: false, tempAlert: 82, gpuAlert: 95, nvmeAlert: 70 })
+    // Périphériques déjà vus (services/Batteries.qml) : [{ model, type }] — Réglages › Périphériques
+    // les liste même débranchés pour leur attribuer une photo
+    property var  devicesSeen:  []
 
     // ── Persistance disque (restaurée au reboot) ───────────────────────────────
     readonly property string _path:
@@ -50,6 +53,7 @@ QtObject {
             if (Array.isArray(d.touchTabs))   root.touchTabs    = d.touchTabs
             if (d.statsPrefs)                 root.statsPrefs   = Object.assign({}, root.statsPrefs, d.statsPrefs)
             if (d.settingsTab)                root.settingsTab  = d.settingsTab
+            if (Array.isArray(d.devicesSeen)) root.devicesSeen  = d.devicesSeen
             root._loading = false
         } catch (e) { root._loading = false }
     }
@@ -61,7 +65,8 @@ QtObject {
             touchPanelOn: root.touchPanelOn,
             touchTabs:    root.touchTabs,
             statsPrefs:   root.statsPrefs,
-            settingsTab:  root.settingsTab
+            settingsTab:  root.settingsTab,
+            devicesSeen:  root.devicesSeen
         })
         saveProc.command = ["bash", "-c", "printf '%s' \"$1\" > \"$2\"", "_", json, root._path]
         saveProc.running = false
@@ -82,6 +87,7 @@ QtObject {
     onTouchTabsChanged:    _save()
     onStatsPrefsChanged:   _save()
     onSettingsTabChanged:  _save()
+    onDevicesSeenChanged:  _save()
     // « Ne pas déranger » : appliqué par le démon de notifications de Quick-Bar (NotificationService)
 
     // WiFi — false quand la radio est coupée OU que le hotspot occupe l'interface

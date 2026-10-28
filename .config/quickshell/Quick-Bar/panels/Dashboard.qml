@@ -35,6 +35,7 @@ PanelWindow {
     readonly property var allTabs: [
         { key: "home",   icon: "󰋜", label: "Home"   },
         { key: "stats",  icon: "󰻠", label: "System" },
+        { key: "battery",icon: "󰁹", label: "Devices"},
         { key: "kanban", icon: "󰄬", label: "Tasks"  },
         { key: "files",  icon: "󰉋", label: "Files"  },
         { key: "wall",   icon: "󰸉", label: "Wall"   },
@@ -213,6 +214,11 @@ PanelWindow {
                         anchors.fill: parent
                         active: root.windowVisible && root.page === "stats"
                         source: "../pages/stats/DashStats.qml"
+                    }
+                    Loader {
+                        anchors.fill: parent
+                        active: root.windowVisible && root.page === "battery"
+                        source: "../pages/battery/DashBattery.qml"
                     }
                     Loader {
                         anchors.fill: parent

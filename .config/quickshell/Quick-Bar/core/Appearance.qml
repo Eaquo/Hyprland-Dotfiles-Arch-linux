@@ -26,7 +26,12 @@ Singleton {
         watchChanges: true
         onFileChanged: walFile.reload()
         onPathChanged: walFile.reload()
-        onLoaded: root._parse(walFile.text())
+        onLoaded: {
+            root._parse(walFile.text())
+            // thème « Quick-Bar » d'Amethyst Mod Manager, recalculé sur la même palette
+            Quickshell.execDetached(["python3", Quickshell.shellDir + "/scripts/apps/amethyst-theme.py",
+                                     root.palettePath, root.paletteName, root.accentSlot])
+        }
     }
 
     Component.onCompleted: walFile.reload()
@@ -146,6 +151,21 @@ Singleton {
     }
 
     // Palette vive & lisible (contraste >= 2.6) pour les dégradés animés.
+    // Logo de chaque espace de travail (barre, onglet Spaces du tactile)
+    readonly property var wsIcons: ({
+        1:  "   ",
+        2:  "   ",
+        3:  "   ",
+        4:  "   ",
+        5:  "   ",
+        6:  "   ",
+        7:  " 󰏖  ",
+        8:  "   ",
+        9:  "   ",
+        10: " 10 "
+    })
+    readonly property string wsDefaultIcon: "   "
+
     readonly property var legiblePalette: {
         var bg   = colors.bg
         var cand = [colors.color1, colors.color2, colors.color3,  colors.color4,  colors.color5,  colors.color6,

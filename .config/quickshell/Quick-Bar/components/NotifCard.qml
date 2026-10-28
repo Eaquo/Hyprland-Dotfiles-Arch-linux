@@ -28,6 +28,7 @@ Item {
     readonly property bool hovered: hov.hovered
     readonly property var acts: notif ? notif.actions.filter(a => a.identifier !== "default") : []
     readonly property var defAct: notif ? notif.actions.find(a => a.identifier === "default") : null
+    readonly property bool device: !!notif && notif.appName === "Périphériques"
     readonly property string iconSrc: {
         if (!notif) return ""
         const i = notif.image || notif.appIcon || ""
@@ -84,16 +85,20 @@ Item {
             Row {
                 width: parent.width
                 spacing: 12
-                // icône ou image de l'application
+                // icône ou image de l'application ; photo de périphérique (services/Batteries.qml) en grand,
+                // entière, sur une lueur d'accent
                 ClippingRectangle {
-                    width: 46; height: 46; radius: card.rad(46)
-                    color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.06)
+                    readonly property int side: card.device ? 76 : 46
+                    width: side; height: side; radius: card.device ? side / 2 : card.rad(46)
+                    color: card.device ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.16) : ColorUtils.applyAlpha(Appearance.colors.fg, 0.06)
                     visible: card.iconSrc !== ""
-                    Image { anchors.fill: parent; source: card.iconSrc; fillMode: Image.PreserveAspectCrop
-                            sourceSize: Qt.size(92, 92); asynchronous: true }
+                    Image { anchors.fill: parent; anchors.margins: card.device ? 8 : 0
+                            source: card.iconSrc
+                            fillMode: card.device ? Image.PreserveAspectFit : Image.PreserveAspectCrop
+                            sourceSize: Qt.size(152, 152); asynchronous: true }
                 }
                 Column {
-                    width: parent.width - (card.iconSrc !== "" ? 58 : 0) - 26
+                    width: parent.width - (card.iconSrc !== "" ? (card.device ? 88 : 58) : 0) - 26
                     spacing: 3
                     Row {
                         spacing: 8

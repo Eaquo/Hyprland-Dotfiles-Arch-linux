@@ -35,6 +35,14 @@ Item {
     readonly property var outputs: Mixer.outputs
     readonly property var appGroups: Mixer.apps
 
+    // pastille batterie : rien si l'appareil n'est pas vu ; couleur d'alerte sous 30 % / 15 %
+    function batChip(d, g) {
+        if (!d) return null
+        const p = Batteries.pct(d)
+        return { g: Batteries.charging(d) ? "󱐋" : g, t: p + " %",
+                 c: p < 15 ? Appearance.colors.color4 : p < 30 ? Appearance.colors.color12 : Appearance.colors.fg }
+    }
+
     // ── Ping (jeux en ligne) : 1 ping toutes les 5 s vers 1.1.1.1 ─────────────
     property int ping: -1
     Process {
@@ -362,15 +370,17 @@ Item {
 
             Item { Layout.fillHeight: true }
 
-            // pastilles : EQ, ping
-            Row {
+            // pastilles : EQ, ping, batteries souris et manette (services/Batteries.qml)
+            Flow {
                 visible: GameMode.active
+                Layout.fillWidth: true
                 spacing: 10
                 Repeater {
                     model: [GameMode.switchEq ? { g: "󰓃", t: "EQ FPS", c: Appearance.colors.fg } : null,
                             root.ping >= 0 ? { g: "󰓅", t: "Ping " + root.ping + " ms",
                                                c: root.ping > 80 ? Appearance.colors.color4 : root.ping > 45 ? Appearance.colors.color12 : Appearance.colors.fg }
-                                           : { g: "󰖪", t: "Hors ligne", c: Appearance.colors.dim }].filter(x => x)
+                                           : { g: "󰖪", t: "Hors ligne", c: Appearance.colors.dim },
+                            root.batChip(Batteries.mouse, "󰍽"), root.batChip(Batteries.pad, "󰊴")].filter(x => x)
                     delegate: Rectangle {
                         required property var modelData
                         height: 38; width: pr.implicitWidth + 30; radius: 19

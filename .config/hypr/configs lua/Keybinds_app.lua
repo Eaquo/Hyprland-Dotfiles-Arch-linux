@@ -20,8 +20,8 @@ hl.bind("PAUSE", hl.dsp.exec_cmd("wl-freeze -a"))
 -- Rofi via Super+D → retiré : SUPER+D = Discord (Keybinds.lua), le lanceur d'applis = Super seul (Quick-Bar)
 -- hl.bind(mainMod .. " + D", hl.dsp.exec_cmd("pkill rofi || rofi -show drun -modi drun,filebrowser,run,window"))
 
--- Claude.ai
-hl.bind("ALT + C", hl.dsp.exec_cmd("claude-desktop"))
+-- Claude.ai → ALT+C = carte du cours (menu Quick-Bar menus/scripts/cours.sh, bind généré dans quickbar.lua)
+-- hl.bind("ALT + C", hl.dsp.exec_cmd("claude-desktop"))
 
 -- ── Apps ──────────────────────────────────────────────────────────────────────
 -- Terminal

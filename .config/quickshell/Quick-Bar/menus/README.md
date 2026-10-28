@@ -163,6 +163,7 @@ Rien à régler dans les scripts : la boîte suit Quick-Bar.
 | `quickedit` | éditer une config : Lua, conf de base ou Quick-Bar, puis le fichier (aperçu, ← retour) | SUPER+MAJ+E |
 | `bluetooth` | allumer, connecter, appairer, oublier | CTRL+B · clic molette sur la tuile Bluetooth |
 | `updates` | paquets à mettre à jour avec leur changelog à droite (notes de version GitHub, commits pour les `-git`, historique Arch/AUR) ; un paquet AUR seul ou tout | clic sur le module de la barre |
+| `proxmox` | mises à jour du serveur Proxmox (`[health] proxmox`, ssh root par clé) : l'hôte et chaque LXC (apt), le changelog Debian à droite (annonces de tracker.debian.org pour la sécurité) ; un paquet, un conteneur ou tout, dans un terminal | l'item « Proxmox » du menu updates |
 | `files` | chercher un fichier ; entrée l'ouvre avec le programme par défaut (`~/.config/mimeapps.list`) | onglet de `apps` |
 | `command` | lancer une commande (Maj+Entrée : dans un terminal) | onglet de `apps` |
 | `windows` | aller sur une fenêtre ouverte | onglet de `apps` |
@@ -170,6 +171,7 @@ Rien à régler dans les scripts : la boîte suit Quick-Bar.
 | `emoji` | emojis, entrée copie | — |
 | `calc` | calculatrice (qalculate), résultat en direct | — |
 | `search` | recherche web | — |
+| `cours` | carte du cours de programmation (`~/Samsung_Game/Cours code`, `COURS_DIR`) : modules et état des exercices (progression.md), fiche à droite ; ouvre nvim + Claude prof (`:Claude corrige exoN`) | ALT+C |
 | `keyhints` | aide-mémoire construit tout seul depuis la config Hyprland (`keyhints.py` suit `hyprland.lua` et ses `require`/`dofile`) : fiche à droite, doublons signalés, entrée = ouvrir la ligne | SUPER+H |
 | `themes` | palettes prêtes à l'emploi, aperçu des couleurs | — |
 | `menus` | tous les menus de ce dossier | — |

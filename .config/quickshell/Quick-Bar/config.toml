@@ -68,18 +68,22 @@ dir    = "~/Pictures/wallpapers"
 videos = "~/Pictures/wallpapers/Video"
 
 [theme]
-palette = "wallust"
+palette = "matugen"
 matugen_prefer = "value"
 matugen_mode = "dark"
+accent = "color13"
+border_speed = 2
+radius = 14
 
 [bar]
-separators = true
-radius = 17
+radius = 19
+height = 38
+top_margin = 7
 
 [bar.layout]
 left = ["launcher", "stats"]
-center = ["notifications", "cava", "clock", "workspaces", "layout", "localsend"]
-right = ["updates", "tray", "audio", "power"]
+center = ["notifications", "cava", "clock", "workspaces", "minimized", "layout", "localsend"]
+right = ["updates", "proxmox", "tray", "audio", "power"]
 
 [general]
 # Profil affiché dans l'accueil (nom vide = $USER, avatar par défaut ~/.face)
@@ -91,7 +95,7 @@ health = 3600
 localsend = 30
 
 [dashboard]
-tabs = ["home", "stats", "kanban", "files", "wall", "eq"]
+tabs = ["home", "stats", "battery", "kanban", "files", "wall", "eq"]
 height = 540
 
 [game]
@@ -110,3 +114,4 @@ labels = false
 
 [lock]
 auto_minutes = 10
+

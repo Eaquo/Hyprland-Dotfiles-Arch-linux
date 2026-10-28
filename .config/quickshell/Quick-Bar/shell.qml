@@ -26,6 +26,9 @@ ShellRoot {
     id: root
     Wallpaper {}
     LockScreen {}   // toujours chargé (léger) : les surfaces ne sont créées que verrouillé
+    // un singleton n'existe qu'une fois lu : Batteries doit tourner dès le lancement pour notifier
+    // les connexions de périphériques même dashboard fermé
+    readonly property bool batteriesAlive: Batteries.armed || true
     TouchPanel {}
     GameBreakBar {}
     Bar {}
@@ -46,6 +49,12 @@ ShellRoot {
         target: "wallcinema"
         function toggle() { if (!Popups.wallCinemaOpen) Popups.cinemaKind = "image"; Popups.wallCinemaOpen = !Popups.wallCinemaOpen }
         function videos() { Popups.cinemaKind = "video"; Popups.wallCinemaOpen = true }
+    }
+    IpcHandler {
+        target: "minimize"      // services/Minimize.qml (remplace niflveil)
+        function minimize()    { Minimize.minimize() }
+        function restoreLast() { Minimize.restoreLast() }
+        function restoreAll()  { Minimize.restoreAll() }
     }
     IpcHandler {
         target: "session"
@@ -69,6 +78,11 @@ ShellRoot {
             else if (Popups.dashboardOpen && d && d.page != d.homeKey) d.page = d.homeKey
             else if (Popups.dashboardOpen) Popups.dashboardOpen = false
             else { Popups.dashboardOpen = true; if (d) d.page = d.homeKey }
+        }
+        // ouvre directement un onglet : qs ipc call dashboard-home open battery
+        function open(p: string) {
+            if (!Popups.dashboardOpen) { Popups.closeAll(); Popups.dashboardOpen = true }
+            Qt.callLater(() => { if (dashboardL.item) dashboardL.item.page = p })
         }
     }
     IpcHandler {

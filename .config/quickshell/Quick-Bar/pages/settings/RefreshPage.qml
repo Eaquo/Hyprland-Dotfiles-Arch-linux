@@ -23,6 +23,7 @@ ColumnLayout {
         ]],
         ["Tâches de fond", [
             ["updates", "Mises à jour", "vérification des paquets", 1800, 300, 14400, 300, 60],
+            ["proxmox", "Proxmox", "mises à jour de l'hôte et des LXC (apt update)", 3600, 900, 21600, 900, 60],
             ["health", "Bilan de santé", "disques, services, Proxmox…", 300, 60, 3600, 60, 60]
         ]]
     ]

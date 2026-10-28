@@ -79,7 +79,9 @@ run_game() {
   : "${FSR:=False}"
   : "${HDR:=False}"
   : "${X11:=False}"
-  : "${WAYLAND_NATIVE:=False}"   # Proton Wayland natif — exclusif avec X11
+  : "${WAYLAND_NATIVE:=True}"    # Proton Wayland natif par défaut (comme avant 10/2026 : la souris capturée
+                                 # — visée, caméra — marche ; sous XWayland elle restait figée). "False" = XWayland
+                                 # (MTGA, qui se figeait en Wayland). Exclusif avec X11.
   : "${SPLIT_LOCK:=False}"
   : "${CPU_CCD:=False}"
   : "${UE4SS:=False}"
@@ -130,7 +132,7 @@ run_game() {
   # N'écrase pas un WINEDLLOVERRIDES déjà défini par le script de jeu (ex: dinput8).
   if [ "$UE4SS" = "True" ]; then
     if [ -n "$WINEDLLOVERRIDES" ]; then
-      export WINEDLLOVERRIDES="${WINEDLLOVERRIDES},dwmapi=n,b"
+      export WINEDLLOVERRIDES="${WINEDLLOVERRIDES};dwmapi=n,b"   # « ; » entre deux DLL (« , » cassait version=n,b de CET)
     else
       export WINEDLLOVERRIDES="dwmapi=n,b"
     fi
@@ -144,7 +146,7 @@ run_game() {
   elif [ "$WAYLAND_NATIVE" = "True" ]; then
     export PROTON_ENABLE_WAYLAND=1
   else
-    unset PROTON_ENABLE_WAYLAND   # hérité de Steam/Hyprland sinon : XWayland par défaut
+    unset PROTON_ENABLE_WAYLAND   # WAYLAND_NATIVE="False" explicite : XWayland
   fi
 
   # Décommente au besoin (opt-in) :
@@ -170,7 +172,8 @@ run_game() {
              -w "${GAME_WIDTH:-$RES_WIDTH}" -h "${GAME_HEIGHT:-$RES_HEIGHT}")   # GAME_* : résolution vue par le jeu (bandes noires si autre format)
     [ "$FSR" = "True" ] && LAUNCH+=(-F fsr --fsr-sharpness "$FSR_SHARPNESS")
     [ "$HDR" = "True" ] && LAUNCH+=(--hdr-enabled)
-    LAUNCH+=(--force-grab-cursor --)
+    [ "${GAMESCOPE_GRAB:-True}" = "True" ] && LAUNCH+=(--force-grab-cursor)   # False = curseur libre (jeux à la souris : MTGA…)
+    LAUNCH+=(--)
   fi
 
   # ------------------------- SETUP SYSTÈME ----------------------------------

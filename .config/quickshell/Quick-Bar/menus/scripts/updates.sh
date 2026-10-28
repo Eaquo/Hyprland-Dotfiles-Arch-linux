@@ -94,6 +94,8 @@ items() {
     item "Tout mettre à jour" id=all glyph="󰚰" path="$CL/_all.txt" sub="$n paquet(s) · dans un terminal"
     printf 'Relancer la recherche (dépôts, AUR, changelogs).\n' > "$CL/_rescan.txt"
     item "Rechercher à nouveau" id=rescan glyph="󰑐" path="$CL/_rescan.txt" sub="liste du $(date -r "$LIST" '+%H:%M')"
+    printf 'Mises à jour du serveur Proxmox : l'"'"'hôte et ses conteneurs LXC (menu proxmox).\n' > "$CL/_proxmox.txt"
+    item "Proxmox" id=proxmox glyph="󰒋" path="$CL/_proxmox.txt" sub="hôte et conteneurs LXC"
     # les changelogs arrivent en fond : l'aperçu se remplit au fil de la navigation
     if [ -n "$repo" ]; then
         section "Dépôts officiels"
@@ -114,13 +116,14 @@ items() {
 }
 
 # met à jour dans un terminal, puis rafraîchit le module de la barre
-upgrade_in_term() { KEEP_OPEN=0; term --hold -e sh -c "$1; qs -p '$QB_DIR/shell.qml' ipc call updates refresh"; }
+upgrade_in_term() { KEEP_OPEN=0; term -e bash -c "$1; qs -p '$QB_DIR/shell.qml' ipc call updates refresh; echo; read -rsp 'Terminé — Entrée pour fermer…'"; }
 
 on_select() {
     local name=${1#*:}
     case $1 in
         all)    KEEP_OPEN=0; qb updates upgrade ;;
         rescan) KEEP_OPEN=0; rm -f "$LIST"; setsid -f "$QB_DIR/menus/run.sh" updates >/dev/null 2>&1 ;;
+        proxmox) KEEP_OPEN=0; setsid -f "$QB_DIR/menus/run.sh" proxmox >/dev/null 2>&1 ;;
         aur:*)
             case $(ask "$name" "Mettre à jour $name" "Page AUR" "Retour") in
                 "Mettre à jour $name") upgrade_in_term "paru -S $name" ;;

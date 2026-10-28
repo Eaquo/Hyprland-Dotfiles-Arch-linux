@@ -9,6 +9,7 @@ import qs.core.functions
 
 // WorkspacesTab — overview des workspaces 1..10 pour le TouchPanel (Xeneon),
 // inspiré de ~/.config/quickshell/overview mais pensé tactile :
+//   · pastilles du haut (numéro + logo, Appearance.wsIcons) : un tap → passe sur ce workspace
 //   · double-tap tuile → affiche ce workspace sur son écran
 //   · tap fenêtre     → focus la fenêtre
 //   · glisser fenêtre → la déplace (silencieusement) vers la tuile lâchée
@@ -23,6 +24,7 @@ Item {
     readonly property int rows: 2
     readonly property int cols: 5
     readonly property real gap: 14
+    readonly property real stripH: 64      // rangée de pastilles au-dessus des tuiles
 
     property var clients: []
     property var monitors: []
@@ -98,7 +100,7 @@ Item {
     readonly property var mainMon: monitors.find(m => m.name !== xeneonName) || monitors[0] || null
     readonly property real aspect: mainMon ? usable(mainMon).w / usable(mainMon).h : 16 / 9
     readonly property real tileW: Math.max(1, Math.min((width - (cols - 1) * gap) / cols,
-                                                       ((height - (rows - 1) * gap) / rows) * aspect))
+                                                       ((height - stripH - gap - (rows - 1) * gap) / rows) * aspect))
     readonly property real tileH: tileW / aspect
     readonly property var activeIds: monitors.map(m => m.activeWorkspace.id)
     // Mode vidéo : currentWall est un .mp4 → vignette statique (cf. TouchPanel).
@@ -121,11 +123,48 @@ Item {
         return r * cols + c + 1
     }
 
+    // Pastilles des workspaces : numéro + logo (les mêmes que la barre) ; un tap = y aller
+    Row {
+        id: strip
+        anchors.horizontalCenter: parent.horizontalCenter
+        spacing: 10
+        Repeater {
+            model: root.rows * root.cols
+            delegate: Rectangle {
+                id: pill
+                required property int index
+                readonly property int wsId: index + 1
+                readonly property bool isActive: root.activeIds.indexOf(wsId) !== -1
+                readonly property bool used: root.clients.some(c => c.workspace.id === wsId)
+                readonly property string logo: (Appearance.wsIcons[wsId] || Appearance.wsDefaultIcon).trim()
+                height: root.stripH; width: label.implicitWidth + 40; radius: height / 2
+                color: isActive ? Appearance.colors.accent
+                                : ColorUtils.applyAlpha(Appearance.colors.fg, pillMa.pressed ? 0.2 : 0.08)
+                border.width: 1
+                border.color: ColorUtils.applyAlpha(Appearance.colors.fg, used ? 0.3 : 0.08)
+                scale: pillMa.pressed ? 0.94 : 1
+                Behavior on color { ColorAnimation { duration: Appearance.dur(120) } }
+                Behavior on scale { NumberAnimation { duration: Appearance.dur(90) } }
+                Text {
+                    id: label
+                    anchors.centerIn: parent
+                    // le 10 n'a pas de logo (son « logo » est son numéro)
+                    text: pill.logo === String(pill.wsId) ? pill.wsId : pill.wsId + "   " + pill.logo
+                    font.family: Appearance.font.family; font.pixelSize: 26; font.weight: Font.Bold
+                    color: pill.isActive ? Appearance.textOn(Appearance.colors.accent)
+                                         : ColorUtils.applyAlpha(Appearance.colors.fg, pill.used ? 0.9 : 0.4)
+                }
+                MouseArea { id: pillMa; anchors.fill: parent; onClicked: root.focusWorkspace(pill.wsId) }
+            }
+        }
+    }
+
     Item {
         id: grid
         width:  root.cols * root.tileW + (root.cols - 1) * root.gap
         height: root.rows * root.tileH + (root.rows - 1) * root.gap
-        anchors.centerIn: parent
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: root.stripH + root.gap + Math.max(0, (root.height - root.stripH - root.gap - height) / 2)
 
         property int hoverTarget: -1
 

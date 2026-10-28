@@ -7,3 +7,5 @@ __pycache__/
 backup-*/
 config.toml.bak
 .qmlls.ini
+# photos de périphériques : images des marques, téléchargées chez chacun (scripts/system/device-photos.py)
+assets/devices/*.png

@@ -16,19 +16,9 @@ GridLayout {
     property int activeId:    1
     property var visibleIds:  []
 
-    readonly property var wsIcons: ({
-        1:  "   ",
-        2:  "   ",
-        3:  "   ",
-        4:  "   ",
-        5:  "   ",
-        6:  "   ",
-        7:  " 󰏖  ",
-        8:  "   ",
-        9:  "   ",
-        10: " 10 "
-    })
-    readonly property string defaultIcon: "   "
+    // logos des espaces : Appearance.wsIcons (partagés avec l'onglet Spaces du tactile)
+    readonly property var wsIcons: Appearance.wsIcons
+    readonly property string defaultIcon: Appearance.wsDefaultIcon
 
     function update() {
         var active = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1

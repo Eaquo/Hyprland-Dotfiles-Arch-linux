@@ -35,6 +35,7 @@ hl.bind("CTRL + ALT + P", hl.dsp.exec_cmd(qb .. "session toggle"), { description
 hl.bind("SUPER + SUPER_L", hl.dsp.exec_cmd(qb .. "menu run apps"), { description = "Lanceur d'applications (Super seul)", release = true })
 hl.bind("SUPER + SHIFT + G", hl.dsp.exec_cmd(qb .. "menu run game-scripts"), { description = "Scripts de jeux" })
 hl.bind("SUPER + H", hl.dsp.exec_cmd(qb .. "menu run keyhints"), { description = "Aide-mémoire des raccourcis" })
+hl.bind("ALT + C", hl.dsp.exec_cmd(qb .. "menu run cours"), { description = "Carte du cours de programmation" })
 hl.bind("CTRL + B", hl.dsp.exec_cmd(qb .. "menu run bluetooth"), { description = "Bluetooth" })
 hl.bind("SUPER + SHIFT + E", hl.dsp.exec_cmd(qb .. "menu run quickedit"), { description = "Éditer une config" })
 
@@ -42,6 +43,10 @@ hl.bind("SUPER + SHIFT + E", hl.dsp.exec_cmd(qb .. "menu run quickedit"), { desc
 hl.bind("ALT + Tab", hl.dsp.exec_cmd(qb .. "alttab next"), { description = "Changer de fenêtre" })
 hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd(qb .. "alttab prev"), { description = "Changer de fenêtre (retour)" })
 hl.bind("ALT + ALT_L", hl.dsp.exec_cmd(qb .. "alttab commit"), { description = "Aller sur la fenêtre (relâcher Alt)", release = true })
+hl.bind("SUPER + mouse:276", hl.dsp.exec_cmd(qb .. "minimize minimize"), { description = "Réduire la fenêtre" })
+hl.bind("SUPER + mouse_down", hl.dsp.exec_cmd(qb .. "minimize minimize"), { description = "Réduire la fenêtre (molette)" })
+hl.bind("SUPER + mouse:275", hl.dsp.exec_cmd(qb .. "minimize restoreLast"), { description = "Ramener la dernière réduite" })
+hl.bind("SUPER + mouse_up", hl.dsp.exec_cmd(qb .. "minimize restoreAll"), { description = "Ramener toutes les réduites" })
 
 -- Fond d'écran
 hl.bind("SUPER + W", hl.dsp.exec_cmd(qb .. "wallpicker toggle"), { description = "Fond d'écran : carrousel" })

@@ -94,7 +94,8 @@ hl.window_rule({
 	immediate = true,
 	no_blur = true,
 	idle_inhibit = "focus",
-	confine_pointer = true,
+	-- pas de confine_pointer : gamescope capture déjà le curseur (--force-grab-cursor), les deux
+	-- ensemble perdaient le pointeur après un popup (fallait changer de workspace)
 })
 
 -- ╔══════════════════════════════════════════════════════════════════════════╗
@@ -114,7 +115,7 @@ hl.window_rule({
 	no_blur = true,
 	idle_inhibit = "focus",
 	immediate = true,
-	confine_pointer = true,
+	-- pas de confine_pointer : sous gamescope, perdait le curseur après un popup
 })
 
 -- Dofus (ultrawide 3440x1440)

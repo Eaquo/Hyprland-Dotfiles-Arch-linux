@@ -10,6 +10,7 @@ ColumnLayout {
     // Même catalogue que panels/Dashboard.qml (allTabs)
     readonly property var all: [
         { key: "home", icon: "󰋜", label: "Home" }, { key: "stats", icon: "󰻠", label: "System" },
+        { key: "battery", icon: "󰁹", label: "Devices" },
         { key: "kanban", icon: "󰄬", label: "Tasks" }, { key: "files", icon: "󰉋", label: "Files" },
         { key: "wall", icon: "󰸉", label: "Wall" }, { key: "eq", icon: "󰓃", label: "Eq" },
         { key: "discord", icon: "󰙯", label: "Discord" }
