@@ -18,6 +18,10 @@ ColumnLayout {
             SetSwitch { on: ShellState.touchPanelOn; onToggled: ShellState.touchPanelOn = !ShellState.touchPanelOn }
         }
         SetRow {
+            title: "Terminal quand je code"; desc: "un éditeur (Windsurf, VS Code, Zed…) au premier plan affiche l'onglet Terminal"
+            SetSwitch { on: Config.get("touchpanel.follow_editors", true); onToggled: Config.set("touchpanel.follow_editors", on ? false : null) }
+        }
+        SetRow {
             title: "Zoom général"; desc: "textes, boutons et vignettes de toutes les pages"
             SetSlider { implicitWidth: 300; from: 0.7; to: 1.8; step: 0.05; decimals: 2; suffix: " ×"
                         value: Number(Config.get("touchpanel.scale", 1)); onMoved: (v) => Config.set("touchpanel.scale", v) }

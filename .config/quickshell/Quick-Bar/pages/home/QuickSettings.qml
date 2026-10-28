@@ -2,6 +2,7 @@ import Quickshell
 import QtQuick
 import QtQuick.Controls
 import Quickshell.Io
+import Quickshell.Bluetooth
 import qs.components
 import qs.core
 import qs.services
@@ -98,16 +99,20 @@ StatCard {
     property bool   btOn:     false
     property string btDevice: ""
 
-    Process { id: btPowerRead
-        command: ["bash", "-c",
-            "bluetoothctl show 2>/dev/null | grep '^\\s*Powered:' | awk '{print $2}'"]
-        running: false
-        stdout: SplitParser { onRead: function(l) { root.btOn = l.trim() === "yes" } } }
-    Process { id: btDeviceRead
-        command: ["bash", "-c",
-            "bluetoothctl devices Connected 2>/dev/null | head -1 | cut -d' ' -f3-"]
-        running: false
-        stdout: SplitParser { onRead: function(l) { root.btDevice = l.trim() } } }
+    // Bluetooth natif (Quickshell.Bluetooth) : état de l'adaptateur et appareil connecté, sans bluetoothctl
+    readonly property var btAdapter: Bluetooth.defaultAdapter
+    function _btRead() {
+        root.btOn = !!root.btAdapter && root.btAdapter.enabled
+        const d = Bluetooth.devices.values.find(x => x.connected)
+        root.btDevice = d ? (d.name || d.deviceName || "") : ""      // vidé quand plus rien n'est connecté
+    }
+    Connections { target: root.btAdapter; function onEnabledChanged() { root._btRead() } }
+    Instantiator {
+        model: Bluetooth.devices
+        onObjectAdded: root._btRead()
+        onObjectRemoved: root._btRead()
+        delegate: Connections { required property var modelData; target: modelData; function onConnectedChanged() { root._btRead() } }
+    }
     Process { id: btToggleProc; command: []; running: false
         onRunningChanged: if (!running) {
             _btPoll()
@@ -116,8 +121,7 @@ StatCard {
         }
     }
     function _btPoll() {
-        btPowerRead.running  = false; btPowerRead.running  = true
-        btDeviceRead.running = false; btDeviceRead.running = true
+        _btRead()
     }
     function _btToggle() {
         var turningOn = !root.btOn
@@ -603,8 +607,33 @@ StatCard {
     // ─────────────────────────────────────────────────────────────────────────
     //  Polling timer
     // ─────────────────────────────────────────────────────────────────────────
+    // Événements au lieu du sondage de 5 s : NetworkManager (Wi-Fi, connexions, hotspot, Ethernet) et rfkill
+    // (mode avion, radios) ont un flux d'événements ; chaque rafale = une seule relecture. Relancés s'ils s'arrêtent.
+    Process {
+        id: nmMon; running: true; command: ["nmcli", "monitor"]
+        stdout: SplitParser { onRead: netKick.restart() }
+        onRunningChanged: if (!running) monRestart.start()
+    }
+    Process {
+        id: rfMon; running: true; command: ["rfkill", "event"]
+        stdout: SplitParser { onRead: radioKick.restart() }
+        onRunningChanged: if (!running) monRestart.start()
+    }
+    Timer { id: monRestart; interval: 5000; onTriggered: { nmMon.running = true; rfMon.running = true } }
     Timer {
-        interval: 5000; running: true; repeat: true
+        id: netKick; interval: 400
+        onTriggered: {
+            _wifiPoll()
+            hsActiveCheckProc.running = false; hsActiveCheckProc.running = true
+            if (root.hotspotOn && !root.hotspotBusy) { hsEthernetLiveCheck.running = false; hsEthernetLiveCheck.running = true }
+        }
+    }
+    Timer {
+        id: radioKick; interval: 300
+        onTriggered: { _wifiPoll(); _btPoll(); airplaneCheck.running = false; airplaneCheck.running = true }
+    }
+    Timer {   // secours : une relecture complète par minute
+        interval: 60000; running: true; repeat: true
         onTriggered: {
             _wifiPoll(); _btPoll()
             hsActiveCheckProc.running = false; hsActiveCheckProc.running = true

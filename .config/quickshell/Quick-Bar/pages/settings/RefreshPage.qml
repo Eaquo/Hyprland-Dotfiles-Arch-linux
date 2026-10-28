@@ -13,13 +13,11 @@ ColumnLayout {
         ["Barre", [
             ["stats", "Stats système", "CPU, RAM, disque, températures (démon, sans sous-processus)", 2, 1, 10, 1, 1],
             ["stats_hover", "Stats au survol", "pendant qu'une carte de stats est ouverte", 1, 0.5, 5, 0.5, 1],
-            ["audio", "Volume", "", 2, 1, 10, 1, 1],
             ["media", "Lecteur et visualiseur", "titre en cours", 2, 1, 10, 1, 1],
             ["network", "Réseau", "", 8, 2, 60, 1, 1],
             ["bluetooth", "Bluetooth", "", 5, 2, 60, 1, 1],
             ["notifications", "Notifications", "compteur de swaync", 3, 1, 30, 1, 1],
-            ["localsend", "LocalSend", "", 3, 1, 30, 1, 1],
-            ["layout", "Disposition", "", 4, 1, 30, 1, 1]
+            ["localsend", "LocalSend", "", 3, 1, 30, 1, 1]
         ]],
         ["Tâches de fond", [
             ["updates", "Mises à jour", "vérification des paquets", 1800, 300, 14400, 300, 60],

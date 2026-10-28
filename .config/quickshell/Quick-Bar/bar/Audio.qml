@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
 import qs.core
+import qs.services
 
 // Rangée en barre horizontale, colonne en barre verticale ([bar] position)
 GridLayout {
@@ -12,50 +13,14 @@ GridLayout {
     id: root
     rowSpacing: 7; columnSpacing: 7
 
-    property int  volume:    0
-    property bool muted:     false
-    property int  micVolume: 0
-    property bool micMuted:  false
+    // Pipewire natif (services/Mixer.qml) : mis à jour par événements, aucun sondage ni wpctl
+    readonly property var  sink:      Mixer.sink?.audio ?? null
+    readonly property var  source:    Mixer.source?.audio ?? null
+    readonly property int  volume:    sink ? Math.round(sink.volume * 100) : 0
+    readonly property bool muted:     sink ? sink.muted : false
+    readonly property int  micVolume: source ? Math.round(source.volume * 100) : 0
+    readonly property bool micMuted:  source ? source.muted : false
 
-    // ── Speaker query ─────────────────────────────────────────────────────
-    Process {
-        id: spkQuery
-        command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var m = text.trim().match(/Volume:\s*([\d.]+)(\s+\[MUTED\])?/)
-                if (m) {
-                    root.volume = Math.round(parseFloat(m[1]) * 100)
-                    root.muted  = !!m[2]
-                }
-            }
-        }
-    }
-
-    // ── Mic query ─────────────────────────────────────────────────────────
-    Process {
-        id: micQuery
-        command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SOURCE@"]
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var m = text.trim().match(/Volume:\s*([\d.]+)(\s+\[MUTED\])?/)
-                if (m) {
-                    root.micVolume = Math.round(parseFloat(m[1]) * 100)
-                    root.micMuted  = !!m[2]
-                }
-            }
-        }
-    }
-
-    Timer {
-        interval: Config.ms("audio", 2); running: true; repeat: true; triggeredOnStart: true
-        onTriggered: { spkQuery.running = true; micQuery.running = true }
-    }
-
-    Process { id: toggleMute;    command: ["wpctl", "set-mute",   "@DEFAULT_AUDIO_SINK@",   "toggle"] }
-    Process { id: volUp;         command: ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@",   "5%+"]    }
-    Process { id: volDown;       command: ["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@",   "5%-"]    }
-    Process { id: toggleMicMute; command: ["wpctl", "set-mute",   "@DEFAULT_AUDIO_SOURCE@", "toggle"] }
     Process { id: pavu;          command: ["pavucontrol", "-t", "3"] }
 
     // ── Speaker icon ─────────────────────────────────────────────────────
@@ -75,16 +40,13 @@ GridLayout {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: (ev) => {
                 if (ev.button === Qt.LeftButton) {
-                    toggleMute.running = true
-                    Qt.callLater(() => spkQuery.running = true)
+                    Mixer.toggleMute([Mixer.sink])
                 } else {
                     pavu.running = true
                 }
             }
             onWheel: (ev) => {
-                if (ev.angleDelta.y > 0) volUp.running = true
-                else volDown.running = true
-                Qt.callLater(() => spkQuery.running = true)
+                if (root.sink) Mixer.setVolume([Mixer.sink], root.sink.volume + (ev.angleDelta.y > 0 ? 0.05 : -0.05))
             }
         }
     }
@@ -115,8 +77,7 @@ GridLayout {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onClicked: (ev) => {
                 if (ev.button === Qt.LeftButton) {
-                    toggleMicMute.running = true
-                    Qt.callLater(() => micQuery.running = true)
+                    Mixer.toggleMute([Mixer.source])
                 } else {
                     pavu.running = true
                 }

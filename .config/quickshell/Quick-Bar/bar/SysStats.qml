@@ -374,8 +374,8 @@ GridLayout {
             const top = topName(d && d.topMem)
             const l = [it("󰾆", "Ouvrir btop", () => leftAction("ram"), { hint: "clic" }),
                        it("󰑓", "Relancer Quick-Bar", () => run(["bash", "-c",
-                           "quickshell kill -p \"$1\"; sleep 1; MALLOC_MMAP_THRESHOLD_=131072 setsid -f quickshell -p \"$1\" >/dev/null 2>&1",
-                           "_", Quickshell.shellDir + "/shell.qml"])),
+                           "quickshell kill -p \"$1/shell.qml\"; sleep 1; setsid -f \"$1/scripts/launch.sh\" >/dev/null 2>&1",
+                           "_", Quickshell.shellDir])),
                        sep, title("Affichage dans la barre"),
                        seg([[false, "Go"], [true, "%"]], !!prefs.ramPct, v => setPref("ramPct", v)), sep]
             if (top) l.push(it("󰆴", "Fermer « " + top.name + " » (" + gb(top.bytes) + ")", () => run(["pkill", "-x", top.name]), { danger: true }))

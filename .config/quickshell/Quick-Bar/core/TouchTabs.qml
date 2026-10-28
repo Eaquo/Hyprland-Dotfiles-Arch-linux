@@ -22,6 +22,7 @@ QtObject {
         { key: "wall",    icon: "󰸉", label: "Wall",    src: "../pages/wall/WallpaperTab.qml" },
         { key: "colors",  icon: "󰏘", label: Appearance.paletteName, src: "../pages/wallust/WallustTab.qml" },
         { key: "devices", icon: "󰁹", label: "Devices", src: "../pages/battery/DashBattery.qml" },
+        { key: "term",    icon: "", label: "Terminal", src: "../pages/terminal/TerminalTab.qml", keep: true },   // keep : la session fish survit
         { key: "eq",      icon: "󰓃", label: "Eq",      src: "../pages/eq/EqDash.qml" },
         { key: "mixer",   icon: "󰕾", label: "Mixer",   src: "../pages/mixer/MixerTab.qml" },
         { key: "discord", icon: "󰙯", label: "Discord", src: "../pages/discord/DiscordChat.qml" },

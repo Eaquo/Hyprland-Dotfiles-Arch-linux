@@ -4,6 +4,7 @@ import QtQuick
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Io
+import Quickshell.Services.Mpris
 import qs.core
 
 Item {
@@ -66,10 +67,23 @@ Item {
             }
         }
     }
-    Timer {
-        interval: Config.ms("media", 2); running: true; repeat: true; triggeredOnStart: true
-        onTriggered: mediaInfoProc.running = true
+    // Relu sur les événements MPRIS (natif) au lieu de toutes les 2 s : changement de morceau, lecture/pause,
+    // pochette, lecteur qui apparaît ou disparaît. Le script garde la résolution de pochette (data:, YouTube…).
+    Instantiator {
+        model: Mpris.players
+        onObjectAdded: mediaKick.restart()
+        onObjectRemoved: mediaKick.restart()
+        delegate: Connections {
+            required property var modelData
+            target: modelData
+            function onPlaybackStateChanged() { mediaKick.restart() }
+            function onTrackTitleChanged() { mediaKick.restart() }
+            function onTrackArtistChanged() { mediaKick.restart() }
+            function onTrackArtUrlChanged() { mediaKick.restart() }
+        }
     }
+    Timer { id: mediaKick; interval: 300; onTriggered: { mediaInfoProc.running = false; mediaInfoProc.running = true } }
+    Timer { interval: 60000; running: true; repeat: true; triggeredOnStart: true; onTriggered: mediaKick.restart() }   // secours
 
     // Clic sur le Cava → ouvre/ferme le Dashboard (page home)
     MouseArea {

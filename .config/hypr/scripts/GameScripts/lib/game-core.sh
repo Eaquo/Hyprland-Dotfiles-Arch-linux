@@ -46,7 +46,7 @@ disable_hyprland_gamemode() {
   # Relance la barre quickshell (setsid -f : survit à la sortie du script)
   if ! pgrep -x quickshell >/dev/null; then
     sleep 1.5
-    setsid -f quickshell -p /home/florian/.config/quickshell/Quick-Bar/shell.qml >/dev/null 2>&1
+    setsid -f /home/florian/.config/quickshell/Quick-Bar/scripts/launch.sh >/dev/null 2>&1
   fi
 }
 
@@ -96,7 +96,7 @@ run_game() {
 
   # Wallpaper / barre
   : "${WALLPAPER_IMG:=$HOME/.config/rofi/.current_wallpaper}"
-  : "${QUICKSHELL_CMD:=quickshell -p /home/florian/.config/quickshell/Quick-Bar/shell.qml}"
+  : "${QUICKSHELL_CMD:=/home/florian/.config/quickshell/Quick-Bar/scripts/launch.sh}"
 
   # CPU : 1 seul CCD pour éviter la latence inter-CCD.
   # Ryzen 5900X → CCD0 = cœurs 0-5 + leurs SMT 12-17. (Pas de V-cache sur ce CPU.)

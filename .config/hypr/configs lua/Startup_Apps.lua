@@ -21,8 +21,9 @@ hl.on("hyprland.start", function()
 	--    hl.exec_cmd("awww query || awww-daemon")
 	-- hl.exec_cmd(userScripts .. "/WallpaperRandom.sh " .. wallDir)
 
-	-- OpenRGB
-	hl.exec_cmd("openrgb --server --startminimized")
+	-- OpenRGB : lancé par le service systemd utilisateur openrgb.service (un seul serveur ; deux
+	-- instances se disputaient le matériel). Ne pas le relancer ici.
+	-- hl.exec_cmd("openrgb --server --startminimized")
 	-- Démon RGB : reprend la séquence enregistrée (conf/sequence.txt) ; Quick-Bar
 	-- (onglet RGB) ne fait ensuite que changer de mode. `ensure` = jamais en double.
 	hl.exec_cmd("bash -c 'sleep 12 && " .. home .. "/.config/quickshell/Quick-Bar/scripts/rgb/rgb_watch.sh ensure'")
@@ -30,7 +31,8 @@ hl.on("hyprland.start", function()
 	-- Bar / Notifications
 	-- MALLOC_MMAP_THRESHOLD_ : les gros tampons (décodage des wallpapers 5K…) sont
 	-- rendus au système une fois libérés au lieu de rester dans le tas (~80 Mo).
-	hl.exec_cmd("env MALLOC_MMAP_THRESHOLD_=131072 quickshell -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml")
+	-- (lanceur unique de Quick-Bar : fixe aussi QML_IMPORT_PATH pour le terminal du TouchPanel)
+	hl.exec_cmd(home .. "/.config/quickshell/Quick-Bar/scripts/launch.sh")
 	-- swaync remplacé par le démon de notifications de Quick-Bar (services/NotificationService.qml)
 	-- hl.exec_cmd("swaync")
 

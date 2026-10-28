@@ -25,7 +25,7 @@ FSR="True"
 
 # ======= WALLPAPER / BARRE =======
 WALLPAPER_IMG="$HOME/.config/rofi/.current_wallpaper"
-QUICKSHELL_CMD="quickshell -p $HOME/.config/quickshell/Quick-Bar/shell.qml"
+QUICKSHELL_CMD="$HOME/.config/quickshell/Quick-Bar/scripts/launch.sh"
 
 # ======= Config Wayland or X11 ======
 X11="True"

@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import qs.components
 import qs.core
 import qs.core.functions
 import qs.services
@@ -172,7 +173,9 @@ ColumnLayout {
                         width: 96; height: 96; radius: 12; clip: true
                         color: ColorUtils.applyAlpha(Appearance.colors.fg, sMa.containsMouse ? 0.14 : 0.06)
                         border.width: chosen ? 2 : 0; border.color: Appearance.colors.accent
-                        Image { anchors.fill: parent; anchors.margins: 4; source: shot.modelData + (shot.modelData.indexOf("?") < 0 ? "?" : "&") + "width=200"
+                        // jamais d'https direct dans un Image (crash OpenSSL de Quickshell) : téléchargé par curl
+                        CachedArt { id: art; url: shot.modelData + (shot.modelData.indexOf("?") < 0 ? "?" : "&") + "width=200" }
+                        Image { anchors.fill: parent; anchors.margins: 4; source: art.local
                                 fillMode: Image.PreserveAspectFit; asynchronous: true; sourceSize: Qt.size(192, 192) }
                         MouseArea { id: sMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                                     onClicked: row.run(["set", row.info.model, url.text.trim(), String(shot.index)].concat(row.enclosed ? ["tout"] : []),

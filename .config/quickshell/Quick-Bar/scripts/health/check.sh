@@ -29,8 +29,8 @@ check_openrgb() {
     else row openrgb "Serveur OpenRGB" 0 "pas lancé"; fi
 }
 fix_openrgb() {
-    pkill -x openrgb; sleep 1
-    setsid -f openrgb --server --startminimized >/dev/null 2>&1
+    # un seul serveur, celui du service systemd utilisateur (openrgb.service)
+    systemctl --user restart openrgb.service
     for _ in 1 2 3 4 5 6 7 8; do sleep 1; ss -ltn | grep -q ":6742 " && break; done
     bash "$QB/scripts/rgb/rgb_watch.sh" restart
 }

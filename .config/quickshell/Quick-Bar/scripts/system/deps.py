@@ -12,10 +12,11 @@ de cette famille → installation à la main (`how`).
 Ajouter une dépendance = une ligne dans DEPS :
   (nom, paquets, à quoi ça sert dans Quick-Bar)
   paquets = "nom-commun"  ou  {"arch": …, "debian": …, "fedora": …, "how": "à la main"}
-  nom « py:module » = module Python, « font:Nerd Font » = police (fc-list).
+  nom « py:module » = module Python, « font:Nerd Font » = police (fc-list), « qml:Module » = module QML de Qt 6.
 """
 import importlib.util
 import json
+import os
 import shutil
 import subprocess
 
@@ -107,7 +108,9 @@ DEPS = [
         ("grim", "grim", "captures d'écran"),
         ("slurp", "slurp", "capture d'une zone"),
         ("wf-recorder", "wf-recorder", "enregistrement d'écran"),
-        ("wvkbd-mobintl", "wvkbd", "clavier tactile (Discord)"),
+        ("wvkbd-mobintl", "wvkbd", "clavier tactile (Discord, Terminal)"),
+        ("qml:QMLTermWidget", {"arch": "qmltermwidget", "debian": None, "fedora": None, "suse": None, "void": None, "nix": None,
+                               "how": GH + "Swordfish90/qmltermwidget → compiler pour Qt 6"}, "onglet Terminal du panneau tactile"),
     ]),
     ("RGB", False, [
         ("openrgb", {"arch": "openrgb", "debian": "openrgb", "fedora": "openrgb", "suse": "OpenRGB", "void": None, "nix": "openrgb",
@@ -167,6 +170,12 @@ def install_command(family, packages):
 def present(name):
     if name.startswith("py:"):
         return importlib.util.find_spec(name[3:]) is not None
+    if name.startswith("qml:"):
+        try:
+            qml = subprocess.run(["qtpaths6", "--query", "QT_INSTALL_QML"], capture_output=True, text=True, timeout=10).stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            qml = ""
+        return any(os.path.isfile(os.path.join(d, name[4:], "qmldir")) for d in filter(None, [qml, "/usr/lib/qt6/qml"]))
     if name.startswith("font:"):
         try:
             out = subprocess.run(["fc-list", ":", "family"], capture_output=True, text=True, timeout=10).stdout
@@ -187,7 +196,8 @@ def main():
             else:
                 pkg = pkgs[fam] if fam in pkgs else pkgs.get("arch")   # absent = même nom que sous Arch
                 how = pkgs.get("how", "")
-            kind = "python" if name.startswith("py:") else "font" if name.startswith("font:") else "programme"
+            kind = ("python" if name.startswith("py:") else "font" if name.startswith("font:")
+                    else "qml" if name.startswith("qml:") else "programme")
             ok = present(name)
             short = name.split(":", 1)[-1]
             deps.append({"group": group, "required": required, "name": short, "kind": kind,

@@ -156,6 +156,30 @@ Scope {
     }
     // `qs ipc call touch page <onglet>` : ouvrir un onglet depuis un script
     IpcHandler { target: "touch"; function page(p: string) { Popups.touchPage = p } }
+
+    // Le Xeneon suit l'éditeur : une fenêtre d'éditeur de code qui passe au premier plan affiche l'onglet
+    // Terminal, une fois par arrivée sur l'éditeur (jamais de retour automatique, rien en jeu). Toucher le
+    // panneau ne compte pas : sans fenêtre active (focus sur le panneau), l'état précédent est gardé.
+    // [touchpanel] follow_editors (oui/non), editor_apps (identifiants d'application, en minuscules).
+    readonly property var editorApps: Config.get("touchpanel.editor_apps",
+        ["windsurf", "code", "code-oss", "codium", "cursor", "zed", "dev.zed.zed", "kate", "jetbrains-idea", "jetbrains-pycharm"])
+    // On retient la dernière fenêtre d'éditeur traitée : une fenêtre d'éditeur NOUVELLE (Windsurf relancé, alors
+    // qu'il n'y avait plus aucune fenêtre active) bascule aussi, pas seulement le retour depuis une autre appli.
+    property bool _wasEditor: false
+    property var  _lastEditor: null
+    Connections { target: ToplevelManager; function onActiveToplevelChanged() { root._followActive() } }
+    function _followActive() {
+        const t = ToplevelManager.activeToplevel
+        if (!t) return
+        const ed = root.editorApps.indexOf((t.appId || "").toLowerCase()) >= 0
+        if (ed && (!root._wasEditor || t !== root._lastEditor) && Config.get("touchpanel.follow_editors", true)
+            && !GameMode.active && root.tabs.some(x => x.key === "term" && x.on)) {
+            console.log("[touch] éditeur au premier plan (" + t.appId + ") → Terminal")
+            Popups.touchPage = "term"
+        }
+        if (ed) root._lastEditor = t
+        root._wasEditor = ed
+    }
     Process { id: focusProc }
     // valeur de cursor:no_warps de la config Hyprland, remise après le focus
     property string noWarps: "false"

@@ -8,6 +8,7 @@ import Quickshell.Services.Pipewire
 // sorties disponibles, les flux de lecture des applications et leurs volumes.
 //
 //   Mixer.sink              sortie par défaut (nœud PipeWire)
+//   Mixer.source            entrée par défaut (micro)
 //   Mixer.outputs           sorties physiques/virtuelles (Scarlett, Easy Effects…)
 //   Mixer.streams           flux de lecture (un par flux)
 //   Mixer.apps              [{ label, nodes }] — flux regroupés par application
@@ -20,11 +21,12 @@ QtObject {
     id: root
 
     readonly property var sink: Pipewire.defaultAudioSink
+    readonly property var source: Pipewire.defaultAudioSource
     // Flux de LECTURE (isStream && isSink) ; les captures (cava, micros) sont exclues.
     readonly property var streams: Pipewire.nodes.values.filter(n => n.isStream && n.isSink && n.audio)
     readonly property var outputs: Pipewire.nodes.values.filter(n => n.isSink && !n.isStream && n.audio)
     property var _tracker: PwObjectTracker {
-        objects: (root.sink ? [root.sink] : []).concat(root.streams, root.outputs)
+        objects: (root.sink ? [root.sink] : []).concat(root.source ? [root.source] : [], root.streams, root.outputs)
     }
 
     readonly property var apps: {

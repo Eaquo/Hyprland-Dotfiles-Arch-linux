@@ -113,15 +113,17 @@ Item {
 
     Component.onCompleted: refresh()
 
+    // Événements Hyprland seulement (plus de sondage) : on ne garde que ceux qui changent la disposition,
+    // le nombre de fenêtres ou le focus, et une rafale (souris qui balaie des fenêtres) = une seule relecture.
+    readonly property var watched: ["workspacev2", "focusedmonv2", "activewindowv2", "openwindow", "closewindow",
+                                    "movewindowv2", "changefloatingmode", "configreloaded", "fullscreen"]
     Connections {
         target: Hyprland
-        function onRawEvent(event) { root.refresh() }
+        function onRawEvent(event) { if (root.watched.indexOf(event.name) >= 0) debounce.restart() }
     }
-
-    Timer {
-        interval: Config.ms("layout", 4); running: true; repeat: true
-        onTriggered: root.refresh()
-    }
+    Timer { id: debounce; interval: 120; onTriggered: root.refresh() }
+    // secours : une disposition changée par un raccourci Lua n'émet pas d'événement
+    Timer { interval: 30000; running: true; repeat: true; onTriggered: root.refresh() }
 
     // ── Changement de layout (config lua) ───────────────────────────────────────
     Process { id: setLayoutProc; running: false }
