@@ -21,7 +21,10 @@ GridLayout {
     readonly property int  micVolume: source ? Math.round(source.volume * 100) : 0
     readonly property bool micMuted:  source ? source.muted : false
 
-    Process { id: pavu;          command: ["pavucontrol", "-t", "3"] }
+    // molette sur le volume ou le micro (icône ou %) : ±5 % ; clic gauche / clic molette : couper ;
+    // clic droit : centre audio flottant (panels/EqCenter.qml)
+    function step(node, ev) { if (node?.audio) Mixer.setVolume([node], node.audio.volume + (ev.angleDelta.y > 0 ? 0.05 : -0.05)) }
+    function openCenter() { const o = !Popups.eqCenterOpen; Popups.closeAll(); Popups.eqCenterOpen = o }
 
     // ── Speaker icon ─────────────────────────────────────────────────────
     Text {
@@ -37,16 +40,13 @@ GridLayout {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
             onClicked: (ev) => {
-                if (ev.button === Qt.LeftButton) {
-                    Mixer.toggleMute([Mixer.sink])
-                } else {
-                    pavu.running = true
-                }
+                if (ev.button === Qt.RightButton) root.openCenter()
+                else Mixer.toggleMute([Mixer.sink])          // clic gauche ou molette : couper / rétablir
             }
             onWheel: (ev) => {
-                if (root.sink) Mixer.setVolume([Mixer.sink], root.sink.volume + (ev.angleDelta.y > 0 ? 0.05 : -0.05))
+                root.step(Mixer.sink, ev)
             }
         }
     }
@@ -55,6 +55,9 @@ GridLayout {
     Text {
         Layout.alignment: Qt.AlignCenter
         text: root.muted ? "" : root.volume + "%"
+        MouseArea { anchors.fill: parent; acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton; cursorShape: Qt.PointingHandCursor
+                    onClicked: (ev) => ev.button === Qt.RightButton ? root.openCenter() : Mixer.toggleMute([Mixer.sink])
+                    onWheel: (ev) => root.step(Mixer.sink, ev) }
         font.pixelSize: Appearance.bar.text
         color: root.muted ? Appearance.color.color10 : Appearance.color.accent
         Layout.maximumWidth: root.muted ? 0 : 60
@@ -74,14 +77,12 @@ GridLayout {
         MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
-            acceptedButtons: Qt.LeftButton | Qt.RightButton
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
             onClicked: (ev) => {
-                if (ev.button === Qt.LeftButton) {
-                    Mixer.toggleMute([Mixer.source])
-                } else {
-                    pavu.running = true
-                }
+                if (ev.button === Qt.RightButton) root.openCenter()
+                else Mixer.toggleMute([Mixer.source])        // clic gauche ou molette : couper / rétablir
             }
+            onWheel: (ev) => root.step(Mixer.source, ev)
         }
     }
 
@@ -89,6 +90,9 @@ GridLayout {
     Text {
         Layout.alignment: Qt.AlignCenter
         text: root.micMuted ? "" : root.micVolume + "%"
+        MouseArea { anchors.fill: parent; acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton; cursorShape: Qt.PointingHandCursor
+                    onClicked: (ev) => ev.button === Qt.RightButton ? root.openCenter() : Mixer.toggleMute([Mixer.source])
+                    onWheel: (ev) => root.step(Mixer.source, ev) }
         font.pixelSize: Appearance.bar.text
         color: root.micMuted ? Appearance.color.color13 : Appearance.color.accent
         Layout.maximumWidth: root.micMuted ? 0 : 60

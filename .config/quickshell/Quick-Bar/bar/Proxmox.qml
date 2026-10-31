@@ -12,6 +12,8 @@ GridLayout {
     flow: Appearance.bar.vertical ? GridLayout.TopToBottom : GridLayout.LeftToRight
     id: root
     rowSpacing: 3; columnSpacing: 3
+    // rien à mettre à jour → logo et nombre masqués : le module tombe à largeur nulle et bar/Bar.qml
+    // le retire avec son séparateur
 
     // nombre de lignes de la liste (écrite par le scan) ; relue toutes les 30 s, sans processus
     property int updates: 0
@@ -27,6 +29,7 @@ GridLayout {
 
     Text {
         Layout.alignment: Qt.AlignCenter
+        visible: root.updates > 0
         text: "󰒋"
         font.family:    Appearance.font.family
         font.pixelSize: Appearance.bar.icon

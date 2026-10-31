@@ -56,7 +56,9 @@ hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }))
 hl.bind(mainMod .. " + ALT + F", hl.dsp.exec_cmd("hyprctl dispatch workspaceopt allfloat"))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 
-hl.bind(mainMod .. " + O", hl.dsp.window.move({ monitor = "+1" }))
+-- SUPER+O : fenêtre active en plein écran sur le Xeneon, puis retour à son espace (Quick-Bar, services/XeneonSend.qml ;
+-- le TouchPanel s'efface pendant ce temps). Ancien : hl.dsp.window.move({ monitor = "+1" })
+hl.bind(mainMod .. " + O", hl.dsp.exec_cmd("qs -p " .. home .. "/.config/quickshell/Quick-Bar/shell.qml ipc call xeneon toggle"))
 
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║                         APPLICATIONS                                      ║

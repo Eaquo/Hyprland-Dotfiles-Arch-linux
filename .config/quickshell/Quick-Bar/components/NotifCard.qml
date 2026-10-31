@@ -72,8 +72,9 @@ Item {
             cursorShape: card.defAct ? Qt.PointingHandCursor : Qt.ArrowCursor
             onClicked: (m) => {
                 if (m.button === Qt.MiddleButton) { card.notif.dismiss(); return }
-                if (card.defAct) card.defAct.invoke()
-                card.closeRequested()
+                const a = card.defAct, c = card               // invoke() peut détruire la carte : on lit avant
+                c.closeRequested()
+                if (a) a.invoke()
             }
         }
 
@@ -143,7 +144,8 @@ Item {
                                font.family: Appearance.font.family; font.pixelSize: 13
                                color: aMa.containsMouse ? Appearance.textOn(card.glow) : Appearance.colors.fg }
                         MouseArea { id: aMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                                    onClicked: { parent.modelData.invoke(); card.closeRequested() } }
+                                    // l'action peut détruire la notification (et cette carte) : tout est lu avant
+                                    onClicked: { const a = parent.modelData, c = card; c.closeRequested(); a.invoke() } }
                     }
                 }
             }

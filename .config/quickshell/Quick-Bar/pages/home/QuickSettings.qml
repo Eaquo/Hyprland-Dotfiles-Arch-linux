@@ -610,12 +610,12 @@ StatCard {
     // Événements au lieu du sondage de 5 s : NetworkManager (Wi-Fi, connexions, hotspot, Ethernet) et rfkill
     // (mode avion, radios) ont un flux d'événements ; chaque rafale = une seule relecture. Relancés s'ils s'arrêtent.
     Process {
-        id: nmMon; running: true; command: ["nmcli", "monitor"]
+        id: nmMon; running: true; command: ["setpriv", "--pdeathsig", "TERM", "nmcli", "monitor"]   // meurt avec Quick-Bar
         stdout: SplitParser { onRead: netKick.restart() }
         onRunningChanged: if (!running) monRestart.start()
     }
     Process {
-        id: rfMon; running: true; command: ["rfkill", "event"]
+        id: rfMon; running: true; command: ["setpriv", "--pdeathsig", "TERM", "rfkill", "event"]
         stdout: SplitParser { onRead: radioKick.restart() }
         onRunningChanged: if (!running) monRestart.start()
     }

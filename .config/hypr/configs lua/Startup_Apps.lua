@@ -53,7 +53,6 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("pypr")
 
 	-- Plugin hy3
-	hl.exec_cmd("hyprpm reload -n")
 	-- hy3 buildé manuellement (tag hl0.55.0 = compatible 0.55.4 ; hyprpm prenait master cassé).
 	-- À rebuild après chaque update Hyprland : ~/.config/hypr/scripts/rebuild-hy3.sh
 	hl.exec_cmd("hyprctl plugin load " .. home .. "/.config/hypr/plugins/libhy3.so")

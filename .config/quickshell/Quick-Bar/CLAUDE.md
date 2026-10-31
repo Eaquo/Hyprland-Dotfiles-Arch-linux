@@ -19,7 +19,8 @@ déplacé des fichiers : `python3 -I scripts/dev/gen-map.py` (régénère la car
 ## Lancer, recharger, vérifier
 - Un fichier QML enregistré recharge à chaud. **Un singleton (`pragma Singleton`) modifié n'est pas recréé** par le
   rechargement, et une config cassée arrête la surveillance des fichiers → redémarrer :
-  `qs kill -p shell.qml; setsid -f ~/.config/quickshell/Quick-Bar/scripts/launch.sh >/dev/null 2>&1`
+  `setsid -f ~/.config/quickshell/Quick-Bar/scripts/launch.sh >/dev/null 2>&1` (il arrête lui-même toute instance
+  existante, y compris celle relancée par le gestionnaire de crash : jamais de `qs kill` séparé → deux barres)
   **Toujours via `scripts/launch.sh`** (lanceur unique : MALLOC_MMAP_THRESHOLD_ + QML_IMPORT_PATH des couleurs du
   terminal) — aussi utilisé par Startup_Apps.lua, les GameScripts et « Relancer Quick-Bar ».
 - Journal : `qs log -p shell.qml | grep -E "ERROR|caused|WARN"` (ignorer desktopentry / textinput / IpcHandler en double).
@@ -36,6 +37,7 @@ déplacé des fichiers : `python3 -I scripts/dev/gen-map.py` (régénère la car
 | `minimize` | minimize, restoreLast, restoreAll | `session` | toggle, open |
 | `gamebreak` | toggle, start, stop, extend | `lock` | lock, tryUnlock(pw) |
 | `spotify` | toggle | `screenrec-on`, `focus-toggle` | toggle |
+| `audio` | center (centre audio flottant) | `xeneon` | toggle (SUPER+O : fenêtre ↔ Xeneon) |
 
 ## Règles de code (apprises à la dure)
 - Couleurs **toujours** via `Appearance.colors.*` (accent = color11), jamais en dur ; libellés de palette via
@@ -54,6 +56,8 @@ déplacé des fichiers : `python3 -I scripts/dev/gen-map.py` (régénère la car
   Quickshell 0.3 (`Services.Pipewire` via `Mixer`, `Services.Mpris`, `Bluetooth`, `Services.UPower`, `Hyprland.rawEvent`
   filtré + anti-rafale), sinon un flux (`nmcli monitor`, `rfkill event`, `udevadm monitor`) + un secours lent (≥ 30 s).
   Audit du 2026-10-28 : 0 processus lancé par Quick-Bar en 20 s au repos (contre ~300/min avant).
+- Un `Process` qui tourne en continu (flux d'événements) **doit** être lancé via `setpriv --pdeathsig TERM …` :
+  sinon il survit à Quick-Bar (rattaché à init) à chaque redémarrage — fuite de 17 processus constatée le 2026-10-31.
 - Logique non triviale = un petit auto-test (`--test` dans les scripts Python, comme `device-photos.py`).
 
 ## Florian

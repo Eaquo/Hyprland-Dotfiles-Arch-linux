@@ -22,7 +22,9 @@ QtObject {
     property bool quickOpen:         false
     property bool clipboardOpen:     false
     property bool spotifyOpen:       false   // panneau Spotify (bord droit, SUPER+SHIFT+S)
-    property bool settingsOpen:      false   // fenêtre Réglages (tuile Config, SUPER+F1)
+    property bool settingsOpen:      false
+    property bool eqCenterOpen:      false
+    property bool touchHidden:       false   // fenêtre envoyée sur le Xeneon (services/XeneonSend.qml) : TouchPanel effacé   // centre audio flottant (clic droit volume / micro de la barre)   // fenêtre Réglages (tuile Config, SUPER+F1)
     property string settingsPage:    ""      // page à ouvrir dans les Réglages ("" = dernière)
     property string touchPage:       ""      // onglet à afficher sur le panneau tactile (demande ponctuelle)
     property string settingsHint:    ""      // sous-partie de la page à ouvrir (ex. "stats" dans Modules)
@@ -74,7 +76,7 @@ QtObject {
     readonly property bool anyOpen: audioOpen || networkOpen || batteryOpen
                                     || notificationsOpen || archMenuOpen
                                     || dashboardOpen || wallpaperOpen || wallCinemaOpen || sessionOpen || quickOpen
-                                    || clipboardOpen || spotifyOpen
+                                    || clipboardOpen || spotifyOpen || eqCenterOpen
 
     function closeAll() {
         spotifyOpen       = false
@@ -91,5 +93,6 @@ QtObject {
         sessionOpen       = false
         quickOpen         = false
         clipboardOpen     = false
+        eqCenterOpen      = false
     }
 }

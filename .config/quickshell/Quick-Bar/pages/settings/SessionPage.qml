@@ -22,9 +22,10 @@ ColumnLayout {
             }
         }
         SetRow {
-            title: "Animation des menus"; desc: "menus Quick-Bar (SUPER, SUPER+MAJ+G…) : suivre l'écran de session ou choisir"
+            title: "Thème des menus"; desc: "menus Quick-Bar (SUPER, SUPER+MAJ+G…) : aussi dans le menu déroulant de leur en-tête"
             SetSeg {
-                options: [["", "Comme la session"], ["matrix", "Matrix"], ["cyber", "Netrunner"], ["jarvis", "Jarvis"], ["minimal", "Minimal"], ["card", "Carte"]]
+                options: [["", "Comme la session"], ["matrix", "Matrix"], ["cyber", "Netrunner"], ["jarvis", "Jarvis"], ["minimal", "Minimal (palette)"], ["card", "Carte"],
+                          ["cyberpunk", "Cyberpunk 2077"], ["synthwave", "Synthwave"], ["amber", "Ambre"], ["holo", "Hologramme"], ["glass", "Verre"]]
                 current: String(Config.get("menu.style", ""))
                 onPicked: (v) => Config.set("menu.style", v === "" ? null : v)
             }

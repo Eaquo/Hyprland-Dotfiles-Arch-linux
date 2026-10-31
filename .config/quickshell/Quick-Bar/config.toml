@@ -109,8 +109,11 @@ scale = 0.4
 [apps]
 tile_size = 155
 labels = false
+launcher_style = "hive"
 
 [menu]
+style = "minimal"
+apps_layout = "hive"
 
 [lock]
 auto_minutes = 10

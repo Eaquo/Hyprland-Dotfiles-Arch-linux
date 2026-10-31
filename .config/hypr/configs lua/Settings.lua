@@ -10,7 +10,6 @@ hl.config({
 	dwindle = {
 		-- pseudotile = true,
 		preserve_split = true,
-		special_scale_factor = 0.8,
 		force_split = 2,
 		split_width_multiplier = 1.5,
 		use_active_for_splits = true,
@@ -106,7 +105,6 @@ hl.config({
 		always_follow_on_dnd = true,
 		mouse_move_enables_dpms = false,
 		key_press_enables_dpms = false,
-		layers_hog_keyboard_focus = false,
 		vrr = 3,
 		-- vfr                       = false,
 		enable_swallow = true,
@@ -118,6 +116,11 @@ hl.config({
 		close_special_on_empty = true,
 		allow_session_lock_restore = true,
 		initial_workspace_tracking = 0,
+	},
+
+	-- ── Layers (0.57 : layers_hog_keyboard_focus sorti de misc) ──────────────────
+	layers = {
+		layers_hog_keyboard_focus = false,
 	},
 
 	-- ── Binds ────────────────────────────────────────────────────────────────
@@ -216,3 +219,10 @@ if hl.plugin.scrolloverview ~= nil then
 		},
 	})
 end
+
+-- Remplace dwindle.special_scale_factor = 0.8 (déprécié en 0.57) : marges sur les special workspaces
+-- (10 % de 3440x1440 de chaque côté)
+hl.workspace_rule({
+	workspace = "s[true]",
+	gaps_out  = { top = 144, right = 344, bottom = 144, left = 344 },
+})

@@ -26,7 +26,7 @@ QtObject {
         { key: "eq",      icon: "󰓃", label: "Eq",      src: "../pages/eq/EqDash.qml" },
         { key: "mixer",   icon: "󰕾", label: "Mixer",   src: "../pages/mixer/MixerTab.qml" },
         { key: "discord", icon: "󰙯", label: "Discord", src: "../pages/discord/DiscordChat.qml" },
-        { key: "deck",    icon: "󰀻", label: "Apps",    src: "../pages/apps/StreamDeck.qml" },
+        { key: "deck",    icon: "󰀻", label: "Apps",    src: "../pages/apps/AppDock.qml" },
         { key: "games",   icon: "󰊴", label: "Games",   src: "../pages/games/GameTab.qml" },   // déchargé hors de l'onglet : le scan des jeux ne prend que 0,1 s
         { key: "rgb",     icon: "󰌵", label: "RGB",     src: "../pages/rgb/RgbTab.qml" },
         { key: "health",  icon: "󰓙", label: "Santé",   src: "../pages/health/HealthTab.qml" },

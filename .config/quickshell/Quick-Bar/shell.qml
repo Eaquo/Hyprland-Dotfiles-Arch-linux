@@ -12,6 +12,7 @@ import qs.core.functions
 import qs.services
 import qs.services.system
 import qs.panels
+import qs.pages.eq
 import qs.wallpaper
 
 
@@ -29,6 +30,8 @@ ShellRoot {
     // un singleton n'existe qu'une fois lu : Batteries doit tourner dès le lancement pour notifier
     // les connexions de périphériques même dashboard fermé
     readonly property bool batteriesAlive: Batteries.armed || true
+    readonly property bool xeneonAlive: XeneonSend.sent !== null          // idem : SUPER+O (IPC xeneon)
+    readonly property bool islandAlive: Island.enabled || Shots.hovered    // idem : île dynamique, captures
     TouchPanel {}
     GameBreakBar {}
     Bar {}
@@ -40,6 +43,21 @@ ShellRoot {
         Dashboard { onWindowVisibleChanged: Qt.callLater(() => dashboardL.alive = windowVisible) } }
     LazyLoader { id: spotifyPanelL; property bool alive: false; active: Popups.spotifyOpen || alive
         SpotifyPanel { onWindowVisibleChanged: Qt.callLater(() => spotifyPanelL.alive = windowVisible) } }
+    // île dynamique (services/Island.qml) et vignette de capture (services/Shots.qml) : créées à la demande
+    LazyLoader { active: Island.current !== null; DynamicIsland {} }
+    LazyLoader { id: shotL; property bool alive: false; active: Shots.latest !== "" || alive; ShotThumb {} }
+    Connections { target: Shots; function onLatestChanged() { if (Shots.latest !== "") { shotHide.stop(); shotL.alive = true } else shotHide.restart() } }
+    Timer { id: shotHide; interval: 700; onTriggered: shotL.alive = false }   // le temps de glisser hors de l'écran
+    LazyLoader { id: eqCenterL; property bool alive: false; active: Popups.eqCenterOpen || alive
+        EqCenter { onWindowVisibleChanged: Qt.callLater(() => eqCenterL.alive = windowVisible) } }
+    IpcHandler {
+        target: "xeneon"         // SUPER+O : fenêtre active → plein écran sur le Xeneon, puis retour
+        function toggle() { XeneonSend.toggle() }
+    }
+    IpcHandler {
+        target: "audio"          // centre audio flottant (aussi : clic droit sur le volume / le micro de la barre)
+        function center() { const o = !Popups.eqCenterOpen; Popups.closeAll(); Popups.eqCenterOpen = o }
+    }
     LazyLoader { id: settingsPanelL; property bool alive: false; active: Popups.settingsOpen || alive
         SettingsPanel { onWindowVisibleChanged: Qt.callLater(() => settingsPanelL.alive = windowVisible) } }
     // ── panneaux créés seulement quand ils sont ouverts (aucune RAM fermés) ──

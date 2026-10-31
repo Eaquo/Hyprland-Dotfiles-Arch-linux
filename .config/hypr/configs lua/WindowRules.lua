@@ -341,6 +341,10 @@ hl.layer_rule({ match = { namespace = "quickshell:quickshell-game" }, blur = tru
 -- Panneau Spotify de Quick-Bar : il a son propre glissement depuis la droite ; sans
 -- cette règle, l'animation « slide » des layers s'y ajoute et il arrive en diagonale.
 hl.layer_rule({ match = { namespace = "quickshell:spotify" }, no_anim = true })
+-- Quick-Bar : île dynamique, vignette de capture et centre audio ont leur propre animation
+hl.layer_rule({ match = { namespace = "quickshell:island" }, no_anim = true })
+hl.layer_rule({ match = { namespace = "quickshell:shot" }, no_anim = true })
+hl.layer_rule({ match = { namespace = "quickshell:eqcenter" }, no_anim = true })
 
 -- wlogout (namespace: logout_dialog) + son fond vidéo mpvpaper : fade doux à
 -- l'ouverture ET à la fermeture (remplace le slide global, jugé brutal).

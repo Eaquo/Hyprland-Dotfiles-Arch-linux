@@ -16,13 +16,15 @@ Item {
     property real ratio: 0.62                       // hauteur / largeur d'une tuile
     readonly property real cw: Math.floor(width / cols)
     readonly property real ch: Math.round(cw * ratio)
-    readonly property real contentH: Math.min(Math.ceil(menu.items.length / cols), rows) * Math.round(Math.floor((menu.fullW - 52) / cols) * ratio)
+    property real contentH: Math.min(Math.ceil(menu.items.length / cols), rows) * Math.round(Math.floor((menu.fullW - 52) / cols) * ratio)
     property bool filter: true
     property bool search: true
     property string hints: "←↑→↓ choisir  ·  entrée valider"
     property bool fit: false                        // true = image entière (icônes d'apps)
     property Component tile: defTile
     property bool ownBorder: tile === defTile         // la tuile dessine déjà son contour
+    property bool showGrid: true                       // false : la grille cède la place à une autre disposition (Apps)
+    property string entrance: "cascade"                // apparition des tuiles : cascade, ou iris (vague depuis le centre)
 
     // tuile par défaut : carte façon SUPER+W (image recadrée, nom en bas sur un dégradé)
     Component {
@@ -72,7 +74,8 @@ Item {
     GridView {
         id: grid
         anchors.fill: parent
-        model: t.menu.items
+        visible: t.showGrid
+        model: t.showGrid ? t.menu.items : []
         cellWidth: t.cw; cellHeight: t.ch
         currentIndex: t.menu.cur
         clip: true
@@ -84,11 +87,13 @@ Item {
             readonly property bool on: index === t.menu.cur
             width: t.cw; height: t.ch
             opacity: t.menu.settled ? 1 : 0
-            scale: t.menu.settled ? 1 : 0.85
+            scale: t.menu.settled ? 1 : (t.entrance === "iris" ? 0.3 : 0.85)
             Component.onCompleted: if (!t.menu.settled) pop.start()
             SequentialAnimation {
                 id: pop
-                PauseAnimation { duration: Math.min(cell.index, 24) * 14 }
+                PauseAnimation { duration: t.entrance === "iris"
+                    ? Math.hypot(cell.index % t.cols - (t.cols - 1) / 2, Math.floor(cell.index / t.cols) - (t.rows - 1) / 2) * 70
+                    : Math.min(cell.index, 24) * 14 }
                 ParallelAnimation {
                     NumberAnimation { target: cell; property: "opacity"; to: 1; duration: Appearance.dur(180) }
                     NumberAnimation { target: cell; property: "scale"; to: 1; duration: Appearance.dur(280); easing.type: Easing.OutBack }

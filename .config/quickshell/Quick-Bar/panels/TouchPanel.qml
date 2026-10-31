@@ -213,7 +213,7 @@ Scope {
     PanelWindow {
         id: win
         screen:  root.targetScreen
-        visible: ShellState.touchPanelOn && root.targetScreen !== null
+        visible: ShellState.touchPanelOn && root.targetScreen !== null && !Popups.touchHidden   // effacé : fenêtre envoyée (SUPER+O)
 
         WlrLayershell.layer:     WlrLayer.Overlay
         WlrLayershell.namespace: "quickshell:touchpanel"

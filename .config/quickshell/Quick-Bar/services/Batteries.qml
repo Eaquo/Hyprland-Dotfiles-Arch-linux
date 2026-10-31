@@ -15,6 +15,33 @@ Singleton {
     readonly property var devices: UPower.devices.values.filter(d => d.type !== UPowerDeviceType.LinePower && d.nativePath !== "")
                                    .concat(vader ? [vader] : [])
 
+    // + périphériques sans batterie (clavier) : affichés dans Devices et notifiés, mais pas dans les listes de batteries
+    readonly property var all: devices.concat(keyboard ? [keyboard] : [])
+
+    // Clavier (scripts/system/keyboard-info.py : vrais claviers USB/Bluetooth à voyants, souris écartées ici) : disposition, Verr. Maj, Verr. Num ; relu au branchement
+    // (événement udev) et par refreshKeyboard() quand la page Devices s'affiche — pas de sondage
+    property var keyboard: null
+    Process {
+        id: kbProc
+        command: ["python3", Quickshell.shellDir + "/scripts/system/keyboard-info.py"]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                // premier vrai clavier qui n'est pas une souris (le récepteur Logitech se présente aussi comme clavier)
+                let list = []
+                try { list = JSON.parse(text.trim()) } catch (e) {}
+                const mice = root.devices.filter(d => d.type === UPowerDeviceType.Mouse).map(d => d.model)
+                const k = (Array.isArray(list) ? list : []).find(x => mice.indexOf(x.model) < 0) || null
+                root.keyboard = !k ? null : {
+                    type: UPowerDeviceType.Keyboard, model: k.model, nativePath: "kbd:" + k.model,
+                    percentage: -1, state: UPowerDeviceState.Unknown, timeToEmpty: 0, timeToFull: 0,
+                    wired: true, noBattery: true, layout: k.layout, caps: k.caps, num: k.num
+                }
+            }
+        }
+    }
+    function refreshKeyboard() { kbProc.running = false; kbProc.running = true }
+    Component.onCompleted: refreshKeyboard()
+
     // Vader 5 Pro : même forme qu'un UPowerDevice (champs utilisés par les pages)
     property var vader: null
     property int vaderMiss: 0          // lectures vides d'affilée : une seule peut être un raté HID
@@ -45,10 +72,10 @@ Singleton {
     // (1,5 s le temps que la manette s'initialise), sans attendre la minute
     Process {
         running: true
-        command: ["udevadm", "monitor", "--udev", "--subsystem-match=hidraw"]
+        command: ["setpriv", "--pdeathsig", "TERM", "udevadm", "monitor", "--udev", "--subsystem-match=hidraw"]   // meurt avec Quick-Bar
         stdout: SplitParser { onRead: line => { if (/ (add|remove) /.test(line)) vaderKick.restart() } }
     }
-    Timer { id: vaderKick; interval: 1500; onTriggered: vaderProc.running = true }
+    Timer { id: vaderKick; interval: 1500; onTriggered: { vaderProc.running = true; root.refreshKeyboard() } }
 
     // Photos : assets/devices/<slug du modèle>.png. Les manquantes listées dans assets/devices/devices.json
     // sont téléchargées une fois au démarrage (scripts/system/device-photos.py) ; photoRev recharge les images.
@@ -68,8 +95,8 @@ Singleton {
     property var known: []
     property bool armed: false
     Timer { interval: 8000; running: true; onTriggered: root.armed = true }
-    onDevicesChanged: {
-        const now = devices.map(d => ({ nativePath: d.nativePath, model: d.model, type: d.type, percentage: d.percentage,
+    onAllChanged: {
+        const now = all.map(d => ({ nativePath: d.nativePath, model: d.model, type: d.type, percentage: d.percentage,
                                         wired: d.wired }))
         const has = (list, d) => list.some(x => x.nativePath === d.nativePath)
         if (armed) {
@@ -87,6 +114,15 @@ Singleton {
     }
     function announce(d, on) {
         const p = pct(d)
+        // île dynamique (services/Island.qml) à la place de la notification, si elle est active
+        if (Island.enabled && Config.get("island.devices", true) !== false) {
+            const img = photoPath(d)
+            Island.show({ title: (d.model || kind(d.type)) + (on ? " connecté" : " déconnecté"),
+                          sub: on ? [kind(d.type), link(d), p > 0 ? p + " %" : ""].filter(x => x).join(" · ")
+                                  : kind(d.type) + (p > 0 ? " · dernière batterie " + p + " %" : ""),
+                          image: img, glyph: icon(d.type), accent: on ? Appearance.colors.accent : Appearance.colors.color13 })
+            return
+        }
         const what = on ? [kind(d.type), link(d), p > 0 ? p + " %" : ""].filter(x => x).join(" · ")
                         : kind(d.type) + (p > 0 ? " · dernière batterie " + p + " %" : "")
         const fallback = { [UPowerDeviceType.Mouse]: "input-mouse", [UPowerDeviceType.GamingInput]: "input-gaming",
@@ -94,6 +130,34 @@ Singleton {
         Quickshell.execDetached(["sh", "-c", '[ -f "$1" ] && i="$1" || i="$2"; notify-send -a Périphériques -i "$i" "$3" "$4"',
                                  "sh", photoPath(d), fallback, (d.model || kind(d.type)) + (on ? " connecté" : " déconnecté"), what])
     }
+    // ── Batterie faible : notification avec la photo sous 20 % puis 10 % (une fois par seuil, remise à zéro à
+    //    la charge ou au-dessus de 25 %). Suivi par appareil : la batterie d'UPower est notifiée en direct.
+    property var lowSent: ({})            // nativePath → dernier seuil annoncé
+    Instantiator {
+        model: root.all
+        delegate: QtObject {
+            required property var modelData
+            readonly property int p: modelData && !modelData.noBattery ? Math.round(modelData.percentage * 100) : -1
+            readonly property bool ch: !!modelData && (modelData.state === UPowerDeviceState.Charging || modelData.state === UPowerDeviceState.FullyCharged)
+            onPChanged: root.checkLow(modelData, p, ch)
+            onChChanged: root.checkLow(modelData, p, ch)
+            Component.onCompleted: root.checkLow(modelData, p, ch)
+        }
+    }
+    function checkLow(d, p, ch) {
+        if (!d || p < 0) return
+        const k = d.nativePath, sent = lowSent[k] ?? 100
+        const set = (v) => { const o = Object.assign({}, lowSent); o[k] = v; lowSent = o }
+        if (ch || p >= 25) { if (sent < 100) set(100); return }
+        const lvl = p <= 10 ? 10 : p <= 20 ? 20 : 100
+        if (lvl >= sent || lvl === 100) return
+        set(lvl)
+        const bars = "▰".repeat(Math.max(1, Math.round(p / 10))) + "▱".repeat(10 - Math.max(1, Math.round(p / 10)))
+        Quickshell.execDetached(["sh", "-c", '[ -f "$1" ] && i="$1" || i="battery-caution"; notify-send -a Périphériques -u critical -i "$i" "$2" "$3"',
+                                 "sh", photoPath(d), (d.model || kind(d.type)) + " à " + p + " %",
+                                 bars + "  " + (lvl === 10 ? "à recharger maintenant" : "pense à la recharger")])
+    }
+
     // liaison : la Vader dit si elle est filaire, UPower donne le pilote (hidpp = récepteur Logitech, bluez = Bluetooth)
     function link(d) {
         if (!d) return ""

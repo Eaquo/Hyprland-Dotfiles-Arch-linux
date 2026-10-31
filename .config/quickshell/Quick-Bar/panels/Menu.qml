@@ -171,8 +171,10 @@ PanelWindow {
     onQueryChanged: if (req.live) liveT.restart()
 
     // ── couleur : dominante de l'image choisie (comme SUPER+W), sinon l'accent ──
-    readonly property color accentGlow: Appearance.contrastRatio(Appearance.colors.accent, Appearance.colors.bg) < 3.5
+    readonly property color accentGlow: root.theme.glow ? root.theme.glow
+                                        : Appearance.contrastRatio(Appearance.colors.accent, Appearance.colors.bg) < 3.5
                                         ? Qt.lighter(Appearance.colors.accent, 1.7) : Appearance.colors.accent
+    onAccentGlowChanged: glow = accentGlow
     property color glow: accentGlow
     Behavior on glow { ColorAnimation { duration: root.md(300) } }
     readonly property var curItem: items[cur] || null
@@ -184,7 +186,7 @@ PanelWindow {
         onSrcChanged: { if (src !== "") loadImage(src); else root.glow = root.accentGlow }
         onImageLoaded: requestPaint()
         onPaint: {
-            if (!src) return
+            if (!src || root.theme.glow) return              // thème à couleur fixe : pas de couleur d'icône
             const g = getContext("2d"); g.clearRect(0, 0, 16, 16); g.drawImage(src, 0, 0, 16, 16)
             const d = g.getImageData(0, 0, 16, 16).data
             let best = [128, 128, 128], score = -1
@@ -244,8 +246,28 @@ PanelWindow {
     Behavior on mh { enabled: root.settled; NumberAnimation { duration: root.md(240); easing.type: Easing.OutCubic } }
     Behavior on mw { enabled: root.settled; NumberAnimation { duration: root.md(240); easing.type: Easing.OutCubic } }
 
-    // ── animations selon le style (celui de l'écran de session, ou [menu] style) ──
-    readonly property string style: String(Config.get("menu.style", Config.get("session.style", "matrix")))
+    // ── Thème du menu ([menu] style, ou celui de l'écran de session ; menu déroulant de l'en-tête) ──
+    //   anim : animation d'ouverture (matrix, cyber, jarvis, minimal ; autre = carte simple)
+    //   glow / opp : couleurs fixes du thème (sinon la palette) · bg, bgAlpha : fond de la carte
+    //   fx : effet d'ambiance par-dessus la carte (scan = lignes de balayage, grid = grille néon)
+    readonly property var themes: [
+        { key: "matrix",    name: "Matrix",          anim: "matrix",  glow: "#3dff8a", opp: "#00b85c", bg: "#020b05", fx: "rain" },
+        { key: "cyber",     name: "Netrunner",       anim: "cyber",   glow: "#ff2a6d", opp: "#05d9e8", bg: "#0d0221", fx: "scan" },
+        { key: "jarvis",    name: "Jarvis",          anim: "jarvis",  glow: "#ffb547", opp: "#ff5a36", bg: "#0c0806", fx: "hud" },
+        { key: "minimal",   name: "Minimal (palette)", anim: "minimal" },
+        { key: "card",      name: "Carte",           anim: "card", hidden: true },     // doublon de Minimal : Réglages seulement
+        { key: "cyberpunk", name: "Cyberpunk 2077",  anim: "cyber",   glow: "#fcee0a", opp: "#00f0ff", bg: "#0b0a10", fx: "scan" },
+        { key: "synthwave", name: "Synthwave",       anim: "minimal", glow: "#ff3fd8", opp: "#00e5ff", bg: "#1a0b2e", fx: "grid" },
+        { key: "amber",     name: "Terminal ambre",  anim: "matrix",  glow: "#ffb000", opp: "#ff6a00", bg: "#120a02", fx: "scan" },
+        { key: "holo",      name: "Hologramme",      anim: "jarvis",  glow: "#62d8ff", opp: "#b4f4ff", bg: "#04121c", bgAlpha: 0.84, fx: "scan" },
+        { key: "glass",     name: "Verre",           anim: "minimal", bg: "#1b2232", bgAlpha: 0.55, fx: "sheen" }
+    ]
+    readonly property string themeKey: String(Config.get("menu.style", Config.get("session.style", "matrix")))
+    readonly property var theme: themes.find(t => t.key === themeKey) || themes[0]
+    readonly property string style: theme.anim
+    readonly property color cardBg: theme.bg ? theme.bg : Appearance.colors.bg
+    property bool themeMenu: false
+    function pickTheme(k) { themeMenu = false; Config.set("menu.style", k); swapAnim.restart() }
     // vitesse propre aux menus ([menu] speed : 0 instantané, 0.4 rapide (défaut), 1 animation complète)
     readonly property real menuSpeed: Math.max(0, Math.min(1, Number(Config.get("menu.speed", 0.4))))
     function md(ms) { return Math.round(Appearance.dur(ms) * menuSpeed) }
@@ -258,7 +280,7 @@ PanelWindow {
     property real scan: -1           //          ligne de balayage (0 → 1, -1 = aucune)
     property real fade: 1            // cyber / minimal : opacité de la carte
     property int tick: 0
-    readonly property color opp: glow.hslSaturation < 0.12 ? Qt.hsla(0.98, 0.8, 0.6, 1) : Qt.hsla((glow.hslHue + 0.5) % 1, 0.85, 0.62, 1)
+    readonly property color opp: root.theme.opp ? root.theme.opp : glow.hslSaturation < 0.12 ? Qt.hsla(0.98, 0.8, 0.6, 1) : Qt.hsla((glow.hslHue + 0.5) % 1, 0.85, 0.62, 1)
     FrameAnimation {
         running: root.shown && root.gl > 0
         onTriggered: root.tick++
@@ -270,18 +292,18 @@ PanelWindow {
         if (style === "cyber") glSel.restart()
     }
     SequentialAnimation { id: glSel
-        NumberAnimation { target: root; property: "gl"; to: 0.55; duration: 30 }
-        NumberAnimation { target: root; property: "gl"; to: 0; duration: 160 } }
+        NumberAnimation { target: root; property: "gl"; to: 0.3; duration: 60 }
+        NumberAnimation { target: root; property: "gl"; to: 0; duration: 260; easing.type: Easing.OutCubic } }
     Timer {   // petits glitchs au hasard (Netrunner)
         running: root.open && root.style === "cyber" && Appearance.animationsEnabled
-        interval: 3000; repeat: true
-        onTriggered: { interval = 1800 + Math.random() * 3500; glBurst.restart() }
+        interval: 6000; repeat: true
+        onTriggered: { interval = 5000 + Math.random() * 6000; glBurst.restart() }
     }
     SequentialAnimation { id: glBurst
-        NumberAnimation { target: root; property: "gl"; to: 1; duration: 40 }
-        NumberAnimation { target: root; property: "gl"; to: 0.3; duration: 60 }
-        NumberAnimation { target: root; property: "gl"; to: 0.9; duration: 40 }
-        NumberAnimation { target: root; property: "gl"; to: 0; duration: 200 } }
+        NumberAnimation { target: root; property: "gl"; to: 0.55; duration: 90 }
+        NumberAnimation { target: root; property: "gl"; to: 0.2; duration: 120 }
+        NumberAnimation { target: root; property: "gl"; to: 0.45; duration: 90 }
+        NumberAnimation { target: root; property: "gl"; to: 0; duration: 380; easing.type: Easing.OutCubic } }
 
     // Matrix : un trait lumineux, l'écran s'ouvre, les textes se déchiffrent
     SequentialAnimation { id: mxIn
@@ -304,19 +326,19 @@ PanelWindow {
         ScriptAction { script: { root.fullNow(); root.fade = 0; root.intro = 0 } }
         ParallelAnimation {
             SequentialAnimation {
-                NumberAnimation { target: root; property: "fade"; to: 1; duration: 50 }
-                NumberAnimation { target: root; property: "fade"; to: 0.4; duration: 50 }
-                NumberAnimation { target: root; property: "fade"; to: 1; duration: 60 } }
+                NumberAnimation { target: root; property: "fade"; to: 1; duration: 120 }
+                NumberAnimation { target: root; property: "fade"; to: 0.7; duration: 90 }
+                NumberAnimation { target: root; property: "fade"; to: 1; duration: 120 } }
             SequentialAnimation {
-                NumberAnimation { target: root; property: "gl"; to: 1; duration: 50 }
-                NumberAnimation { target: root; property: "gl"; to: 0.3; duration: 70 }
-                NumberAnimation { target: root; property: "gl"; to: 0.9; duration: 50 }
-                NumberAnimation { target: root; property: "gl"; to: 0; duration: 240 } }
-            NumberAnimation { target: root; property: "intro"; to: 1; duration: root.md(200) }
+                NumberAnimation { target: root; property: "gl"; to: 0.6; duration: 110 }
+                NumberAnimation { target: root; property: "gl"; to: 0.25; duration: 140 }
+                NumberAnimation { target: root; property: "gl"; to: 0.45; duration: 110 }
+                NumberAnimation { target: root; property: "gl"; to: 0; duration: 420; easing.type: Easing.OutCubic } }
+            NumberAnimation { target: root; property: "intro"; to: 1; duration: root.md(360) }
         }
         ScriptAction { script: root.done() } }
     SequentialAnimation { id: cyOut
-        NumberAnimation { target: root; property: "gl"; to: 1; duration: 50 }
+        NumberAnimation { target: root; property: "gl"; to: 0.5; duration: 90 }
         ParallelAnimation {
             NumberAnimation { target: root; property: "fade"; to: 0; duration: root.md(220); easing.type: Easing.InCubic }
             NumberAnimation { target: root; property: "gl"; to: 0.4; duration: root.md(220) } } }
@@ -361,7 +383,7 @@ PanelWindow {
         opacity: root.fade
         transform: [
             Scale { origin.x: fxc.width / 2; origin.y: fxc.height / 2; xScale: root.crtX; yScale: root.crtY },
-            Translate { x: { root.tick; return (Math.random() - 0.5) * 24 * root.gl } }
+            Translate { x: { root.tick; return (Math.random() - 0.5) * 9 * root.gl } }
         ]
         // Netrunner : fantômes RVB décalés + tranche
         Repeater {
@@ -395,7 +417,7 @@ PanelWindow {
             y: root.cardY + (root.fullH - root.mh) / 2
             width: root.mw; height: root.mh
             radius: Math.min(root.rad(root.fullH), height / 2)
-            color: ColorUtils.applyAlpha(Appearance.colors.bg, 0.96 * root.bgA)
+            color: ColorUtils.applyAlpha(root.cardBg, (root.theme.bgAlpha ?? 0.96) * root.bgA)
             // contour fixe si les bordures animées sont coupées (Réglages › Thème)
             border.width: Appearance.animationsEnabled ? 0 : 2
             border.color: ColorUtils.applyAlpha(root.glow, 0.85)
@@ -410,6 +432,54 @@ PanelWindow {
                 }
             }
             Rectangle { x: box.radius; width: parent.width - box.radius * 2; height: 1; color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.16 * root.bgA) }
+            // effet d'ambiance du thème (sous le contenu) : lignes de balayage ou grille néon en perspective
+            Canvas {
+                id: fxCanvas
+                anchors.fill: parent
+                visible: !!root.theme.fx
+                opacity: root.bgA
+                readonly property string fx: root.theme.fx || ""
+                readonly property color c: root.glow
+                onFxChanged: requestPaint(); onCChanged: requestPaint(); onWidthChanged: requestPaint(); onHeightChanged: requestPaint()
+                onPaint: {
+                    const g = getContext("2d"); g.reset()
+                    if (fx === "rain") {                                   // Matrix : colonnes de caractères, de plus en plus pâles
+                        const chars = "アイウエオカキクケコサシスセソタチツテトナニヌネノ01234589Z"
+                        g.font = "15px monospace"
+                        for (let x = 6; x < width; x += 22) {
+                            const len = 4 + Math.floor(Math.random() * 14), y0 = Math.random() * height
+                            for (let k = 0; k < len; k++) {
+                                g.fillStyle = Qt.rgba(c.r, c.g, c.b, (k === len - 1 ? 0.22 : 0.09 * (k / len)))
+                                g.fillText(chars[Math.floor(Math.random() * chars.length)], x, (y0 + k * 18) % height)
+                            }
+                        }
+                    } else if (fx === "hud") {                             // Jarvis : arcs de radar dans les coins
+                        g.strokeStyle = Qt.rgba(c.r, c.g, c.b, 0.16); g.lineWidth = 1.5
+                        for (const [cx, cy, a0] of [[width, height, Math.PI], [0, 0, 0]])
+                            for (let r = 60; r <= 260; r += 50) { g.beginPath(); g.arc(cx, cy, r, a0, a0 + Math.PI / 2); g.stroke() }
+                        g.fillStyle = Qt.rgba(c.r, c.g, c.b, 0.12)
+                        for (let i = 0; i < 24; i++) g.fillRect(width - 300 + i * 12, height - 20, 6, 3 + (i % 4) * 3)
+                    } else if (fx === "sheen") {                           // Verre : reflet en diagonale
+                        const gr = g.createLinearGradient(0, 0, width, height)
+                        gr.addColorStop(0, "rgba(255,255,255,0.10)"); gr.addColorStop(0.35, "rgba(255,255,255,0.02)")
+                        gr.addColorStop(0.5, "rgba(255,255,255,0.07)"); gr.addColorStop(1, "rgba(255,255,255,0)")
+                        g.fillStyle = gr; g.fillRect(0, 0, width, height)
+                    } else if (fx === "scan") {
+                        g.fillStyle = Qt.rgba(c.r, c.g, c.b, 0.045)
+                        for (let y = 0; y < height; y += 4) g.fillRect(0, y, width, 1.5)
+                    } else if (fx === "grid") {
+                        const hz = height * 0.58, vx = width / 2
+                        const grad = g.createLinearGradient(0, hz, 0, height)
+                        grad.addColorStop(0, Qt.rgba(c.r, c.g, c.b, 0)); grad.addColorStop(1, Qt.rgba(c.r, c.g, c.b, 0.32))
+                        g.strokeStyle = grad; g.lineWidth = 1.2
+                        for (let i = -16; i <= 16; i++) { g.beginPath(); g.moveTo(vx + i * 14, hz); g.lineTo(vx + i * width / 8, height); g.stroke() }
+                        for (let k = 1; k <= 9; k++) { const y = hz + (height - hz) * Math.pow(k / 9, 2.2); g.beginPath(); g.moveTo(0, y); g.lineTo(width, y); g.stroke() }
+                        const sun = g.createRadialGradient(vx, hz, 0, vx, hz, height * 0.5)
+                        sun.addColorStop(0, Qt.rgba(c.r, c.g, c.b, 0.18)); sun.addColorStop(1, Qt.rgba(c.r, c.g, c.b, 0))
+                        g.fillStyle = sun; g.fillRect(0, 0, width, height)
+                    }
+                }
+            }
 
             Item {
                 x: (root.mw - root.fullW) / 2; y: (root.mh - root.fullH) / 2
@@ -495,7 +565,7 @@ PanelWindow {
                     }
                     // onglets (TABS du script) : un autre menu, sans refermer la carte
                     Row {
-                        anchors { left: pill.right; leftMargin: 10; right: closeB.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
+                        anchors { left: pill.right; leftMargin: 10; right: themeB.left; rightMargin: 8; verticalCenter: parent.verticalCenter }
                         spacing: 6
                         Repeater {
                             model: root.tabs
@@ -514,6 +584,21 @@ PanelWindow {
                                             onClicked: root.switchTab(parent.index) }
                             }
                         }
+                    }
+                    Rectangle {                  // thème du menu : ouvre la liste déroulante
+                        id: themeB
+                        anchors.right: closeB.left; anchors.rightMargin: 8; anchors.verticalCenter: parent.verticalCenter
+                        width: thRow.implicitWidth + 26; height: 48; radius: root.rad(height)
+                        color: root.themeMenu ? ColorUtils.applyAlpha(root.glow, 0.88)
+                             : thMa.containsMouse ? ColorUtils.applyAlpha(Appearance.colors.bg, 0.7) : ColorUtils.applyAlpha(Appearance.colors.bg, 0.45)
+                        Behavior on color { ColorAnimation { duration: root.md(180) } }
+                        Row { id: thRow; anchors.centerIn: parent; spacing: 8
+                              Text { text: "󰏘"; font.family: Appearance.font.family; font.pixelSize: 17
+                                     color: root.themeMenu ? Appearance.textOn(root.glow) : root.glow }
+                              Text { text: root.theme.name + "  " + (root.themeMenu ? "▴" : "▾"); font.family: Appearance.font.family
+                                     font.pixelSize: 14; font.weight: Font.DemiBold; color: root.themeMenu ? Appearance.textOn(root.glow) : Appearance.colors.fg } }
+                        MouseArea { id: thMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                    onClicked: root.themeMenu = !root.themeMenu }
                     }
                     Rectangle {
                         id: closeB
@@ -540,6 +625,96 @@ PanelWindow {
                         elide: Text.ElideRight; textFormat: Text.PlainText
                         font.family: Appearance.font.family; font.pixelSize: 15; font.weight: Font.DemiBold
                         color: Appearance.textOn(root.glow)
+                    }
+                }
+
+                // ── liste des thèmes (sous le bouton de l'en-tête) ──
+                Rectangle {
+                    id: themeList
+                    z: 50
+                    visible: opacity > 0.01
+                    opacity: root.themeMenu ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: root.md(160) } }
+                    x: Math.min(parent.width - width - 18, head.x + head.width - 12 - 34 - 8 - width)
+                    y: head.y + head.height + 8 - (root.themeMenu ? 0 : 8)
+                    Behavior on y { NumberAnimation { duration: root.md(180); easing.type: Easing.OutCubic } }
+                    // deux colonnes dans l'onglet Apps (thèmes | dispositions) ; hauteur bornée à la carte, molette au-delà
+                    readonly property bool two: root.tpl === "apps"
+                    readonly property real colW: 262
+                    width: (two ? colW * 2 + 14 : colW) + 16
+                    height: Math.min(thFlick.contentHeight + 16, parent.height - y - 16); radius: 16
+                    clip: true
+                    readonly property var layouts: [["grid", "Grille", "󰕰"], ["spotlight", "Spotlight", "󰍉"], ["iris", "Orbite", "󰄰"],
+                                                    ["hive", "Ruche", "󰋘"], ["coverflow", "Coverflow", "󰯉"], ["dock", "Dock", "󰍹"]]
+                    color: ColorUtils.applyAlpha(root.cardBg, 0.98)
+                    border.width: 1; border.color: ColorUtils.applyAlpha(root.glow, 0.5)
+                    MouseArea { anchors.fill: parent }
+                    Flickable {
+                        id: thFlick
+                        x: 8; y: 8; width: parent.width - 16; height: parent.height - 16
+                        contentHeight: thRowAll.implicitHeight
+                        boundsBehavior: Flickable.StopAtBounds; clip: true
+                    Row {
+                        id: thRowAll
+                        spacing: 14
+                    Column {
+                        id: thCol
+                        width: themeList.colW
+                        Text { leftPadding: 12; topPadding: 4; bottomPadding: 6; visible: themeList.two
+                               text: "THÈME"; font.family: Appearance.font.family; font.pixelSize: 11
+                               font.weight: Font.Bold; font.letterSpacing: 1.5; color: Appearance.colors.dim }
+                        Repeater {
+                            model: root.themes.filter(t => !t.hidden || t.key === root.theme.key)
+                            delegate: Rectangle {
+                                id: th
+                                required property var modelData
+                                readonly property bool on: modelData.key === root.theme.key
+                                width: thCol.width; height: 40; radius: 10
+                                color: on ? ColorUtils.applyAlpha(root.glow, 0.22) : tiMa.containsMouse ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.08) : "transparent"
+                                Row {
+                                    anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
+                                    spacing: 12
+                                    Rectangle { anchors.verticalCenter: parent.verticalCenter; width: 14; height: 14; radius: 7
+                                                color: th.modelData.glow || Appearance.colors.accent
+                                                border.width: 1; border.color: ColorUtils.applyAlpha("#ffffff", 0.3) }
+                                    Text { anchors.verticalCenter: parent.verticalCenter; text: th.modelData.name
+                                           font.family: Appearance.font.family; font.pixelSize: 14; color: Appearance.colors.fg }
+                                }
+                                Text { anchors { right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
+                                       visible: th.on; text: "󰄬"; font.family: Appearance.font.family; font.pixelSize: 15; color: root.glow }
+                                MouseArea { id: tiMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                            onClicked: root.pickTheme(th.modelData.key) }
+                            }
+                        }
+                    }
+                    Column {
+                        id: layCol
+                        visible: themeList.two
+                        width: themeList.colW
+                        // disposition des applis (menu Apps seulement)
+                        Text { leftPadding: 12; topPadding: 4; bottomPadding: 6
+                               text: "DISPOSITION DES APPLIS"; font.family: Appearance.font.family; font.pixelSize: 11
+                               font.weight: Font.Bold; font.letterSpacing: 1.5; color: Appearance.colors.dim }
+                        Repeater {
+                            model: root.tpl === "apps" ? themeList.layouts : []
+                            delegate: Rectangle {
+                                id: lay
+                                required property var modelData
+                                readonly property bool on: modelData[0] === String(Config.get("menu.apps_layout", "grid"))
+                                width: layCol.width; height: 40; radius: 10
+                                color: on ? ColorUtils.applyAlpha(root.glow, 0.22) : lMa.containsMouse ? ColorUtils.applyAlpha(Appearance.colors.fg, 0.08) : "transparent"
+                                Row { anchors { left: parent.left; leftMargin: 12; verticalCenter: parent.verticalCenter }
+                                      spacing: 12
+                                      Text { text: lay.modelData[2]; font.family: Appearance.font.family; font.pixelSize: 15; color: root.glow }
+                                      Text { text: lay.modelData[1]; font.family: Appearance.font.family; font.pixelSize: 14; color: Appearance.colors.fg } }
+                                Text { anchors { right: parent.right; rightMargin: 12; verticalCenter: parent.verticalCenter }
+                                       visible: lay.on; text: "󰄬"; font.family: Appearance.font.family; font.pixelSize: 15; color: root.glow }
+                                MouseArea { id: lMa; anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                                            onClicked: { root.themeMenu = false; Config.set("menu.apps_layout", lay.modelData[0] === "grid" ? null : lay.modelData[0]); swapAnim.restart() } }
+                            }
+                        }
+                    }
+                    }
                     }
                 }
 

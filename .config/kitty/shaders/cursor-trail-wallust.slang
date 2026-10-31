@@ -10,8 +10,8 @@
 import kitty_custom_shader_types;
 
 // Couleurs injectées par wallust (template: ~/.config/wallust/templates/kitty-cursor-trail.slang)
-static const float4 TRAIL_COLOR = float4(246.0 / 255.0, 203.0 / 255.0, 187.0 / 255.0, 1.0);
-static const float4 TRAIL_COLOR_ACCENT = float4(147.0 / 255.0, 92.0 / 255.0, 135.0 / 255.0, 1.0);
+static const float4 TRAIL_COLOR = float4(197.0 / 255.0, 203.0 / 255.0, 58.0 / 255.0, 1.0);
+static const float4 TRAIL_COLOR_ACCENT = float4(107.0 / 255.0, 113.0 / 255.0, 181.0 / 255.0, 1.0);
 // Trail lifetime in seconds.
 static const float DURATION = 0.5;
 

@@ -28,7 +28,7 @@ ColumnLayout {
     // connectés d'abord, puis déjà vus, puis ceux de devices.json
     readonly property var rows: {
         const out = [], has = m => out.some(r => r.model === m)
-        for (const d of Batteries.devices) if (d.model && !has(d.model)) out.push({ model: d.model, type: d.type, dev: d })
+        for (const d of Batteries.all) if (d.model && !has(d.model)) out.push({ model: d.model, type: d.type, dev: d })
         for (const s of (ShellState.devicesSeen || [])) if (!has(s.model)) out.push({ model: s.model, type: s.type, dev: null })
         for (const m of Object.keys(shops)) if (!m.startsWith("_") && !has(m)) out.push({ model: m, type: -1, dev: null })
         return out

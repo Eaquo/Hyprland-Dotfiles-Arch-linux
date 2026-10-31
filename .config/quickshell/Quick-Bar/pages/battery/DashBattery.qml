@@ -14,7 +14,7 @@ Item {
     readonly property int gap: 12
     readonly property bool shown: visible && width > 0
     property int cascade: 0
-    onShownChanged: if (shown && Appearance.morphPages) cascade++
+    onShownChanged: { if (shown && Appearance.morphPages) cascade++; if (shown) Batteries.refreshKeyboard() }
 
     Flickable {
         anchors.fill: parent
@@ -27,10 +27,10 @@ Item {
             id: grid
             width: parent.width
             // cartes d'au moins ~420 px : la photo et les infos tiennent côte à côte
-            columns: Math.max(1, Math.min(Batteries.devices.length, Math.floor((width + root.gap) / 420)))
+            columns: Math.max(1, Math.min(Batteries.all.length, Math.floor((width + root.gap) / 420)))
             columnSpacing: root.gap; rowSpacing: root.gap
             Repeater {
-                model: Batteries.devices
+                model: Batteries.all
                 delegate: Tile { required property var modelData; required property int index; dev: modelData; order: index }
             }
         }
@@ -39,7 +39,7 @@ Item {
     // aucun appareil
     ColumnLayout {
         anchors.centerIn: parent
-        visible: Batteries.devices.length === 0
+        visible: Batteries.all.length === 0
         spacing: 6
         Text { Layout.alignment: Qt.AlignHCenter; text: "󰂑"; font.family: Appearance.font.family; font.pixelSize: 34; color: Appearance.colors.dim }
         Text { Layout.alignment: Qt.AlignHCenter; text: "Aucun périphérique sur batterie"
@@ -65,7 +65,7 @@ Item {
         Item {
             id: photoBox
             x: 12; y: 12
-            width: Math.min(parent.width * 0.42, 220); height: parent.height - 24
+            width: tile.dev.noBattery ? parent.width * 0.5 : Math.min(parent.width * 0.42, 220); height: parent.height - 24   // clavier : photo large
             Rectangle {
                 anchors.centerIn: parent
                 width: Math.min(parent.width, parent.height) * 0.92; height: width; radius: width / 2
@@ -106,9 +106,28 @@ Item {
             Text { text: Batteries.kind(tile.dev.type) + (tile.link ? " · " + tile.link : "")
                    font.family: "JetBrains Mono"; font.pixelSize: 11; color: Appearance.colors.dim }
             Item { Layout.fillHeight: true }
-            Text { text: tile.pct + " %"; font.family: Appearance.font.family; font.pixelSize: 34; font.weight: Font.Bold; color: tile.c
+            // sans batterie (clavier) : disposition + voyants Verr. Maj / Verr. Num
+            Text { visible: !!tile.dev.noBattery; text: tile.dev.layout || "—"; font.family: Appearance.font.family; font.pixelSize: 24
+                   font.weight: Font.Bold; color: Appearance.colors.accent; Layout.fillWidth: true; elide: Text.ElideRight }
+            Row {
+                visible: !!tile.dev.noBattery
+                spacing: 8
+                Repeater {
+                    model: [["Verr. Maj", !!tile.dev.caps], ["Verr. Num", !!tile.dev.num]]
+                    delegate: Rectangle {
+                        required property var modelData
+                        width: lbl.implicitWidth + 22; height: 26; radius: 13
+                        color: modelData[1] ? ColorUtils.applyAlpha(Appearance.colors.accent, 0.25) : ColorUtils.applyAlpha(Appearance.colors.fg, 0.06)
+                        border.width: 1; border.color: ColorUtils.applyAlpha(Appearance.colors.accent, modelData[1] ? 0.8 : 0.15)
+                        Text { id: lbl; anchors.centerIn: parent; text: (modelData[1] ? "󰄬 " : "") + modelData[0]
+                               font.family: "JetBrains Mono"; font.pixelSize: 11; color: modelData[1] ? Appearance.colors.fg : Appearance.colors.dim }
+                    }
+                }
+            }
+            Text { visible: !tile.dev.noBattery; text: tile.pct + " %"; font.family: Appearance.font.family; font.pixelSize: 34; font.weight: Font.Bold; color: tile.c
                    Behavior on color { ColorAnimation { duration: Appearance.dur(250) } } }
             Rectangle {                                    // jauge
+                visible: !tile.dev.noBattery
                 Layout.fillWidth: true; Layout.preferredHeight: 10
                 radius: 3; color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.08)
                 Rectangle { height: parent.height; radius: 3; color: tile.c; width: parent.width * tile.pct / 100

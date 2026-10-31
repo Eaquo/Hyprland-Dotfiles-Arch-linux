@@ -40,7 +40,15 @@ ColumnLayout {
 
     SetCard {
         title: "Affichage"
-        resetKeys: ["apps.tile_size", "apps.labels", "apps.main_screen"]
+        resetKeys: ["apps.tile_size", "apps.labels", "apps.main_screen", "apps.launcher_style"]
+        SetRow {
+            title: "Style du bouton Apps"; desc: "panneau tactile : comment s'affichent toutes les applis"
+            SetSeg {
+                options: [["spotlight", "Spotlight"], ["dock", "Dock loupe"], ["hive", "Ruche"], ["coverflow", "Coverflow"], ["iris", "Iris"]]
+                current: String(Config.get("apps.launcher_style", "spotlight"))
+                onPicked: (v) => Config.set("apps.launcher_style", v === "spotlight" ? null : v)
+            }
+        }
         SetRow { title: "Taille des tuiles"; SetSlider { implicitWidth: 300; from: 90; to: 200; step: 5; suffix: " px"; value: AppDeck.tileSize
                  onMoved: (v) => Config.set("apps.tile_size", v === 130 ? null : v) } }
         SetRow { title: "Noms sous les icônes"; SetSwitch { on: AppDeck.labels; onToggled: Config.set("apps.labels", on ? false : null) } }
