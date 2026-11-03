@@ -17,16 +17,22 @@ file_exists() {
 # 1. Se placer dans le dossier du thème et compiler
 cd ~/.themes/gtk || exit 1
 npm run build
+# icônes de dossiers aux couleurs du fond (thème Avalon-Wallust, ~/.local/bin/avalon-wallust)
+"$HOME/.local/bin/avalon-wallust" >/dev/null 2>&1 || true
 
-# 2. Sauvegarder le thème actuel et changer temporairement
-CURRENT_THEME=$(gsettings get org.gnome.desktop.interface gtk-theme | tr -d "'")
+# 2. Changer temporairement de thème pour forcer GTK à relire gtk.css.
+# On revient TOUJOURS sur le thème wallust (« gtk », comme gtk-3.0/settings.ini) : relire le thème courant puis le
+# remettre restait bloqué sur Tokyonight quand deux rafraîchissements se chevauchaient (Thunar ne changeait plus de couleur).
+CURRENT_THEME=gtk
 gsettings set org.gnome.desktop.interface gtk-theme 'Tokyonight-Dark-BL-LB' # Un thème sûr
+gsettings set org.gnome.desktop.interface icon-theme 'Avalon-Icons'   # idem pour recharger les icônes recolorées
 
 # 3. Attendre un peu pour éviter les crashs
 sleep 0.5
 
 # 4. Appliquer le nouveau thème GTK
 gsettings set org.gnome.desktop.interface gtk-theme "$CURRENT_THEME"
+gsettings set org.gnome.desktop.interface icon-theme 'Avalon-Wallust'
 
 # 5. Relancer xsettingsd pour forcer l'application des changements
 killall xsettingsd &>/dev/null

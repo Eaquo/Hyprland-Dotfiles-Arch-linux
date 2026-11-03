@@ -50,15 +50,21 @@ Scope {
     // ── minuterie : verrouillage et écran éteint ──────────────────────────
     readonly property int autoMin: Number(Config.get("lock.auto_minutes", 0))
     readonly property int offMin: Number(Config.get("lock.screen_off_minutes", 0))
+    // vidéo en lecture (film, YouTube, Jellyfin…) : pas de verrouillage ni d'écran éteint. Beaucoup de lecteurs ne
+    // bloquent pas la veille côté Wayland (respectInhibitors ne les voit pas) → on regarde MPRIS. Les lecteurs de
+    // musique ([lock] music_players, par défaut Spotify) ne bloquent rien. [lock] video_inhibit = false pour couper.
+    readonly property var musicRe: new RegExp(String(Config.get("lock.music_players", "spotify|music|rhythmbox|strawberry|elisa")), "i")
+    readonly property bool videoPlaying: Config.get("lock.video_inhibit", true) !== false
+        && Mpris.players.values.some(p => p.isPlaying && !root.musicRe.test((p.identity || "") + " " + (p.desktopEntry || "")))
     IdleMonitor {
-        enabled: root.autoMin > 0 && !root.locked
+        enabled: root.autoMin > 0 && !root.locked && !root.videoPlaying
         timeout: root.autoMin * 60
         respectInhibitors: true
         onIsIdleChanged: if (isIdle) root.lock()
     }
     Process { id: dpms }
     IdleMonitor {
-        enabled: root.offMin > 0
+        enabled: root.offMin > 0 && !root.videoPlaying
         timeout: root.offMin * 60
         respectInhibitors: true
         onIsIdleChanged: { dpms.command = ["hyprctl", "dispatch", "dpms", isIdle ? "off" : "on"]; dpms.running = true }

@@ -48,6 +48,9 @@ NotificationServer {
             root.list = root.list.map(x => x.id === e.id ? Object.assign({}, x, { live: null, actions: [], image: img }) : x)
         })
         if (ShellState.dnd && n.urgency !== NotificationUrgency.Critical) return
+        // en jeu : pas de bulle pour les lecteurs de musique (changement de morceau) — gardées dans l'historique
+        if (GameMode.active && /spotify|music|player/i.test(n.appName || "") && n.urgency !== NotificationUrgency.Critical
+            && Config.get("game.mute_music_notifications", true) !== false) return
         if (!root._ready) return
         root.toasts = [n, ...root.toasts].slice(0, root.maxToasts)
         root.notificationAdded(n)

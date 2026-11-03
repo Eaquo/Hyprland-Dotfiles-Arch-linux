@@ -63,7 +63,8 @@ hl.on("hyprland.start", function()
 	-- Corsair display default
 	-- hl.exec_cmd("bash -c 'sleep 5 && hyprctl dispatch workspace 8'")
 	hl.exec_cmd("[workspace special:magic silent] spotify")
-	hl.exec_cmd("[workspace special:magic silent] discord")
+	-- Discord en Flatpak : le paquet Arch « discord » (auto-mise à jour dans ~/.config/discord) restait bloqué sans fenêtre
+	hl.exec_cmd("[workspace special:magic silent] flatpak run com.discordapp.Discord")
 end)
 
 -- ── Optionnel : actions à l'extinction ───────────────────────────────────────

@@ -6,6 +6,7 @@ import Quickshell.Widgets
 import qs.components
 import qs.core
 import qs.core.functions
+import qs.pages.settings
 
 // WallpaperTab — galerie de wallpapers à gauche, panneau des effets à droite
 // (disposition « A », pensée pour le tactile du Xeneon : cibles ≥ 56 px, thèmes
@@ -671,12 +672,16 @@ Item {
                             }
                         }
 
-                        // Couleur de l'effet : tap = sélecteur ; ↺ = revenir à l'accent wallust
+                        // Couleur de l'effet : tap = sélecteur ; ↺ = revenir à l'accent (thème Mana : aux couleurs du personnage)
                         Rectangle {
                             Layout.fillWidth: true
                             Layout.preferredHeight: width * (root.wide ? 0.5 : 0.72)
                             radius: 16 * root.u
                             color: WallpaperState.fxColor
+                            gradient: WallpaperState.manaChar ? manaGrad : null
+                            Gradient { id: manaGrad; orientation: Gradient.Horizontal
+                                GradientStop { position: 0.35; color: WallpaperState.fxColor }
+                                GradientStop { position: 1.0; color: WallpaperState.fxColor2 } }
                             border.width: 1; border.color: Qt.rgba(1, 1, 1, 0.2)
                             scale: swMa.pressed ? 0.92 : 1
                             Behavior on color { ColorAnimation { duration: Appearance.dur(400) } }
@@ -685,7 +690,9 @@ Item {
                                 id: swMa
                                 anchors.fill: parent; cursorShape: Qt.PointingHandCursor
                                 onClicked: fxPicker.open(WallpaperState.fxColor, "Couleur de l'effet",
-                                                         "Remplace l'accent " + Appearance.paletteSource + " pour l'effet du wallpaper (" + WallpaperState.glitchTheme + ")", "")
+                                                         WallpaperState.glitchTheme === "mana"
+                                                             ? "Remplace les couleurs du personnage pour l'aura (↺ pour y revenir)"
+                                                             : "Remplace l'accent " + Appearance.paletteSource + " pour l'effet du wallpaper (" + WallpaperState.glitchTheme + ")", "")
                             }
                             Text {
                                 anchors.centerIn: parent
@@ -699,7 +706,7 @@ Item {
                                 Text {
                                     id: ccLbl
                                     anchors.centerIn: parent
-                                    text: WallpaperState.glitchColor !== "" ? "perso" : Appearance.paletteSource
+                                    text: WallpaperState.glitchColor !== "" ? "perso" : WallpaperState.manaChar ? "personnage" : Appearance.paletteSource
                                     font.family: Appearance.font.family
                                     font.pixelSize: 15 * root.u; font.weight: Font.DemiBold; font.letterSpacing: 1
                                     color: "#ffffff"
@@ -720,6 +727,25 @@ Item {
                                 }
                                 MouseArea { id: rstMa; anchors.fill: parent; anchors.margins: -6; cursorShape: Qt.PointingHandCursor; onClicked: WallpaperState.glitchColor = "" }
                             }
+                        }
+                    }
+
+                    // Effet d'image (ImageMagick, sur l'image d'origine ; recolore la palette) — liste déroulante
+                    Column {
+                        Layout.fillWidth: true
+                        spacing: 8 * root.u
+                        Text {
+                            text: "EFFET D'IMAGE" + (WallpaperState.effectBusy ? "  ·  application…" : "")
+                            font.family: Appearance.font.family; font.pixelSize: 15 * root.u; font.weight: Font.DemiBold
+                            font.letterSpacing: 1; color: Appearance.colors.dim
+                        }
+                        SetDropdown {
+                            width: parent.width
+                            u: root.u * 1.4
+                            options: WallpaperState.imageEffects
+                            current: WallpaperState.imageEffect
+                            busy: WallpaperState.effectBusy
+                            onPicked: (v) => WallpaperState.applyEffect(v)
                         }
                     }
 

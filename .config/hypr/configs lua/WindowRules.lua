@@ -358,3 +358,7 @@ hl.window_rule({
 	match = { class = ".*" },
 	monitor = "DP-1",
 })
+
+-- Toute fenêtre en plein écran (film, vidéo) bloque la veille : ni verrouillage automatique de Quick-Bar
+-- (panels/LockScreen.qml, IdleMonitor respectInhibitors) ni écran éteint.
+hl.window_rule({ match = { class = ".*" }, idle_inhibit = "fullscreen" })

@@ -8,7 +8,7 @@
 -- template = "templates/hyprland-colors.lua"
 -- target   = "~/.config/hypr/wallust/colors.lua"
 --
--- NOTE : wallust génère #0C0000 au format #RRGGBB
+-- NOTE : wallust génère #140000 au format #RRGGBB
 -- On expose deux versions :
 --   c.color0     → "rgb(RRGGBB)"  pour les bordures / couleurs Hyprland
 --   c.color0_hex → "#RRGGBB"      pour les plugins qui veulent du hex brut
@@ -18,24 +18,24 @@ local function rgba(hex)
 end
 
 local hex = {
-    color0     = "#0C0000",
-    color1     = "#482721",
-    color2     = "#32376A",
-    color3     = "#763B20",
-    color4     = "#8D451F",
-    color5     = "#729283",
-    color6     = "#94982C",
-    color7     = "#DADD94",
-    color8     = "#989A68",
-    color9     = "#60352C",
-    color10    = "#43498D",
-    color11    = "#9D4F2B",
-    color12    = "#BC5C2A",
-    color13    = "#98C3AF",
-    color14    = "#C5CB3A",
-    color15    = "#DADD94",
-    background = "#0C0000",
-    foreground = "#EBEDBA",
+    color0     = "#140000",
+    color1     = "#764220",
+    color2     = "#973807",
+    color3     = "#665F5F",
+    color4     = "#93652A",
+    color5     = "#B89236",
+    color6     = "#BF9B39",
+    color7     = "#F6DE9D",
+    color8     = "#AD9B6E",
+    color9     = "#9D582A",
+    color10    = "#C94A09",
+    color11    = "#887F7F",
+    color12    = "#C48738",
+    color13    = "#F5C249",
+    color14    = "#FFCE4C",
+    color15    = "#F6DE9D",
+    background = "#140000",
+    foreground = "#FFEEC0",
 }
 
 return {

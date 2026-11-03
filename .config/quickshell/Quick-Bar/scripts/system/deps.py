@@ -120,6 +120,13 @@ DEPS = [
         ("py:watchdog", {"arch": "python-watchdog", "debian": "python3-watchdog", "fedora": "python3-watchdog",
                          "suse": "python3-watchdog", "void": "python3-watchdog", "nix": "python3Packages.watchdog"}, "surveillance RGB"),
     ]),
+    ("Mana", False, [
+        ("py:onnxruntime", {"arch": "python-onnxruntime-cpu", "debian": None, "fedora": None, "suse": None, "void": None,
+                            "nix": "python3Packages.onnxruntime", "how": "pip install onnxruntime"},
+         "effet Mana : détourage du personnage du fond d'écran"),
+        ("py:cv2", {"arch": "python-opencv", "debian": "python3-opencv", "fedora": "python3-opencv", "suse": "python3-opencv",
+                    "void": "python3-opencv", "nix": "python3Packages.opencv4"}, "effet Mana : masque et couleurs du personnage"),
+    ]),
     ("Discord", False, [
         ("py:aiohttp", {"arch": "python-aiohttp", "debian": "python3-aiohttp", "fedora": "python3-aiohttp", "suse": "python3-aiohttp",
                         "void": "python3-aiohttp", "nix": "python3Packages.aiohttp"}, "pont Discord"),

@@ -48,6 +48,12 @@ ShellRoot {
     LazyLoader { id: shotL; property bool alive: false; active: Shots.latest !== "" || alive; ShotThumb {} }
     Connections { target: Shots; function onLatestChanged() { if (Shots.latest !== "") { shotHide.stop(); shotL.alive = true } else shotHide.restart() } }
     Timer { id: shotHide; interval: 700; onTriggered: shotL.alive = false }   // le temps de glisser hors de l'écran
+    // mode fenêtres (SUPER+MAJ+A, submap Hyprland « fenetres ») : HUD tant que le submap est actif
+    property bool winMode: false
+    Connections { target: Hyprland; function onRawEvent(e) { if (e.name === "submap") root.winMode = e.data === "fenetres" } }
+    onWinModeChanged: if (winMode) { winModeHide.stop(); winModeL.alive = true } else winModeHide.restart()
+    Timer { id: winModeHide; interval: 480; onTriggered: winModeL.alive = false }   // le temps du zoom de sortie
+    LazyLoader { id: winModeL; property bool alive: false; active: alive; WindowMode { shown: root.winMode } }
     LazyLoader { id: eqCenterL; property bool alive: false; active: Popups.eqCenterOpen || alive
         EqCenter { onWindowVisibleChanged: Qt.callLater(() => eqCenterL.alive = windowVisible) } }
     IpcHandler {

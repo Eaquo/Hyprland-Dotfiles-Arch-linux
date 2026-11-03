@@ -49,7 +49,7 @@ ColumnLayout {
         resetKeys: ["lock.auto_minutes", "lock.screen_off_minutes"]
         Text {
             Layout.fillWidth: true; wrapMode: Text.WordWrap
-            text: "Écran de verrouillage Quick-Bar : son fond suit le style ci-dessus. Les vidéos et les jeux qui bloquent la veille empêchent aussi le verrouillage automatique."
+            text: "Écran de verrouillage Quick-Bar : son fond suit le style ci-dessus. Une vidéo en lecture (film, YouTube, Jellyfin…), une fenêtre en plein écran ou un jeu empêchent le verrouillage automatique ; la musique (Spotify) non."
             font.family: Appearance.font.family; font.pixelSize: Appearance.font.small - 3; color: Appearance.colors.dim
         }
         SetRow {
@@ -61,6 +61,11 @@ ColumnLayout {
             title: "Éteindre l'écran après"; desc: "0 = jamais"
             SetSlider { implicitWidth: 300; from: 0; to: 60; step: 1; suffix: " min"; value: Number(Config.get("lock.screen_off_minutes", 0))
                         onMoved: (v) => Config.set("lock.screen_off_minutes", v === 0 ? null : v) }
+        }
+        SetRow {
+            title: "Pas de verrouillage pendant une vidéo"; desc: "lecteurs MPRIS en lecture, sauf la musique"
+            SetSwitch { on: Config.get("lock.video_inhibit", true) !== false
+                        onToggled: Config.set("lock.video_inhibit", Config.get("lock.video_inhibit", true) !== false ? false : null) }
         }
         SetRow {
             title: "Verrouiller maintenant"; desc: "SUPER+L"

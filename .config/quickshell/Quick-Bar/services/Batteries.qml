@@ -114,8 +114,8 @@ Singleton {
     }
     function announce(d, on) {
         const p = pct(d)
-        // île dynamique (services/Island.qml) à la place de la notification, si elle est active
-        if (Island.enabled && Config.get("island.devices", true) !== false) {
+        // notification en haut à droite (photo en icône) ; île dynamique seulement si [island] devices = true
+        if (Island.enabled && Config.get("island.devices", false) === true) {   // [island] devices = true : île au lieu du toast
             const img = photoPath(d)
             Island.show({ title: (d.model || kind(d.type)) + (on ? " connecté" : " déconnecté"),
                           sub: on ? [kind(d.type), link(d), p > 0 ? p + " %" : ""].filter(x => x).join(" · ")

@@ -22,7 +22,11 @@ QtObject {
     property real   glitchIntensity: 1.0      // 0..1, pic d'intensité
     property bool   glitchContinuous: false   // effet en continu (sinon par bursts)
     property string glitchColor:     ""        // couleur de l'effet "#rrggbb" ; vide = accent wallust
-    readonly property color fxColor: glitchColor !== "" ? glitchColor : Appearance.colors.accent
+    // Thème « mana » : sans couleur choisie, l'effet prend les couleurs du personnage du fond (wallpaper/Wallpaper.qml)
+    property var manaColors: []
+    readonly property bool manaChar: glitchTheme === "mana" && glitchColor === "" && manaColors.length > 0
+    readonly property color fxColor: glitchColor !== "" ? glitchColor : manaChar ? manaColors[0] : Appearance.colors.accent
+    readonly property color fxColor2: manaChar ? (manaColors[1] ?? manaColors[0]) : Qt.darker(fxColor, 1.6)
     property bool   wsFxEnabled:     true      // screen shader au changement de workspace
     // Rotation : change de wallpaper tout seul, au hasard, toutes les autoMinutes.
     property bool   perWorkspace:    false     // un fond (au hasard) par espace de travail
@@ -31,7 +35,25 @@ QtObject {
     property int    autoMinutes:     15
 
     // Thèmes disponibles (nom = fichier shaders/<nom>.frag.qsb)
-    readonly property var themes: ["matrix", "aurora", "underwater", "fireworks", "cyberpunk", "braindance", "neon"]
+    readonly property var themes: ["matrix", "aurora", "underwater", "cyberpunk", "braindance", "mana"]
+
+    // Effet d'image du fond (ImageMagick, scripts/system/wall-effect.sh) : part de l'image d'origine, recolore la
+    // palette. Un nouveau fond repart sans effet.
+    readonly property var imageEffects: [["none", "Aucun"], ["bw", "Noir & blanc"], ["blur", "Flou"], ["sepia", "Sépia"],
+        ["oil", "Peinture à l'huile"], ["charcoal", "Fusain"], ["poster", "Postérisé"], ["vignette", "Vignette"],
+        ["negate", "Négatif"], ["solarize", "Solarisé"], ["edge", "Contours"], ["emboss", "Relief"]]
+    property string imageEffect: "none"
+    property bool effectBusy: false
+    function applyEffect(fx) {
+        if (effectBusy || videoMode) return
+        imageEffect = fx
+        effectBusy = true
+        effectProc.command = [Quickshell.shellDir + "/scripts/system/wall-effect.sh", fx]
+        effectProc.running = false
+        effectProc.running = true
+    }
+    property var _effectProc: Process { id: effectProc; onExited: root.effectBusy = false }
+    onImageEffectChanged: save()
 
     // ── État courant (rempli par Wallpaper.qml / le picker) ────────────────────
     property string currentWall: ""
@@ -57,6 +79,7 @@ QtObject {
             if (d.perWorkspace    !== undefined) root.perWorkspace    = d.perWorkspace
             if (d.wsRecolor       !== undefined) root.wsRecolor       = d.wsRecolor
             if (d.autoMinutes     !== undefined) root.autoMinutes     = d.autoMinutes
+            if (d.imageEffect     !== undefined) root.imageEffect     = d.imageEffect
             root._loading = false
         } catch (e) { root._loading = false }
     }
@@ -76,7 +99,8 @@ QtObject {
             autoChange:      root.autoChange,
             autoMinutes:     root.autoMinutes,
             perWorkspace:    root.perWorkspace,
-            wsRecolor:       root.wsRecolor
+            wsRecolor:       root.wsRecolor,
+            imageEffect:     root.imageEffect
         })
         saveProc.command = ["bash", "-c", "printf '%s' \"$1\" > \"$2\"", "_", json, root._path]
         saveProc.running = false
@@ -114,6 +138,7 @@ QtObject {
         applyProc.running = true
         root.currentWall = path
         root.videoMode = false
+        root.imageEffect = "none"
     }
     // Vidéo : gslapper sur l'écran principal (pas le tactile), effets coupés en mode vidéo.
     function applyVideo(path) {

@@ -123,7 +123,14 @@ hl.bind(mainMod .. " + SHIFT + U", hl.dsp.window.move({ workspace = "special:mag
 hl.bind(mainMod .. " + ALT + R", hl.dsp.exec_cmd(scripts .. "/Refresh.sh"))
 hl.bind(mainMod .. " + ALT + E", hl.dsp.exec_cmd(scripts .. "/RofiEmoji.sh"))
 hl.bind(mainMod .. " + SHIFT + Z", hl.dsp.exec_cmd(scripts .. "/RofiSearch.sh"))
-hl.bind(mainMod .. " + SHIFT + B", hl.dsp.exec_cmd(scripts .. "/ChangeBlur.sh"))
+-- Flou des fenêtres activé / désactivé (remplace scripts/ChangeBlur.sh, qui passait entre peu de flou et flou
+-- normal). Revient à « activé » au prochain rechargement de la config (Decorations.lua).
+hl.bind(mainMod .. " + SHIFT + B", function()
+	local on = not hl.get_config("decoration.blur.enabled")
+	hl.config({ decoration = { blur = { enabled = on } } })
+	hl.dispatch(hl.dsp.exec_cmd("notify-send -a Hyprland -u low -i " .. (on and "view-visible" or "view-hidden")
+		.. " 'Flou " .. (on and "activé" or "désactivé") .. "'"))
+end)
 hl.bind(mainMod .. " + ALT + V", hl.dsp.exec_cmd(scripts .. "/ClipManager.sh"))
 -- SUPER+SHIFT+N : centre de notifications Quick-Bar (panels/NotifCenter.qml, bind généré dans Quick-Bar/hypr/quickbar.lua)
 -- hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd("swaync-client -t -sw"))
@@ -247,7 +254,7 @@ hl.bind("XF86AudioStop", hl.dsp.exec_cmd(scripts .. "/MediaCtrl.sh --stop"), { l
 
 -- Système
 hl.bind("XF86Sleep", hl.dsp.exec_cmd("systemctl suspend"))
-hl.bind("XF86Rfkill", hl.dsp.exec_cmd(scripts .. "/AirplaneMode.sh"))
+hl.bind("XF86Rfkill", hl.dsp.exec_cmd("rfkill toggle all"))   -- mode avion (AirplaneMode.sh avait disparu)
 
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║                         SCREENSHOTS                                       ║

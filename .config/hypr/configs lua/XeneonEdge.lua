@@ -114,9 +114,10 @@ hl.window_rule({
 hl.on("window.open", function(w)
 if w.class == "org.jellyfin.JellyfinDesktop" then
 	hl.timer(function()
-	hl.dispatch(hl.dsp.dpms({ action = "disable", monitor = "DP-2" }))
-	end, { timeout = 500, type = "oneshot" })
-	end
+	  hl.dispatch(hl.dsp.dpms({ action = "disable", monitor = "DP-2" }))
+	  end, { timeout = 500, type = "oneshot" })
+    hl.exec_cmd("playerctl --all-players pause")
+    end
 	end)
 
 hl.on("window.close", function(w)

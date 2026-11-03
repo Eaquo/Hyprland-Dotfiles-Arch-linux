@@ -27,63 +27,58 @@ small  = 14
 [health]
 # Adresse du serveur Proxmox vérifiée par l'onglet Santé (vide = pas de vérification).
 proxmox = "192.168.1.200"
-skip = ["discord", "easyeffects"]
+skip    = ["discord", "easyeffects"]
 
 [[health.custom]]
-name = "Jellyfin"
-type = "url"
+name   = "Jellyfin"
+type   = "url"
 target = "http://192.168.1.150:8096"
 
 [[health.custom]]
-name = "Hyprland"
-type = "process"
+name   = "Hyprland"
+type   = "process"
 target = "Hyprland"
-fix = "setsid -f Hyprland >/dev/null 2>&1"
+fix    = "setsid -f Hyprland >/dev/null 2>&1"
 
 [[health.custom]]
-name = "start-hyprland"
-type = "process"
+name   = "start-hyprland"
+type   = "process"
 target = "start-hyprland"
-fix = "setsid -f start-hyprland >/dev/null 2>&1"
+fix    = "setsid -f start-hyprland >/dev/null 2>&1"
 
 [[health.custom]]
-name = "Samsung_Game"
-type = "mount"
+name   = "Samsung_Game"
+type   = "mount"
 target = "/home/florian/Samsung_Game"
-fix = "pkexec mount /home/florian/Samsung_Game"
+fix    = "pkexec mount /home/florian/Samsung_Game"
 
 [[health.custom]]
-name = "Batterie de la souris > 20 %"
-type = "command"
+name   = "Batterie de la souris > 20 %"
+type   = "command"
 target = "[ $(cat /sys/class/power_supply/hidpp_battery_0/capacity 2>/dev/null || echo 100) -gt 20 ]"
 
 [[health.custom]]
-name = "Github"
-type = "url"
+name   = "Github"
+type   = "url"
 target = "https://github.com/Eaquo"
 [wallpaper]
+dir    = "~/Pictures/wallpapers"wVidéos (gslapper). Par défaut : sous-dossier Video du dossier ci-dessus.
 # Dossier des wallpapers (galerie de l'onglet Wall, bouton Aléatoire, rotation auto).
-dir    = "~/Pictures/wallpapers"
-# Vidéos (gslapper). Par défaut : sous-dossier Video du dossier ci-dessus.
 videos = "~/Pictures/wallpapers/Video"
 
 [theme]
-palette = "matugen"
+palette        = "wallust"
 matugen_prefer = "value"
-matugen_mode = "dark"
-accent = "color13"
-border_speed = 2
-radius = 14
+matugen_mode   = "dark"
 
 [bar]
-radius = 19
-height = 38
+height     = 38
 top_margin = 7
 
 [bar.layout]
-left = ["launcher", "stats"]
+left   = ["launcher", "stats"]
 center = ["notifications", "cava", "clock", "workspaces", "minimized", "layout", "localsend"]
-right = ["updates", "proxmox", "tray", "audio", "power"]
+right  = ["updates", "proxmox", "tray", "audio", "power"]
 
 [general]
 # Profil affiché dans l'accueil (nom vide = $USER, avatar par défaut ~/.face)
@@ -91,11 +86,11 @@ avatar = "~/Eaquo_Assets/Edited Image.jpg"
 # Terminal des actions de la barre (kitty, foot, alacritty, ghostty, wezterm, konsole…)
 
 [refresh]
-health = 3600
+health    = 3600
 localsend = 30
 
 [dashboard]
-tabs = ["home", "stats", "battery", "kanban", "files", "wall", "eq"]
+tabs   = ["home", "stats", "battery", "kanban", "files", "wall", "eq"]
 height = 540
 
 [game]
@@ -107,14 +102,13 @@ eq_preset = "HP"
 scale = 0.4
 
 [apps]
-tile_size = 155
-labels = false
+tile_size      = 155
+labels         = false
 launcher_style = "hive"
 
 [menu]
-style = "minimal"
+style       = "minimal"
 apps_layout = "hive"
 
 [lock]
 auto_minutes = 10
-

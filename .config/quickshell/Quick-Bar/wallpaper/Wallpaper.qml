@@ -34,6 +34,27 @@ Scope {
         function onCurrentWallChanged() { if (WallpaperState.currentWall !== "" && !WallpaperState.videoMode) root.wallPath = WallpaperState.currentWall }
     }
 
+    // Effet « mana » : masque + couleurs du personnage du fond (scripts/system/wall-mana.py, mis en cache dans
+    // user_data/mana/ ; ~1 s la première fois pour une image, instantané ensuite). Préparé seulement si le thème est actif.
+    property string manaField: ""
+    readonly property bool manaOn: WallpaperState.glitchTheme === "mana" && wallPath !== "" && !WallpaperState.videoMode
+    function prepareMana() {
+        if (!manaOn) return
+        manaProc.command = ["python3", "-I", Quickshell.shellDir + "/scripts/system/wall-mana.py", wallPath]
+        manaProc.running = false; manaProc.running = true
+    }
+    onWallPathChanged: prepareMana()
+    onManaOnChanged: prepareMana()
+    Process {
+        id: manaProc
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try { const d = JSON.parse(text); root.manaField = d.field; WallpaperState.manaColors = d.colors || [] }
+                catch (e) { root.manaField = ""; WallpaperState.manaColors = [] }
+            }
+        }
+    }
+
     // Signal universel de changement de wallpaper : wal.json régénéré par wallust
     FileView {
         path: "file://" + Quickshell.env("HOME") + "/.cache/wal/wal.json"
@@ -76,6 +97,17 @@ Scope {
                 cache:         false
             }
 
+            // Champ du personnage pour le thème « mana » (même recadrage que le fond)
+            Image {
+                id: manaImage
+                anchors.fill: parent
+                visible: false
+                source: root.manaOn && root.manaField !== "" ? "file://" + root.manaField : ""
+                fillMode: Image.PreserveAspectCrop
+                asynchronous: true
+                cache: false
+            }
+
             // Wallpaper rendu via le shader glitch (passe-plat quand intensity == 0)
             ShaderEffect {
                 id: glitch
@@ -90,6 +122,10 @@ Scope {
                 property vector4d accent: Qt.vector4d(WallpaperState.fxColor.r,
                                                       WallpaperState.fxColor.g,
                                                       WallpaperState.fxColor.b, 1.0)
+                // Thème « mana » : le contour du personnage, ses couleurs ou la couleur choisie (ignorés par les autres thèmes)
+                property variant field: manaImage
+                property color color1: WallpaperState.fxColor
+                property color color2: WallpaperState.fxColor2
 
                 // Thème d'animation = un .frag par thème (WallpaperState.themes)
                 fragmentShader: Qt.resolvedUrl("shaders/" + WallpaperState.glitchTheme + ".frag.qsb")

@@ -49,6 +49,22 @@ ColumnLayout {
     }
 
     SetCard {
+        title: "Effet d'image"
+        canReset: WallpaperState.imageEffect !== "none"
+        onResetRequested: WallpaperState.applyEffect("none")
+        SetRow {
+            title: "Effet"
+            desc: WallpaperState.effectBusy ? "application…" : "sur l'image d'origine · recolore " + Appearance.paletteName
+            SetDropdown {
+                options: WallpaperState.imageEffects
+                current: WallpaperState.imageEffect
+                busy: WallpaperState.effectBusy
+                onPicked: (v) => WallpaperState.applyEffect(v)
+            }
+        }
+    }
+
+    SetCard {
         title: "Effet animé"
         canReset: true
         onResetRequested: { WallpaperState.glitchContinuous = false; WallpaperState.glitchIntensity = 1; WallpaperState.glitchSpeed = 1
@@ -84,7 +100,7 @@ ColumnLayout {
         SetRow { title: "Durée d'une salve"; SetSlider { implicitWidth: 300; from: 100; to: 2000; step: 20; suffix: " ms"; value: WallpaperState.glitchDuration
                  onMoved: (v) => WallpaperState.glitchDuration = v } }
         SetRow {
-            title: "Couleur de l'effet"; desc: "vide = accent " + Appearance.paletteName
+            title: "Couleur de l'effet"; desc: "vide = " + (WallpaperState.glitchTheme === "mana" ? "couleurs du personnage" : "accent " + Appearance.paletteName)
             RowLayout {
                 spacing: 8
                 Rectangle { width: 26; height: 26; radius: 8; color: WallpaperState.fxColor; border.width: 1; border.color: ColorUtils.applyAlpha(Appearance.colors.fg, 0.2) }

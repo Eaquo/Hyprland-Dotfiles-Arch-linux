@@ -207,7 +207,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `shell.qml` (178 l.) | @ pragma UseQApplication | *(point d'entrée)* |
+| `shell.qml` (184 l.) | @ pragma UseQApplication | *(point d'entrée)* |
 
 ### `bar/`
 
@@ -270,22 +270,22 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
 | `AppDeck.qml` (64 l. · singleton) | tuiles de l'onglet Apps (pages/apps/StreamDeck.qml), éditées dans Réglages › Apps | AppDock, AppsLauncher, AppsPage, StreamDeck |
-| `Appearance.qml` (344 l. · singleton) | ── Source des couleurs (Réglages › Couleurs, [theme] dans config.toml) ── | AltTab, AnimPage, AppDeck, AppDock, AppLauncher … (+132) |
+| `Appearance.qml` (344 l. · singleton) | ── Source des couleurs (Réglages › Couleurs, [theme] dans config.toml) ── | AltTab, AnimPage, AppDeck, AppDock, AppLauncher … (+134) |
 | `BarModules.qml` (49 l. · singleton) | catalogue des modules de la barre et disposition ([bar.layout] dans config.toml) | Bar, BarPage |
 | `ClockState.qml` (32 l. · singleton) | état des modules horloge (timer / chrono / alarmes) | ClockCard |
-| `Config.qml` (122 l. · singleton) | réglages généraux lus dans config.toml (à la racine du projet) | AltTab, AnimPage, AppDeck, Appearance, AppsLauncher … (+70) |
+| `Config.qml` (122 l. · singleton) | réglages généraux lus dans config.toml (à la racine du projet) | AltTab, AnimPage, AppDeck, Appearance, Apps … (+72) |
 | `GameBreak.qml` (131 l. · singleton) | « pause tactile » pendant un jeu | AppDock, GameBreakBar, GameModeTab, GamePage, HealthTab … (+7) |
-| `GameMode.qml` (197 l. · singleton) | bascule automatique quand un jeu tourne | GameModeTab, GamePage, TouchPanel, Wallpaper, WallpaperState |
+| `GameMode.qml` (197 l. · singleton) | bascule automatique quand un jeu tourne | GameModeTab, GamePage, Island, NotificationService, TouchPanel … (+2) |
 | `Popups.qml` (99 l. · singleton) | ── État d'ouverture par popup ───────────────────────────────────────── | AltTab, AppsPage, Audio, AudioPage, BarPage … (+33) |
 | `ShellState.qml` (108 l. · singleton) | État global du shell | AppsPage, Bar, Batteries, DevicesPage, GameBreak … (+18) |
 | `TouchTabs.qml` (50 l. · singleton) | catalogue des onglets du panneau tactile (TouchPanel.qml) et de leur état | AppsPage, TouchPage, TouchPanel |
-| `WallpaperState.qml` (197 l. · singleton) | État + config des effets wallpaper (glitch, screen shader) | Appearance, GridDash, LockScreen, Menu, Overview … (+13) |
+| `WallpaperState.qml` (222 l. · singleton) | État + config des effets wallpaper (glitch, screen shader) | Appearance, GridDash, LockScreen, Menu, Overview … (+14) |
 
 ### `core/functions/`
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `ColorUtils.qml` (36 l. · singleton) | Fonctions couleur : mix, transparence, applyAlpha | AltTab, AnimPage, AppDock, Apps, AppsLauncher … (+75) |
+| `ColorUtils.qml` (36 l. · singleton) | Fonctions couleur : mix, transparence, applyAlpha | AltTab, AnimPage, AppDock, Apps, AppsLauncher … (+77) |
 | `IconUtils.qml` (119 l. · singleton) | Populated at startup from the GTK icon theme directory | Minimized, SysTray, ThemePage |
 
 ### `menus/`
@@ -322,11 +322,11 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `Apps.qml` (55 l.) | lanceur d'applications (les .desktop installés), comme rofi -show drun : | AppDeck, AppsLauncher |
+| `Apps.qml` (396 l.) | lanceur d'applications (les .desktop installés), comme rofi -show drun. Six dispositions | AppDeck, AppsLauncher |
 | `Confirm.qml` (45 l.) | une question (MESSAGE / TITLE) et des boutons (les items ; Oui / Non par défaut) | — |
 | `Emoji.qml` (31 l.) | grille dense : le premier mot de chaque ligne est affiché en grand, le reste sert à chercher | — |
 | `Files.qml` (65 l.) | liste de fichiers avec aperçu à droite (image ou début du texte) | — |
-| `Grid.qml` (132 l.) | tuiles : image (icon = chemin ou nom d'icône, recadrée) ou glyphe, libellé dessous | CalendarCard, CalendarWindow, GridDash, KanbanBoard, QuickSettings … (+1) |
+| `Grid.qml` (137 l.) | tuiles : image (icon = chemin ou nom d'icône, recadrée) ou glyphe, libellé dessous | CalendarCard, CalendarWindow, GridDash, KanbanBoard, QuickSettings … (+1) |
 | `Info.qml` (79 l.) | affichage seul (aide-mémoire, raccourcis…) : « touche<TAB>description<TAB>détail », | — |
 | `Input.qml` (11 l.) | une saisie libre (recherche web, calcul…). Entrée renvoie le texte tapé ; | — |
 | `List.qml` (128 l.) | une ligne par choix. Tabulations = colonnes (largeur selon la plus longue) | — |
@@ -452,6 +452,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `SessionPage.qml` (71 l.) | Réglages › Panneaux › Écran de session ([session] style, lu par panels/SessionPanel.qml) | SettingsPanel |
 | `SetButton.qml` (24 l.) | bouton des pages de réglages (primary = plein, active = sélectionné) | AnimPage, AppsPage, AudioPage, BarPage, CapturePage … (+13) |
 | `SetCard.qml` (55 l.) | section d'une page de réglages : titre en petites capitales + lignes | AnimPage, AppsPage, AudioPage, BarPage, CapturePage … (+18) |
+| `SetDropdown.qml` (76 l.) | liste déroulante : options = [[valeur, libellé], …], current = valeur active, busy = « … » à droite | WallPage |
 | `SetInput.qml` (33 l.) | champ texte ; `committed(text)` quand on valide (Entrée) ou quitte le champ | AppsPage, CapturePage, ColorsPage, DevicesPage, FontsPage … (+4) |
 | `SetOrderList.qml` (66 l.) | liste d'éléments à réordonner (flèches) et activer (interrupteur) | BarPage, DashboardPage, TouchPage |
 | `SetRow.qml` (41 l.) | une ligne de réglage : titre + description à gauche, commande à droite | AnimPage, AppsPage, AudioPage, BarPage, CapturePage … (+16) |
@@ -462,7 +463,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `StatsPage.qml` (37 l.) | Réglages › Système › Stats et seuils : affichage des stats de la barre et | SettingsPanel |
 | `ThemePage.qml` (296 l.) | Réglages › Apparence › Thème : préréglages, accent, bordures animées, arrondis ([theme], [bar]) | SettingsPanel |
 | `TouchPage.qml` (84 l.) | Réglages › Panneaux › Panneau tactile : onglets (ShellState.touchTabs), | SettingsPanel |
-| `WallPage.qml` (101 l.) | Réglages › Multimédia › Fond d'écran : dossiers ([wallpaper]) et effets | SettingsPanel |
+| `WallPage.qml` (117 l.) | Réglages › Multimédia › Fond d'écran : dossiers ([wallpaper]) et effets | SettingsPanel |
 
 ### `pages/spaces/`
 
@@ -488,7 +489,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `WallpaperTab.qml` (806 l.) | galerie de wallpapers à gauche, panneau des effets à droite | Dashboard, TouchTabs |
+| `WallpaperTab.qml` (812 l.) | galerie de wallpapers à gauche, panneau des effets à droite | Dashboard, TouchTabs |
 
 ### `pages/wallust/`
 
@@ -509,7 +510,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `GameBreakBar.qml` (137 l.) | pastille flottante affichée sur le Xeneon pendant une pause jeu | GameBreak, shell |
 | `LockScreen.qml` (278 l.) | verrouillage de session Quick-Bar (ext-session-lock : si Quick-Bar plante, la session | shell |
 | `MediaPlayerPopup.qml` (393 l.) | Hotspot zone du bouton EQ dans la barre → switch vers EQ popup | shell |
-| `Menu.qml` (811 l.) | le cadre des menus Quick-Bar (remplace rofi). Voir menus/README.md | List, shell |
+| `Menu.qml` (879 l.) | le cadre des menus Quick-Bar (remplace rofi). Voir menus/README.md | List, shell |
 | `NotifCenter.qml` (389 l.) | l'historique des notifications (SUPER+MAJ+N, clic sur le module de la barre), dans | NotifCard, NotificationService, shell |
 | `NotifToasts.qml` (102 l.) | les notifications qui apparaissent (NotificationService.toasts), dans un coin | NotifCard, NotificationService, shell |
 | `Overview.qml` (591 l.) | vue d'ensemble des espaces de l'écran principal (SUPER+A, `qs ipc call overview toggle`) | shell |
@@ -526,12 +527,13 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `TouchPanel.qml` (749 l.) | panneau plein écran sur le tactile Corsair Xeneon Edge | AnimPage, GameBreak, ShellState, TouchTabs, shell |
 | `WallpaperCinema.qml` (340 l.) | sélecteur « Cinéma » (ALT+W, `qs ipc call wallcinema toggle`) | shell |
 | `WallpaperPicker.qml` (406 l.) | sélecteur de fond d'écran au clavier (SUPER+W, ALT+W = vidéos), | shell |
+| `WindowMode.qml` (326 l.) | mode fenêtres plein écran (façon Defi), affiché tant que le submap Hyprland « fenetres » est actif | shell |
 
 ### `scripts/`
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `launch.sh` (28 l.) | Lance (ou relance) Quick-Bar avec son environnement, en garantissant une seule instance. Point d'entrée unique : démarrage Hyprland (Startup_Apps.lua), | SysStats.qml, TerminalTab.qml |
+| `launch.sh` (32 l.) | Lance (ou relance) Quick-Bar avec son environnement, en garantissant une seule instance. Point d'entrée unique : démarrage Hyprland (Startup_Apps.lua), | SysStats.qml, TerminalTab.qml |
 
 ### `scripts/apps/`
 
@@ -607,13 +609,15 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `deps.py` (214 l.) | — | DepsPage.qml |
+| `deps.py` (221 l.) | — | DepsPage.qml |
 | `device-photos.py` (111 l.) | Photos des périphériques pour la page Devices du dashboard. Pour chaque modèle de assets/devices/devices.json | Batteries.qml, DevicesPage.qml |
 | `fonts.py` (25 l.) | — | FontsPage.qml |
 | `icon_themes.py` (133 l.) | Icônes de l'aperçu : dossier, maison, terminal, navigateur, réglages, musique, image, Steam | ThemePage.qml |
 | `keyboard-info.py` (63 l.) | Clavier principal pour la page Devices : `hyprctl devices -j` (disposition active, Verr. Maj, Verr. Num) et | Batteries.qml |
 | `sysstats.py` (261 l.) | Intervalles (s) : argv[1] au repos, argv[2] pendant le survol — [refresh] stats dans config.toml | SysData.qml, SysStats.qml |
 | `vader5-battery.py` (57 l.) | Batterie de la manette Flydigi Vader 5 Pro (dongle 37d7:2401 ou filaire), lue sur son interface HID | Batteries.qml |
+| `wall-effect.sh` (43 l.) | wall-effect.sh <effet> — effet ImageMagick sur le fond d'écran (remplace UserScripts/WallpaperEffects.sh, qui passait | WallpaperState.qml |
+| `wall-mana.py` (153 l.) | prépare l'effet Mana d'un fond d'écran (wallpaper/shaders/mana.frag) : | Wallpaper.qml |
 
 ### `scripts/wallust/`
 
@@ -625,17 +629,17 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `Batteries.qml` (215 l. · singleton) | appareils sur batterie vus par UPower (souris Logitech via hidpp, casques Bluetooth…), | DashBattery, DevicesPage, GameModeTab, GridDash, Island … (+3) |
+| `Batteries.qml` (215 l. · singleton) | appareils sur batterie vus par UPower (souris Logitech via hidpp, casques Bluetooth…), | DashBattery, DevicesPage, GameModeTab, GridDash, NotifCard … (+2) |
 | `CavaService.qml` (56 l. · singleton) | Single cava process shared by CenterContent and PlayerCard | EqDash, GridDash, PlayerCard |
 | `DiscordService.qml` (128 l. · singleton) | pont vers le serveur Discord via scripts/discord/discord_bridge.py | DiscordChat |
 | `Health.qml` (116 l. · singleton) | bilan de santé de ce dont Quick-Bar dépend (OpenRGB, EasyEffects, | HealthPage, HealthTab, TouchPanel |
-| `Island.qml` (61 l. · singleton) | île dynamique (panels/DynamicIsland.qml) : une pastille au centre de la barre qui s'agrandit quelques | Batteries, DynamicIsland, Shots, shell |
+| `Island.qml` (73 l. · singleton) | île dynamique (panels/DynamicIsland.qml) : une pastille au centre de la barre qui s'agrandit quelques | Batteries, DynamicIsland, Shots, shell |
 | `KeybindService.qml` (406 l. · singleton) | Raccourcis propres à Quick-Bar : générés dans Quick-Bar/hypr/, chargés par une ligne de | KeybindsPage, Minimize |
 | `Minimize.qml` (48 l. · singleton) | remplace niflveil : la fenêtre active part dans l'espace caché special:minimized, | Minimized, shell |
 | `Mixer.qml` (74 l. · singleton) | accès unique à l'audio PipeWire pour toutes les pages (Mixer, Game, | Audio, EqCenter, EqDash, GameModeTab, MixerTab … (+1) |
-| `NotificationService.qml` (79 l. · singleton) | le démon de notifications de Quick-Bar (remplace swaync) | GridDash, NotifCard, NotifCenter, NotifToasts, Notifications … (+1) |
+| `NotificationService.qml` (82 l. · singleton) | le démon de notifications de Quick-Bar (remplace swaync) | GridDash, Island, NotifCard, NotifCenter, NotifToasts … (+2) |
 | `ScreenRecService.qml` (441 l. · singleton) | owns all screen recording state | CapturePage, GameModeTab, QuickSettings |
-| `Shots.qml` (32 l. · singleton) | nouvelle capture d'écran → vignette flottante (panels/ShotThumb.qml). Surveille les dossiers de | Island, ShotThumb, shell |
+| `Shots.qml` (33 l. · singleton) | nouvelle capture d'écran → vignette flottante (panels/ShotThumb.qml). Surveille les dossiers de | Island, ShotThumb, shell |
 | `SysData.qml` (106 l. · singleton) | stats système partagées : un seul démon (scripts/system/sysstats.py) pour la | Batteries, CpuCard, CpuTempCard, DiskCard, GameModeTab … (+9) |
 | `Updates.qml` (48 l. · singleton) | paquets à mettre à jour, partagés par la barre (bar/Updates.qml), la grille du tactile | Bar, GridDash, Updates, shell |
 | `WallpaperService.qml` (133 l. · singleton) | ============================================================ | — |
@@ -658,7 +662,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `Wallpaper.qml` (142 l.) | fond Quickshell (layer background) affichant l'image fixe courante | WallpaperState, shell |
+| `Wallpaper.qml` (178 l.) | fond Quickshell (layer background) affichant l'image fixe courante | WallpaperState, shell |
 
 ### `wallpaper/shaders/`
 

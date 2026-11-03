@@ -29,7 +29,7 @@ palette = "dark16"
 threshold = 10
 
 [templates]
-nvim_lua.template = "templates/nvim-palette.lua"   # thème nvim « wallust » (~/.config/nvim/colors/wallust.lua)
+nvim_lua.template = "nvim-palette.lua"   # thème nvim « wallust » (~/.config/nvim/colors/wallust.lua)
 nvim_lua.target   = "~/.cache/wallust/nvim-palette.lua"
 
 cava.template = 'templates/colors-cava'
@@ -88,6 +88,11 @@ eww.target = '~/.config/eww/dashboard/wallust-colors.scss'
 
 gtk.template = 'templates/pywal/_colors.scss'
 gtk.target = '~/.themes/gtk/scss/gtk-3.0/_colors.scss'
+# GTK4 / libadwaita (EasyEffects, pavucontrol, Loupe…) : couleurs nommées libadwaita
+gtk4.template = 'templates/gtk4.css'
+gtk4.target = '~/.config/gtk-4.0/gtk.css'
+gtk4dark.template = 'templates/gtk4.css'
+gtk4dark.target = '~/.config/gtk-4.0/gtk-dark.css'
 
 discord.template = 'templates/pywal-discord-abou.css'
 discord.target = '~/.config/Vencord/themes/pywal-wallust.theme.css'

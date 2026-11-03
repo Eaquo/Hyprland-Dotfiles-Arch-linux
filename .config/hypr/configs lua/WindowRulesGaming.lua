@@ -61,6 +61,9 @@ hl.window_rule({
 	name = "Fusion",
 	match = { class = "fusion360.exe" },
 	workspace = "1",
+	-- Fusion (XWayland) crée ses boîtes de dialogue puis les replace/redimensionne aussitôt : avec l'animation
+	-- d'ouverture d'Hyprland elles semblaient s'ouvrir deux fois
+	no_anim = true,
 })
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║                         LAUNCHERS                                         ║
