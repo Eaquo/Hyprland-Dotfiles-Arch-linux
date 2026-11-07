@@ -32,6 +32,7 @@ ShellRoot {
     readonly property bool batteriesAlive: Batteries.armed || true
     readonly property bool xeneonAlive: XeneonSend.sent !== null          // idem : SUPER+O (IPC xeneon)
     readonly property bool islandAlive: Island.enabled || Shots.hovered    // idem : île dynamique, captures
+    readonly property bool codingAlive: CodingMode.active || true          // idem : mode Coding (état relu au lancement)
     TouchPanel {}
     GameBreakBar {}
     Bar {}
@@ -59,6 +60,11 @@ ShellRoot {
     IpcHandler {
         target: "xeneon"         // SUPER+O : fenêtre active → plein écran sur le Xeneon, puis retour
         function toggle() { XeneonSend.toggle() }
+    }
+    IpcHandler {
+        target: "coding"         // mode Coding (tuile des réglages rapides) : qs ipc call coding toggle | variant
+        function toggle() { CodingMode.toggle() }
+        function variant() { CodingMode.switchVariant() }
     }
     IpcHandler {
         target: "audio"          // centre audio flottant (aussi : clic droit sur le volume / le micro de la barre)

@@ -21,7 +21,14 @@ Scope {
     property bool busy: pam.active
     property int fails: 0
 
-    function lock() { if (!locked) { status = ""; fails = 0; locked = true } }
+    // verrouiller met aussi les lecteurs en pause (musique, vidéo), quel que soit le déclencheur : SUPER+L,
+    // inactivité, menu Session. [lock] pause_media = false pour couper.
+    function lock() {
+        if (locked) return
+        status = ""; fails = 0; locked = true
+        if (Config.get("lock.pause_media", true) !== false)
+            for (const p of Mpris.players.values) if (p.isPlaying && p.canPause) p.pause()
+    }
     IpcHandler { target: "lock"; function lock() { root.lock() } }   // pas de « unlock » par IPC, volontairement
 
     // ── PAM ───────────────────────────────────────────────────────────────
@@ -57,14 +64,15 @@ Scope {
     readonly property bool videoPlaying: Config.get("lock.video_inhibit", true) !== false
         && Mpris.players.values.some(p => p.isPlaying && !root.musicRe.test((p.identity || "") + " " + (p.desktopEntry || "")))
     IdleMonitor {
-        enabled: root.autoMin > 0 && !root.locked && !root.videoPlaying
+        // le délai d'abord : ne jamais s'activer avant de le connaître (config.toml lu après le démarrage)
+        enabled: timeout > 0 && !root.locked && !root.videoPlaying
         timeout: root.autoMin * 60
         respectInhibitors: true
-        onIsIdleChanged: if (isIdle) root.lock()
+        onIsIdleChanged: if (isIdle) { console.log("[lock] inactif depuis", timeout, "s → verrouillage"); root.lock() }
     }
     Process { id: dpms }
     IdleMonitor {
-        enabled: root.offMin > 0 && !root.videoPlaying
+        enabled: timeout > 0 && !root.videoPlaying
         timeout: root.offMin * 60
         respectInhibitors: true
         onIsIdleChanged: { dpms.command = ["hyprctl", "dispatch", "dpms", isIdle ? "off" : "on"]; dpms.running = true }

@@ -1,0 +1,28 @@
+#!/bin/sh
+# avalon-wallust — thème d'icônes « Avalon-Wallust » : les icônes d'emplacement d'Avalon (dossiers, maison, bureau…)
+# avec leur bande d'accent bleue KDE (#3daee9, ColorScheme-Highlight) remplacée par l'accent wallust (color14).
+# Ne contient que ces icônes et hérite d'Avalon-Icons pour tout le reste : le thème d'origine n'est jamais modifié.
+# Lancé à chaque fond d'écran par ~/.config/hypr/scripts/Refresh.sh (moins d'une seconde).
+set -eu
+SRC="$HOME/.local/share/icons/Avalon-Icons"
+DST="$HOME/.local/share/icons/Avalon-Wallust"
+[ -d "$SRC" ] || exit 0
+accent=$(python3 -I -c "import json,os; print(json.load(open(os.path.expanduser('~/.cache/wal/colors.json')))['colors']['color14'])") || exit 0
+
+tmp="$DST.tmp.$$"
+mkdir -p "$tmp"
+cd "$SRC"
+# fichiers qui portent l'accent KDE (dossiers d'emplacements) ; les liens symboliques de dossiers (24@2x…) sont suivis
+grep -rlis --include='*.svg' '3daee9' places | while IFS= read -r f; do
+    mkdir -p "$tmp/${f%/*}"
+    sed "s/#3daee9/$accent/gI" "$f" > "$tmp/$f"
+done
+sed -e 's/^Name=.*/Name=Avalon-Wallust/' -e 's/^Name\[[^]]*\]=.*//' \
+    -e 's/^Inherits=.*/Inherits=Avalon-Icons,breeze,hicolor/' \
+    -e 's/^Comment=.*/Comment=Avalon, dossiers aux couleurs wallust (avalon-wallust)/' index.theme > "$tmp/index.theme"
+# remplacement en une fois : les applis ne voient jamais un thème à moitié écrit
+[ -d "$DST" ] && mv "$DST" "$DST.old.$$"
+mv "$tmp" "$DST"
+[ -d "$DST.old.$$" ] && rm -r -- "$DST.old.$$"
+gtk-update-icon-cache -q -f -t "$DST" 2>/dev/null || true
+echo "$DST ($accent)"

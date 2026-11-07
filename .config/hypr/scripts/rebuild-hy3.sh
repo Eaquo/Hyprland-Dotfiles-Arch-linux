@@ -27,7 +27,10 @@ cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release >/dev/null
 cmake --build build >/dev/null
 
 mkdir -p "$HOME/.config/hypr/plugins"
-cp build/libhy3.so "$HOME/.config/hypr/plugins/libhy3.so"
+# fichier neuf puis renommage : un `cp` par-dessus le .so chargé réécrit les pages que Hyprland a en mémoire
+# → crash au rechargement (vécu le 2026-11-04)
+cp build/libhy3.so "$HOME/.config/hypr/plugins/libhy3.so.new"
+mv -f "$HOME/.config/hypr/plugins/libhy3.so.new" "$HOME/.config/hypr/plugins/libhy3.so"
 echo "✔ installé: ~/.config/hypr/plugins/libhy3.so"
 
 # recharge à chaud

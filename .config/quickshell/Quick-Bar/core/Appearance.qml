@@ -36,14 +36,19 @@ Singleton {
 
     Component.onCompleted: walFile.reload()
 
+    // surcharge temporaire de matugen (mode Coding : clair/sombre « douce »), sans toucher à config.toml
+    property string matugenModeOverride: ""
+    property string matugenPreferOverride: ""
     // Matugen : régénère la palette à chaque wallpaper (et au passage sur matugen)
     function regenerateMatugen() {
         if (paletteSource !== "matugen" || WallpaperState.currentWall === "") return
         // wallpaper vidéo : matugen ne lit pas les .mp4 → image fixe de la vidéo
         const img = WallpaperState.videoMode ? Quickshell.env("HOME") + "/.curr_wall_static.jpg" : WallpaperState.currentWall
         matugenProc.command = ["matugen", "image", img,
-                               "--prefer", String(Config.get("theme.matugen_prefer", "saturation")),
-                               "-m", String(Config.get("theme.matugen_mode", "dark"))]
+                               "--prefer", matugenPreferOverride || String(Config.get("theme.matugen_prefer", "saturation")),
+                               "-m", matugenModeOverride || String(Config.get("theme.matugen_mode", "dark")),
+                               "-t", String(Config.get("theme.matugen_type", "scheme-tonal-spot")),
+                               "--contrast", String(Number(Config.get("theme.matugen_contrast", 0)))]
         matugenProc.running = false
         matugenProc.running = true
     }
@@ -102,7 +107,9 @@ Singleton {
         // ── semantic aliases ───────────────────────────────────────────
         // Réglages › Apparence › Thème : quelle couleur de la palette sert d'accent ([theme] accent)
         property color accent:  _palette[root.accentSlot] || _palette.color11 || "#ffe066"
-        property color dim:     _palette.color8  || "#4a4a4a"
+        // color8 peut être presque de la couleur du fond (wallust 4, palette kmeans) : éclairci vers le texte jusqu'à
+        // rester lisible (contraste 3:1) — sinon le texte atténué de Quick-Bar disparaît
+        property color dim:     root._legibleDim(_palette.color8 || "#4a4a4a", bg, fg)
         property color surface: _palette.color0  || "#0f0f0f"
         property color hi:      accent
         property color overlay: _palette.color8  || "#4a4a4a"
@@ -124,6 +131,11 @@ Singleton {
     // On choisit des couleurs lisibles selon le contraste WCAG vs le fond.
     function _lin(v) { return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4) }
     function _lum(c) { return 0.2126 * _lin(c.r) + 0.7152 * _lin(c.g) + 0.0722 * _lin(c.b) }
+    function _legibleDim(c, bg, fg) {
+        let out = c
+        for (let i = 0; i < 10 && contrastRatio(out, bg) < 3; i++) out = Qt.tint(out, Qt.rgba(fg.r, fg.g, fg.b, 0.18))
+        return out
+    }
     function contrastRatio(a, b) {
         var la = _lum(a) + 0.05, lb = _lum(b) + 0.05
         return la > lb ? la / lb : lb / la

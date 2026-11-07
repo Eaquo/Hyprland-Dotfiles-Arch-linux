@@ -29,8 +29,12 @@ Singleton {
                 // premier vrai clavier qui n'est pas une souris (le récepteur Logitech se présente aussi comme clavier)
                 let list = []
                 try { list = JSON.parse(text.trim()) } catch (e) {}
-                const mice = root.devices.filter(d => d.type === UPowerDeviceType.Mouse).map(d => d.model)
-                const k = (Array.isArray(list) ? list : []).find(x => mice.indexOf(x.model) < 0) || null
+                // souris connues : celles d'UPower ET celles déjà vues (souris endormie = absente d'UPower, son récepteur
+                // passait alors pour le clavier → fausses notifications « Logitech PRO X connecté/déconnecté · clavier »)
+                const mice = root.devices.concat(ShellState.devicesSeen || [])
+                                 .filter(d => d.type === UPowerDeviceType.Mouse).map(d => d.model)
+                const kbs = (Array.isArray(list) ? list : []).filter(x => mice.indexOf(x.model) < 0)
+                const k = kbs.find(x => x.main) || kbs[0] || null
                 root.keyboard = !k ? null : {
                     type: UPowerDeviceType.Keyboard, model: k.model, nativePath: "kbd:" + k.model,
                     percentage: -1, state: UPowerDeviceState.Unknown, timeToEmpty: 0, timeToFull: 0,

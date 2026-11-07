@@ -17,7 +17,7 @@ cp -f "$wp" "$HOME/.config/hypr/wallpaper_effects/.wallpaper_current"
 # Image d'origine pour les effets de Quick-Bar (scripts/system/wall-effect.sh) — pas pour un fond déjà modifié
 case "$wp" in "$HOME/.cache/quickbar/wall-effect-"*) ;; *) printf '%s\n' "$wp" > "$HOME/.config/hypr/wallpaper_effects/.wallpaper_source" ;; esac
 
-# Régénère la palette (skip séquences terminal) → wal.json change → Quickshell recharge
-{ wallust run "$wp" -s >/dev/null 2>&1; pkill -USR1 -x kitty; bash "$HOME/.config/hypr/scripts/Refresh.sh"; } >/dev/null 2>&1 &  # USR1 = kitty recharge couleurs + shader ; Refresh = GTK/swaync/rofi/OpenRGB…
+# Régénère la palette (skip séquences terminal) — mode Coding actif : son thème fixe à la place → wal.json change → Quickshell recharge
+{ "$HOME/.config/quickshell/Quick-Bar/scripts/system/coding-mode.sh" theme || wallust run "$wp" -s >/dev/null 2>&1; pkill -USR1 -x kitty; bash "$HOME/.config/hypr/scripts/Refresh.sh"; } >/dev/null 2>&1 &  # USR1 = kitty recharge couleurs + shader ; Refresh = GTK/swaync/rofi/OpenRGB…
 
 echo "$wp"

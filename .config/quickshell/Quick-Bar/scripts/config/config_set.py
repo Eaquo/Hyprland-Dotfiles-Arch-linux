@@ -10,6 +10,7 @@ import json
 import os
 import sys
 import tempfile
+import tomllib
 
 import tomlkit
 
@@ -40,8 +41,15 @@ def main():
         set_key(doc, k, v)
     d = os.path.dirname(os.path.abspath(path))
     fd, tmp = tempfile.mkstemp(dir=d, prefix=".config.", suffix=".toml")
+    out = tomlkit.dumps(doc)
+    try:
+        tomllib.loads(out)            # jamais un config.toml illisible : Quick-Bar perdrait tous ses réglages
+    except tomllib.TOMLDecodeError as e:
+        os.close(fd)
+        os.unlink(tmp)
+        sys.exit("config.toml non écrit, le résultat serait invalide : %s" % e)
     with os.fdopen(fd, "w", encoding="utf-8") as f:
-        f.write(tomlkit.dumps(doc))
+        f.write(out)
     os.replace(tmp, path)
 
 

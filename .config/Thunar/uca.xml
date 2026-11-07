@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>kitty</icon>
+	<name>Kitty</name>
+	<submenu>Développement</submenu>
+	<unique-id>1744129564016033-1</unique-id>
+	<command>exo-open --working-directory %f --launch TerminalEmulator
+</command>
+	<description>Dir Kitty</description>
+	<range></range>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon>adjustrow</icon>
+	<name>Renommer série anime (Aniiwatch)</name>
+	<submenu>Médias</submenu>
+	<unique-id>1760369800893198-1</unique-id>
+	<command>~/.local/bin/anime-renamer-gui.sh %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+<action>
+	<icon>video-x-wmv</icon>
+	<name>mkvsub</name>
+	<submenu>Médias</submenu>
+	<unique-id>1761490681561729-1</unique-id>
+	<command>~/.local/bin//mkvsub %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<video-files/>
+</action>
+<action>
+	<icon>DE7C_SteamTools.0</icon>
+	<name>Add Steam</name>
+	<submenu>Système</submenu>
+	<unique-id>1787495383103301-1</unique-id>
+	<command>	bash /home/florian/.config/hypr/scripts/SteamNonSteam/thunar_add_to_steam.sh %f</command>
+	<description>Ajout dans steam jeux non steam</description>
+	<range>*</range>
+	<patterns>*.exe</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>preferences-desktop-wallpaper</icon>
+	<name>Fond d'écran (Quick-Bar)</name>
+	<submenu>Médias</submenu>
+	<unique-id>1762189200000001-1</unique-id>
+	<command>~/.config/hypr/scripts/set-wallpaper.sh %f</command>
+	<description>Fond d'écran de Quick-Bar, palette wallust recolorée</description>
+	<range>1-1</range>
+	<patterns>*.jpg;*.jpeg;*.png;*.webp;*.JPG;*.JPEG;*.PNG;*.WEBP</patterns>
+	<image-files/>
+</action>
+<action>
+	<icon>windsurf</icon>
+	<name>Ouvrir dans Windsurf</name>
+	<submenu>Développement</submenu>
+	<unique-id>1762189200000002-1</unique-id>
+	<command>windsurf %f</command>
+	<description>Ouvre le dossier dans Windsurf</description>
+	<range>1-1</range>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+<action>
+	<icon>edit-copy</icon>
+	<name>Copier le chemin</name>
+	<submenu>Système</submenu>
+	<unique-id>1762189200000003-1</unique-id>
+	<command>sh -c 'printf %%s "$0" | wl-copy &amp;&amp; notify-send -a Thunar -i edit-copy "Chemin copié" "$0"' %f</command>
+	<description>Copie le chemin complet dans le presse-papiers</description>
+	<range>1-1</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+<action>
+	<icon>folder-videos</icon>
+	<name>Envoyer vers Jellyfin</name>
+	<submenu>Médias</submenu>
+	<unique-id>1762189200000004-1</unique-id>
+	<command>~/.local/bin/send-to-jellyfin %F</command>
+	<description>Copie dans la médiathèque du Proxmox (Animes, Film, Séries)</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<video-files/>
+	<other-files/>
+</action>
+<action>
+	<icon>package-x-generic</icon>
+	<name>Compresser en .zip</name>
+	<submenu>Archives</submenu>
+	<unique-id>1762189200000005-1</unique-id>
+	<command>~/.local/bin/thunar-zip pack %F</command>
+	<description>Un élément → nom.zip ; plusieurs → nom-du-dossier.zip</description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+<action>
+	<icon>archive-extract</icon>
+	<name>Extraire ici</name>
+	<submenu>Archives</submenu>
+	<unique-id>1762189200000006-1</unique-id>
+	<command>~/.local/bin/thunar-zip unpack %F</command>
+	<description>Extrait chaque archive dans un dossier à son nom</description>
+	<range>*</range>
+	<patterns>*.zip;*.7z;*.rar;*.tar;*.tar.gz;*.tgz;*.tar.xz;*.tar.zst;*.tar.bz2;*.gz;*.xz;*.iso</patterns>
+	<other-files/>
+</action>
+<action>
+	<icon>view-refresh</icon>
+	<name>Convertir en .zip</name>
+	<submenu>Archives</submenu>
+	<unique-id>1762189200000007-1</unique-id>
+	<command>~/.local/bin/thunar-zip repack %F</command>
+	<description>Recompresse le .rar / .7z en .zip à côté (l'original est gardé)</description>
+	<range>*</range>
+	<patterns>*.rar;*.RAR;*.7z</patterns>
+	<other-files/>
+</action>
+</actions>

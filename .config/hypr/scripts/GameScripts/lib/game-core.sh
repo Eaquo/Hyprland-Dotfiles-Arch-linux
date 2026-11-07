@@ -58,6 +58,9 @@ _cleanup() {
   # Hook optionnel de sortie (ex: sauvegarde de profil) défini par le script de jeu
   declare -F game_on_exit >/dev/null && game_on_exit
 
+  # Pont de presse-papiers gamescope (lancé avec le jeu)
+  [ -n "${_CLIP_PID:-}" ] && kill "$_CLIP_PID" 2>/dev/null
+
   [ "$_VRR_TOUCHED" = "True" ] && notify-send -e -u normal " Disabling VRR Hyprland"
 
   if [ "$_SPLIT_LOCK_TOUCHED" = "True" ]; then
@@ -197,6 +200,12 @@ run_game() {
   # ------------------------- LANCEMENT --------------------------------------
   "${LAUNCH[@]}" "$@" $OPTION_AFTER &
   local GAME_PID=$!
+
+  # gamescope a son propre Xwayland : sans pont, copier-coller bureau ⇄ jeu ne marche pas (deck lists MTGA…)
+  if [ "$GAMESCOPE_OPTIONS" = "True" ]; then
+    "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/gamescope-clip.sh" "$GAME_PID" &
+    _CLIP_PID=$!
+  fi
 
   # Détection de la fenêtre du jeu (retry, avec fallback regex de classe)
   local t

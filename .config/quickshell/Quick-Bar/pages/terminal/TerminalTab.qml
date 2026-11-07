@@ -70,11 +70,14 @@ Item {
         id: schemeProc
         onExited: (code) => { if (code === 0) root.scheme = root.pending }
     }
+    // deux noms alternés (A/B). Limite de qmltermwidget : il lit ses schémas une seule fois, au lancement de
+    // Quick-Bar ; un changement de palette en cours de session n'apparaît qu'au prochain lancement.
+    // L'écriture est relancée à chaque appel (une demande pendant l'écriture précédente était ignorée).
     function writeScheme() {
         pending = scheme === "QuickbarA" ? "QuickbarB" : "QuickbarA"
         schemeProc.command = ["sh", "-c", 'mkdir -p "$1" && printf "%s" "$2" > "$1/$3.colorscheme"', "_",
                               schemeDir, schemeText(pending), pending]
-        schemeProc.running = true
+        schemeProc.running = false; schemeProc.running = true
     }
     // la palette change (wallust, matugen, accent) → nouveau schéma
     readonly property string palKey: [Appearance.colors.bg, Appearance.colors.fg, Appearance.colors.color0, Appearance.colors.color1,

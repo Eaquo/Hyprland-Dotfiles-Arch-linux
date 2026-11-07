@@ -1,7 +1,11 @@
 @use "../colors";
 
+// dialog / messagedialog : nœuds CSS à part (pas « window ») → sans eux, texte blanc par défaut de GTK, illisible
+// sur une palette claire (fenêtre Propriétés de Thunar)
 window,
-assistant {
+assistant,
+dialog,
+messagedialog {
   background: colors.$surface-strongest;
   color: colors.$white-strong;
 }

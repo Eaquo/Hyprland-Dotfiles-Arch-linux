@@ -31,7 +31,12 @@ local guitare = "ToneLib-Metal"
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║                         SYSTÈME                                           ║
 -- ╚══════════════════════════════════════════════════════════════════════════╝
-
+-- Reolad quickshell
+-- Relancer Quick-Bar s'il a planté : rien s'il répond à l'IPC (en < 2 s) ; absent ou figé → relance.
+-- hl.dsp.exec_cmd = action de la touche (hl.exec_cmd lancerait tout de suite, à chaque rechargement)
+local qb = "$HOME/.config/quickshell/Quick-Bar"
+hl.bind(mainMod .. " + equal", hl.dsp.exec_cmd("timeout 2 qs ipc -p " .. qb .. "/shell.qml show >/dev/null 2>&1 || setsid -f " .. qb .. "/scripts/launch.sh"),
+	{ description = "Relancer Quick-Bar (s'il a planté)" })
 hl.bind("CTRL + ALT + Delete", hl.dsp.exit())
 -- verrouillage Quick-Bar (panels/LockScreen.qml, bind généré dans Quick-Bar/hypr/quickbar.lua)
 -- hl.bind("CTRL + ALT + L", hl.dsp.exec_cmd("hyprlock -q"))

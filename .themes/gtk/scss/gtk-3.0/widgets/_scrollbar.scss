@@ -1,18 +1,28 @@
+@use "sass:color";
 @use "../colors";
 
+// Barres de défilement fines (4 px) qui s'élargissent (9 px) et passent en accent au survol.
 scrollbar {
     -gtkscrollbar-has-backward-stepper: false;
     -gtkscrollbar-has-forward-stepper: false;
+    background: transparent;
+    border: none;
 
     slider {
-        padding: 0.2em;
-        border-radius: 1em;
-        background: colors.$red-normal;
-        &:hover {
-            background: colors.$white-weak;
-        }
-        &:active {
-            background: colors.$accent-primary;
-        }
+        min-width: 4px;
+        min-height: 4px;
+        margin: 2px;
+        border: none;
+        border-radius: 999px;
+        background: color.change(colors.$white-strongest, $alpha: 0.28);
+        transition: all 160ms ease;
+    }
+    &:hover slider {
+        min-width: 9px;
+        min-height: 9px;
+        background: color.change(colors.$accent-primary, $alpha: 0.75);
+    }
+    slider:active {
+        background: colors.$accent-primary;
     }
 }

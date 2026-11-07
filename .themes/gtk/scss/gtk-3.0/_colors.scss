@@ -1,44 +1,96 @@
-$surface-strongest: rgb(35,27,40);
-$surface-strong: rgb(35,27,40);
-$surface-moderate: rgb(193,186,250);
-$surface-weak: rgb(35,27,40);
-$surface-weakest: rgb(35,27,40);
+// Couleurs du thème GTK3 « gtk » (~/.themes/gtk, fork de Phocus) — généré par wallust à chaque fond d'écran.
+// Les noms viennent de Phocus mais servent ici de rôles propres au thème (red-normal = accent des glyphes et
+// curseurs, pink-normal = texte des boutons…). Les couleurs de TEXTE passent par legible() : si la palette du
+// fond les rend illisibles, elles sont éclaircies/assombries jusqu'au contraste WCAG voulu (4,5:1 par défaut).
+@use "sass:color";
+@use "sass:math";
 
-$white-strongest: rgb(145,140,188);
-$white-strong: rgba(193,186,250, 0.87);
-$white-moderate: rgba(193,186,250, 0.34);
-$white-weak: rgba(193,186,250, 0.14);
-$white-weakest: rgba(193,186,250, 0.06);
+$bg: rgb(1,0,1);
+$fg: rgb(252,249,134);
 
-$black-strongest: rgb(41,12,70);
-$black-strong: rgba(41,12,70, 0.87);
-$black-moderate: rgba(189,17,80, 0.42);
-$black-weak: rgba(41,12,70, 0.15);
-$black-weakest: rgba(193,186,250, 0.06);
+// ── contraste ───────────────────────────────────────────────────────────────
+@function _ch($v) {
+    $v: math.div($v, 255);
+    @return if($v <= 0.03928, math.div($v, 12.92), math.pow(math.div($v + 0.055, 1.055), 2.4));
+}
+@function lum($c) {
+    @return 0.2126 * _ch(color.red($c)) + 0.7152 * _ch(color.green($c)) + 0.0722 * _ch(color.blue($c));
+}
+@function contrast($a, $b) {
+    $la: lum($a) + 0.05;
+    $lb: lum($b) + 0.05;
+    @return math.div(math.max($la, $lb), math.min($la, $lb));
+}
+// rapproche $c du blanc (fond sombre) ou du noir (fond clair) jusqu'au contraste $min sur $on
+@function legible($c, $on: $bg, $min: 4.5) {
+    $toward: if(lum($on) < 0.35, #ffffff, #000000);
+    $i: 0;
+    @while contrast($c, $on) < $min and $i < 12 {
+        $c: color.mix($toward, $c, 12%);
+        $i: $i + 1;
+    }
+    @return $c;
+}
 
-$red-normal: rgb(189,17,80);
-$red-light: rgb(100,73,146);
-$orange-normal: rgba(35,27,40, 0.8);
-$orange-light: rgb(35,27,40);
-$yellow-normal: rgb(35,27,40);
-$yellow-light: rgb(35,27,40);
-$green-normal: rgb(193,186,250);
-$green-light: rgb(184,175,240);
-$cyan-normal: rgb(193,186,250);
-$cyan-light: rgb(193,186,250);
-$blue-normal: rgb(35,27,40);
-$blue-light: rgb(35,27,40);
-$purple-normal: rgb(193,186,250);
-$purple-light: rgb(216,212,244);
-$pink-normal: rgb(184,175,240);
-$pink-light: rgb(216,212,244);
-$pink-custom: rgb(75,55,109);
-$pink: rgb(103,89,141);
-$red: rgb(137,118,187);
-$red-custom: rgb(138,131,180);
+// texte : la couleur de texte de wallust, légèrement teintée par l'accent (garde l'ambiance du fond)
+$text: legible(color.mix($fg, rgb(246,212,79), 80%), $min: 7);
+
+$surface-strongest: $bg;
+$surface-strong: $bg;
+$surface-moderate: rgb(246,212,79);
+$surface-weak: $bg;
+$surface-weakest: $bg;
+
+$white-strongest: $text;
+$white-strong: rgba($text, 0.87);
+$white-moderate: rgba($text, 0.34);
+$white-weak: rgba($text, 0.14);
+$white-weakest: rgba($text, 0.06);
+
+$black-strongest: rgb(93,69,64);
+$black-strong: rgba(93,69,64, 0.87);
+$black-moderate: rgba(195,106,51, 0.42);
+$black-weak: rgba(93,69,64, 0.15);
+$black-weakest: rgba(246,212,79, 0.06);
+
+$red-normal: legible(rgb(195,106,51), $min: 3);         // accent : glyphes, curseurs, défilement, infobulles
+$red-light: legible(rgb(155,91,75));                   // texte sélectionné, survol du bouton fermer
+$orange-normal: rgba($bg, 0.8);
+$orange-light: $bg;
+$yellow-normal: $bg;
+$yellow-light: $bg;
+$green-normal: rgb(246,212,79);
+$green-light: rgb(235,174,79);
+$cyan-normal: rgb(246,212,79);
+$cyan-light: rgb(246,212,79);
+$blue-normal: $bg;
+$blue-light: $bg;
+$purple-normal: rgb(246,212,79);
+$purple-light: rgb(252,249,134);
+$pink-normal: legible(rgb(235,174,79));                 // texte des boutons, de la barre de titre, des champs
+$pink-light: rgb(252,249,134);
+$pink-custom: rgb(113,76,68);
+$pink: rgb(156,95,65);
+$red: legible(rgb(227,85,16), $min: 3);                // bordures et texte des menus, onglets, listes
+$red-custom: legible(rgb(145,114,65), $on: $pink-custom); // texte au survol dans Thunar (sur pink-custom)
 
 $accent-primary: $purple-normal;
-$accent-secondary: $green-normal;
+$accent-secondary: rgb(246,212,79);
+
+// couleurs d'état (erreur, avertissement, succès, liens) : vraies teintes, à peine fondues dans la palette
+$error: legible(color.mix(#e5484d, rgb(195,106,51), 80%), $min: 3);
+$warning: legible(color.mix(#f0a020, rgb(195,106,51), 80%), $min: 3);
+$success: legible(color.mix(#3fb950, rgb(195,106,51), 80%), $min: 3);
+$link: legible(rgb(246,212,79));
 
 // TODO: is there a better way to do this? this is for example used in gnome-calculator for the result top-border
 @define-color borders #{"" +$surface-strong};
+@define-color error_color #{"" + $error};
+@define-color warning_color #{"" + $warning};
+@define-color success_color #{"" + $success};
+@define-color link_color #{"" + $link};
+@define-color theme_fg_color #{"" + $text};
+@define-color theme_bg_color #{"" + $bg};
+// sélection translucide : la vue en grille de Thunar (ExoIconView) la peint directement, sans passer par le CSS
+@define-color theme_selected_bg_color #{"" + rgba(246,212,79, 0.30)};
+@define-color theme_selected_fg_color #{"" + $text};

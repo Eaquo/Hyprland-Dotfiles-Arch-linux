@@ -108,7 +108,21 @@ QtObject {
                 catch (e) { console.warn("[Config] config.toml invalide, valeurs précédentes gardées") }
             }
         }
+        // config.toml illisible (édition à la main ratée…) : sans ça, TOUS les réglages repartent en silence aux
+        // valeurs par défaut (verrouillage auto coupé, palette…). On prévient, une fois par erreur différente.
+        stderr: StdioCollector {
+            onStreamFinished: {
+                const m = text.match(/TOMLDecodeError: (.*)$/m)
+                if (!m || m[1] === root._lastError) return
+                root._lastError = m[1]
+                console.warn("[Config] config.toml invalide :", m[1])
+                Quickshell.execDetached(["notify-send", "-a", "Quick-Bar", "-u", "critical", "-i", "dialog-error",
+                    "config.toml invalide", m[1] + "\nLes réglages par défaut sont utilisés tant que ce n'est pas corrigé."])
+            }
+        }
+        onExited: (code) => { if (code === 0) root._lastError = "" }
     }
+    property string _lastError: ""
     // Les éditeurs enregistrent en plusieurs écritures : on attend que le fichier soit posé.
     function reload() { debounce.restart() }
     property var _debounce: Timer { id: debounce; interval: 200; onTriggered: { parse.running = false; parse.running = true } }

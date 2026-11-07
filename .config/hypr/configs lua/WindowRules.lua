@@ -253,6 +253,29 @@ hl.window_rule({
 	idle_inhibit = "always",
 })
 
+-- Conception
+hl.window_rule({
+  name = "Solidcraft",
+  match = { class = "io.tangencylabs.solidcraft" },   -- pas de titre : vide ou différent à l'ouverture
+  workspace = "5",
+})
+hl.window_rule({
+  name = " Bambu",
+  match = { class = "(BambuStudio|bambu-studio)" },   -- Flatpak : bambu-studio
+  workspace = "5",
+})
+
+-- SolidCraft (et Bambu Studio) passent par XWayland : la règle « workspace » ne l'atteint pas (même cas que Steam, WindowRulesGaming.lua)
+-- → déplacé à l'ouverture
+hl.on("window.open", function(w)
+  local c = w.class
+  if (c == "io.tangencylabs.solidcraft" or c == "bambu-studio" or c == "BambuStudio")
+     and not (w.workspace and w.workspace.id == 5) then
+    hl.dispatch(hl.dsp.window.move({ workspace = 5, window = "address:" .. w.address }))
+  end
+end)
+
+
 -- ╔══════════════════════════════════════════════════════════════════════════╗
 -- ║                          RÈGLES DE POSITION                              ║
 -- ╚══════════════════════════════════════════════════════════════════════════╝

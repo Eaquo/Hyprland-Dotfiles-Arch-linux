@@ -63,7 +63,8 @@ if file_exists "${UserScripts}/RainbowBorders.sh"; then
 fi
 
 # Update Windsurf colors from wallust palette
-python3 /home/florian/.config/wallust/hooks/windsurf-theme.py &
+# mode Coding actif : c'est lui qui règle Windsurf (Quiet Light en clair) — ne pas l'écraser
+[ -f "$HOME/.cache/quickbar/coding-mode" ] || python3 /home/florian/.config/wallust/hooks/windsurf-theme.py &
 
 # Regenerate matugen colors if enabled in game launcher config
 LAUNCHER_CONFIG="$HOME/.config/quickshell/game-launcher/config.toml"

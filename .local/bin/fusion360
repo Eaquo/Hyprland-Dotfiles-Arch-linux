@@ -1,0 +1,27 @@
+#!/bin/sh
+# Lance Autodesk Fusion en desactivant le warp curseur de Hyprland, puis le
+# restaure a la fermeture.
+#
+# Pourquoi : Fusion expose 6 fenetres X11 top-level (principale + panneaux).
+# Avec cursor:no_warps=false (defaut Hyprland), chaque clic qui change de
+# fenetre teleporte le curseur au centre de la nouvelle. Pendant un glisser
+# (rayon d'un cercle en esquisse) le warp se bat avec la souris -> saccades.
+# On neutralise le warp le temps de la session Fusion seulement, pour ne pas
+# perdre le warp au clavier dans le reste du bureau.
+
+# ponytail: si Fusion est tue en SIGKILL le trap ne part pas et le warp reste
+# desactive -> "hyprctl reload" le restaure. Un garde-fou (poll du PID depuis un
+# daemon) ne vaut pas le coup pour ce cas.
+warp() { hyprctl eval "hl.config({ cursor = { no_warps = $1 } })" >/dev/null 2>&1; }
+
+# Fusion tourne avec SA copie de Wine 11.20 (extraite du paquet Arch, ~/.local/opt/wine-11.20), indépendante du Wine
+# système qui peut se mettre à jour : Wine 11.21 fait planter Fusion 2706 (exception dans Qt6WebEngineCore), et
+# changer de version de Wine oblige à se reconnecter à Autodesk (idservices.db chiffré par version).
+# Même Wine pour ~/.local/bin/fusion-idmgr (retour de connexion), sinon les deux ne se parlent pas.
+export PATH="$HOME/.local/opt/wine-11.20/bin:$PATH"
+
+trap 'warp false' EXIT INT TERM
+warp true
+
+# pas de 'exec' : il remplacerait ce shell et le trap ne se declencherait jamais.
+"$HOME/.autodesk_fusion/bin/autodesk_fusion_launcher.sh" "$@"

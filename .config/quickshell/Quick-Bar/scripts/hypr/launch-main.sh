@@ -13,12 +13,16 @@
 if [ $# -eq 1 ]; then CMD=$1; else CMD=$(printf '%q ' "$@"); fi
 [ -z "$CMD" ] && exit 0
 
-MAINWS=$(hyprctl -j monitors 2>/dev/null | jq -r --arg t "$(printf %s "${QB_TOUCH:-XENEON}" | tr a-z A-Z)" \
-  '[.[] | select((.model + .description | ascii_upcase | contains($t)) | not)][0].activeWorkspace.id')
+MONS=$(hyprctl -j monitors 2>/dev/null)
+T=$(printf %s "${QB_TOUCH:-XENEON}" | tr a-z A-Z)
+TOUCH_FOCUSED=$(jq -r --arg t "$T" '[.[] | select(.focused)][0] | (.model + .description | ascii_upcase | contains($t))' <<<"$MONS")
+MAINWS=$(jq -r --arg t "$T" '[.[] | select((.model + .description | ascii_upcase | contains($t)) | not)][0].activeWorkspace.id' <<<"$MONS")
 
-# Fallback : pas d'info moniteur → lancement normal.
-if [ -z "$MAINWS" ] || [ "$MAINWS" = "null" ]; then
-  exec $CMD
+# Focus déjà sur l'écran principal (ou pas d'info) → lancement normal : un workspace imposé au lancement passe AVANT
+# les règles de fenêtre (WindowRules.lua : SolidCraft → 5…), on ne le met que quand il faut quitter le tactile.
+if [ "$TOUCH_FOCUSED" != true ] || [ -z "$MAINWS" ] || [ "$MAINWS" = "null" ]; then
+  hyprctl eval "hl.exec_cmd([==[${CMD}]==])" >/dev/null 2>&1
+  exit 0
 fi
 
 hyprctl eval "hl.exec_cmd([==[${CMD}]==], { workspace = [[${MAINWS} silent]] })" >/dev/null 2>&1

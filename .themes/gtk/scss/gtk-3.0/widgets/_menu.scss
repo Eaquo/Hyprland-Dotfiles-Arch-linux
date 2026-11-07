@@ -1,18 +1,42 @@
+@use "sass:color";
 @use "../colors";
 @use "../config";
 
-menu {
-    background: transparent;
-    border: 0.2em solid colors.$red;
-    border-radius: 10 10 10 10;
-    color: colors.$purple-light;
+// Menus (clic droit, barre de menus) : coins arrondis, marges, survol en accent translucide, séparateurs discrets.
+menu,
+.menu,
+.context-menu {
+    padding: 6px;
+    border: 1px solid color.change(colors.$accent-primary, $alpha: 0.45);
+    border-radius: 12px;
     background-color: colors.$surface-strongest;
+    color: colors.$white-strong;
+
     menuitem {
-        padding: config.$spacing-medium;
+        padding: 6px 14px;
+        border-radius: 8px;
+        min-height: 0;
+
         &:hover {
-            background: colors.$purple-light;
-            color: colors.$red;
-            border-radius: 10px;
+            background: color.change(colors.$accent-primary, $alpha: 0.18);
+            color: colors.$white-strongest;
         }
+        &:disabled { color: colors.$white-moderate; }
+        accelerator { color: colors.$white-moderate; margin-left: 18px; }
+        arrow { min-width: 12px; min-height: 12px; color: colors.$white-moderate; }
     }
+
+    separator {
+        min-height: 1px;
+        margin: 4px 8px;
+        background: color.change(colors.$white-strongest, $alpha: 0.08);
+    }
+}
+
+// le cadre extérieur que GTK dessine autour du menu : transparent pour garder les coins arrondis
+window.popup.background,
+.csd.popup decoration {
+    background: transparent;
+    box-shadow: none;
+    border-radius: 12px;
 }

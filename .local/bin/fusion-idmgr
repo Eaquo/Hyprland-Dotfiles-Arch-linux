@@ -1,0 +1,8 @@
+#!/bin/sh
+# Retour de connexion Autodesk (liens adskidmgr://, raccourci adskidmgr-opener.desktop) : ouvert avec le même Wine
+# que Fusion (~/.local/bin/fusion360 : ~/.local/opt/wine-11.20, sinon les deux Wine ne se parlent pas) et
+# l'AdskIdentityManager le plus récent (la version à jour est dans AppData, l'ancienne dans Program Files).
+PFX="$HOME/.autodesk_fusion/wineprefixes/default"
+export PATH="$HOME/.local/opt/wine-11.20/bin:$PATH"
+exe="$(find "$PFX" -name AdskIdentityManager.exe -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)"
+exec env WINEPREFIX="$PFX" wine "$exe" "$@"

@@ -2,10 +2,11 @@
 @use "../colors";
 @use "../config";
 
+// Onglets en pilule : l'actif en accent avec un trait dessous, les autres atténués ; la croix des onglets n'est
+// pleinement visible qu'au survol. (GTK3 ignore transform/display:flex : rien de tout ça ici.)
 tabs {
     background: colors.$surface-strongest;
-    display: flex;
-    gap: config.$spacing-small; // Espacement entre onglets
+    padding: 4px 6px;
 
     @each $class,
         $side
@@ -17,32 +18,39 @@ tabs {
             )
     {
         .#{$class} > & {
-            border-#{$side}: config.$border-size solid colors.$surface-moderate;
-            tab {
-                border-#{$side}: config.$border-size solid transparent;
-                margin-#{$side}: -#{config.$border-size};
-            }
+            border-#{$side}: 1px solid color.change(colors.$white-strongest, $alpha: 0.08);
         }
     }
 
     tab {
-        padding: config.$spacing-medium;
-        color: colors.$red;
-        background: colors.$orange-normal;
-        border-radius: 10px;
-        transition: all 0.3s ease-in-out; // Animation fluide
-        position: relative;
+        padding: 4px 14px;
+        margin: 0 2px;
+        min-height: 0;
+        color: colors.$white-moderate;
+        background: transparent;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        border-bottom: 2px solid transparent;
+        transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
 
         &:hover {
-            background: color.scale(colors.$orange-normal, $lightness: +10%);
-            color: colors.$pink;
-            transform: translateY(-2px); // Effet léger de soulèvement
+            background: color.change(colors.$white-strongest, $alpha: 0.06);
+            color: colors.$white-strong;
         }
 
         &:checked {
-            color: colors.$white-strong;
-            background: color.change(colors.$pink, $alpha: 0.5);
-            transform: translateY(-3px); // Soulèvement plus
+            color: colors.$white-strongest;
+            background: color.change(colors.$accent-primary, $alpha: 0.22);
+            border-color: color.change(colors.$accent-primary, $alpha: 0.45);
+            border-bottom-color: colors.$accent-primary;
         }
+
+        button.flat {
+            min-width: 16px; min-height: 16px; padding: 0; margin-left: 6px;
+            opacity: 0.35;
+            border-radius: 999px;
+        }
+        &:hover button.flat, &:checked button.flat { opacity: 0.9; }
+        button.flat:hover { background: color.change(colors.$error, $alpha: 0.35); opacity: 1; }
     }
 }

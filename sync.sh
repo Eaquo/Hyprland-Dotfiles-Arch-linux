@@ -28,6 +28,14 @@ for d in .config/*; do
     fi
 done
 
+# hors ~/.config : thème GTK (sources scss + css compilé, sans node_modules) et scripts maison de ~/.local/bin
+rsync -a --delete "${DRY[@]}" "${EXCLUDES[@]}" --exclude 'node_modules/' --exclude '.idea/' \
+    "$HOME/.themes/gtk/" .themes/gtk/ | sed "s|^|themes/gtk: |"
+mkdir -p .local/bin
+for f in thunar-zip send-to-jellyfin avalon-wallust fusion360 fusion-idmgr; do
+    [[ -e "$HOME/.local/bin/$f" ]] && rsync -a "${DRY[@]}" "$HOME/.local/bin/$f" .local/bin/ | sed "s|^|local/bin: |"
+done
+
 if [[ ${#DRY[@]} -eq 0 ]]; then
     # garde-fou : rien qui ressemble à un secret dans ce qui va partir
     git add -A

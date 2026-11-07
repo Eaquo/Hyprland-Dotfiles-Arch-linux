@@ -2,54 +2,54 @@
    Généré à chaque fond d'écran dans ~/.config/gtk-4.0/gtk.css et gtk-dark.css — ne pas éditer à la main :
    modèle = ~/.config/wallust/templates/templates/gtk4.css. Même palette que le thème GTK3 ~/.themes/gtk. */
 
-@define-color accent_color #FFCE4C;
-@define-color accent_bg_color #FFCE4C;
-@define-color accent_fg_color #140000;
+@define-color accent_color #F6D44F;
+@define-color accent_bg_color #F6D44F;
+@define-color accent_fg_color #010001;
 
-@define-color destructive_color mix(#e5484d, #887F7F, 0.2);
-@define-color destructive_bg_color mix(#c9343a, #887F7F, 0.2);
+@define-color destructive_color mix(#e5484d, #C36A33, 0.2);
+@define-color destructive_bg_color mix(#c9343a, #C36A33, 0.2);
 @define-color destructive_fg_color #ffffff;
-@define-color success_color mix(#3fb950, #887F7F, 0.2);
-@define-color success_bg_color mix(#2f8f3e, #887F7F, 0.2);
+@define-color success_color mix(#3fb950, #C36A33, 0.2);
+@define-color success_bg_color mix(#2f8f3e, #C36A33, 0.2);
 @define-color success_fg_color #ffffff;
-@define-color warning_color mix(#f0a020, #887F7F, 0.2);
-@define-color warning_bg_color mix(#c98410, #887F7F, 0.2);
+@define-color warning_color mix(#f0a020, #C36A33, 0.2);
+@define-color warning_bg_color mix(#c98410, #C36A33, 0.2);
 @define-color warning_fg_color rgba(0, 0, 0, 0.8);
 @define-color error_color @destructive_color;
 @define-color error_bg_color @destructive_bg_color;
 @define-color error_fg_color #ffffff;
 
-@define-color window_bg_color #140000;
-@define-color window_fg_color #FFEEC0;
-@define-color view_bg_color mix(#140000, #000000, 0.15);
-@define-color view_fg_color #FFEEC0;
+@define-color window_bg_color #010001;
+@define-color window_fg_color #FCF986;
+@define-color view_bg_color mix(#010001, #000000, 0.15);
+@define-color view_fg_color #FCF986;
 
-@define-color headerbar_bg_color mix(#140000, #FFEEC0, 0.05);
-@define-color headerbar_fg_color #FFEEC0;
-@define-color headerbar_border_color #FFEEC0;
+@define-color headerbar_bg_color mix(#010001, #FCF986, 0.05);
+@define-color headerbar_fg_color #FCF986;
+@define-color headerbar_border_color #FCF986;
 @define-color headerbar_backdrop_color @window_bg_color;
 @define-color headerbar_shade_color rgba(0, 0, 0, 0.36);
 @define-color headerbar_darker_shade_color rgba(0, 0, 0, 0.9);
 
-@define-color sidebar_bg_color mix(#140000, #FFEEC0, 0.04);
-@define-color sidebar_fg_color #FFEEC0;
+@define-color sidebar_bg_color mix(#010001, #FCF986, 0.04);
+@define-color sidebar_fg_color #FCF986;
 @define-color sidebar_backdrop_color @window_bg_color;
 @define-color sidebar_border_color rgba(0, 0, 0, 0.36);
 @define-color sidebar_shade_color rgba(0, 0, 0, 0.25);
-@define-color secondary_sidebar_bg_color mix(#140000, #FFEEC0, 0.02);
-@define-color secondary_sidebar_fg_color #FFEEC0;
+@define-color secondary_sidebar_bg_color mix(#010001, #FCF986, 0.02);
+@define-color secondary_sidebar_fg_color #FCF986;
 @define-color secondary_sidebar_backdrop_color @window_bg_color;
 
-@define-color card_bg_color alpha(#FFEEC0, 0.06);
-@define-color card_fg_color #FFEEC0;
+@define-color card_bg_color alpha(#FCF986, 0.06);
+@define-color card_fg_color #FCF986;
 @define-color card_shade_color rgba(0, 0, 0, 0.36);
-@define-color dialog_bg_color mix(#140000, #FFEEC0, 0.06);
-@define-color dialog_fg_color #FFEEC0;
-@define-color popover_bg_color mix(#140000, #FFEEC0, 0.07);
-@define-color popover_fg_color #FFEEC0;
+@define-color dialog_bg_color mix(#010001, #FCF986, 0.06);
+@define-color dialog_fg_color #FCF986;
+@define-color popover_bg_color mix(#010001, #FCF986, 0.07);
+@define-color popover_fg_color #FCF986;
 @define-color popover_shade_color rgba(0, 0, 0, 0.25);
-@define-color thumbnail_bg_color mix(#140000, #FFEEC0, 0.07);
-@define-color thumbnail_fg_color #FFEEC0;
+@define-color thumbnail_bg_color mix(#010001, #FCF986, 0.07);
+@define-color thumbnail_fg_color #FCF986;
 
 @define-color shade_color rgba(0, 0, 0, 0.36);
 @define-color scrollbar_outline_color rgba(0, 0, 0, 0.5);

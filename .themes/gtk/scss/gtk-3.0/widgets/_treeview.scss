@@ -2,49 +2,55 @@
 @use "../colors";
 @use "../config";
 
-// TODO: check if full width horizontal separators are possible
-
+// Listes / vue détaillée : lignes alternées très subtiles, en-têtes en petites capitales atténuées, colonne triée
+// en accent, survol et sélection arrondis et translucides.
 treeview {
     -gtktreeview-expander-size: 16;
     -gtktreeview-grid-line-pattern: "";
     -gtktreeview-tree-line-pattern: "";
     -gtktreeview-horizontal-separator: 12;
-    -gtktreeview-vertical-separator: 12;
+    -gtktreeview-vertical-separator: 8;
 
-    border-left-color: colors.$white-weakest; // TODO: check if there is going to be a new way to define tree-lines
-    border-top-color: colors.$white-weakest; // TODO: check if there is going to be a new way to define column-lines
+    border-left-color: colors.$white-weakest;
+    border-top-color: colors.$white-weakest;
+
 
     &:hover {
-        background: colors.$white-weakest;
-        border-radius: 10px;
-        color: colors.$red;
+        background: color.change(colors.$accent-primary, $alpha: 0.10);
+        border-radius: 8px;
+        color: colors.$white-strongest;
     }
 
     &:selected {
-        background: color.change(
-            colors.$accent-primary,
-            $alpha: config.$tint-medium
-        );
-        color: colors.$pink;
-        border-radius: 10px;
+        background: color.change(colors.$accent-primary, $alpha: 0.28);
+        color: colors.$white-strongest;
+        border-radius: 8px;
     }
 
     header {
         button {
-            padding: config.$spacing-medium;
+            padding: 6px 12px;
             background: colors.$surface-strong;
-            border-radius: 3px;
+            border: none;
+            border-bottom: 1px solid color.change(colors.$white-strongest, $alpha: 0.08);
+            border-radius: 0;
+            box-shadow: none;
             color: colors.$white-moderate;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 1px;
+            font-variant: small-caps;
 
             &:hover:not(:active) {
                 color: colors.$white-strong;
-                background: colors.$surface-strong;
+                background: color.change(colors.$white-strongest, $alpha: 0.04);
             }
-
             &:not(:last-child) {
-                // TODO: check if there is a way to thicken threeview borders (other than this one)
                 border-right: 1px solid colors.$white-weakest;
             }
+            // colonne triée (GTK lui met une flèche) : en accent
+            &.dnd, &:active, &:checked { color: colors.$accent-primary; }
+            arrow { color: colors.$accent-primary; -gtk-icon-source: -gtk-icontheme("pan-down-symbolic"); min-width: 10px; min-height: 10px; }
         }
     }
 }

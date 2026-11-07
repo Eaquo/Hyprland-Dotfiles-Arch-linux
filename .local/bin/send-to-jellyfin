@@ -1,0 +1,26 @@
+#!/bin/sh
+# send-to-jellyfin <fichiers ou dossiers…> — action Thunar « Envoyer vers Jellyfin » : copie dans la médiathèque du
+# Proxmox (rsync par ssh, clé de root) sous Animes / Film / Séries au choix. Les fichiers arrivent en root mais l'ACL
+# par défaut de Media-jellyfin les rend lisibles par Jellyfin (cf. mémoire proxmox-homelab). Relancer l'analyse de
+# la médiathèque dans Jellyfin ensuite (ou attendre l'analyse automatique).
+set -eu
+HOST=root@192.168.1.200
+BASE=/mnt/jellyfin-storage/Media-jellyfin
+[ $# -gt 0 ] || exit 0
+
+cats=$(ssh -o ConnectTimeout=6 "$HOST" "find '$BASE' -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sort") || {
+    notify-send -a Thunar -u critical -i network-error "Envoyer vers Jellyfin" "Serveur injoignable (192.168.1.200)"; exit 1; }
+cat=$(printf '%s\n' "$cats" | zenity --list --title "Envoyer vers Jellyfin" --text "$# élément(s) — dans quelle médiathèque ?" \
+      --column "Médiathèque" --height 260 --width 360) || exit 0
+[ -n "$cat" ] || exit 0
+
+# progression : rsync --info=progress2 → pourcentage pour zenity
+rsync -a --partial --info=progress2 --no-inc-recursive -e "ssh -o ConnectTimeout=6" -- "$@" "$HOST:$BASE/$cat/" 2>&1 \
+  | stdbuf -oL tr '\r' '\n' | stdbuf -oL sed -nE 's/.* ([0-9]+)% .*/\1/p' \
+  | zenity --progress --title "Envoyer vers Jellyfin" --text "Copie vers $cat…" --auto-close --width 360 || true
+
+if ssh -o ConnectTimeout=6 "$HOST" "test -e '$BASE/$cat/$(basename "$1")'"; then
+    notify-send -a Thunar -i folder-videos "Envoyé vers Jellyfin" "$# élément(s) dans $cat"
+else
+    notify-send -a Thunar -u critical -i dialog-error "Envoyer vers Jellyfin" "La copie a échoué"
+fi

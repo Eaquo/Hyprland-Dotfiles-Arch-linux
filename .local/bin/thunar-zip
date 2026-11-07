@@ -1,0 +1,65 @@
+#!/bin/bash
+# thunar-zip — actions Thunar (~/.config/Thunar/uca.xml, sous-menu Archives)
+#   thunar-zip pack <fichiers…>     un élément → <nom>.zip ; plusieurs → <dossier parent>.zip, à côté
+#   thunar-zip unpack <archives…>   chaque archive (zip, 7z, rar, tar.*) → dossier <nom>/ à côté
+#   thunar-zip repack <archives…>   .rar / .7z → <nom>.zip à côté (même contenu, original gardé)
+# Jamais d'écrasement : « nom (2).zip », « nom (2)/ »…
+set -u
+free() {   # free <base> <ext> → premier chemin libre
+    local p="$1$2" n=2
+    while [ -e "$p" ]; do p="$1 ($n)$2"; n=$((n + 1)); done
+    printf '%s' "$p"
+}
+note() { notify-send -a Thunar -i package-x-generic "$@"; }
+
+mode="${1:?pack|unpack}"; shift
+case "$mode" in
+pack)
+    dir=$(dirname -- "$1"); cd -- "$dir" || exit 1
+    if [ $# -eq 1 ]; then base="${1##*/}"; [ -d "$1" ] || base="${base%.*}"; else base="${dir##*/}"; fi
+    out=$(free "$dir/$base" .zip)
+    names=(); for f in "$@"; do names+=("./${f##*/}"); done     # « ./ » : un nom qui commence par « - » n'est pas une option
+    if zip -qr "$out" "${names[@]}"; then note "Archive créée" "${out##*/}"
+    else note -u critical "Échec de la compression" "${out##*/}"; fi
+    ;;
+unpack)
+    for a in "$@"; do
+        base="${a%.*}"; case "$a" in *.tar.*) base="${base%.tar}" ;; esac
+        # rar en plusieurs volumes (nom.part01.rar…) : on part du premier, 7z enchaîne les suivants
+        if [[ "$a" =~ \.part0*([0-9]+)\.rar$ ]]; then
+            [ "${BASH_REMATCH[1]}" = 1 ] || continue          # toutes les parties sélectionnées : une seule extraction
+            base="${a%.part*.rar}"; n=0; missing=()
+            for p in "$base".part*.rar; do n=$((n + 1)); done
+            w=${a##*.part}; w=${#w}; w=$((w - 4))              # largeur du numéro (01 → 2)
+            for ((i = 1; i <= n; i++)); do
+                p=$(printf '%s.part%0*d.rar' "$base" "$w" "$i")
+                [ -f "$p" ] || { missing+=("$i"); n=$((n + 1)); }   # un trou décale la dernière partie
+            done
+            if [ ${#missing[@]} -gt 0 ]; then
+                note -u critical "Parties manquantes" "${base##*/} : part ${missing[*]}"; continue
+            fi
+        fi
+        out=$(free "$base" "")
+        note "Extraction en cours…" "${out##*/}/ ($(du -ch -- "$base"* 2>/dev/null | tail -1 | cut -f1))"
+        if 7z x -y -o"$out" -- "$a" >/dev/null; then
+            # archive qui contient un tar (tar.gz, tar.xz…) : 7z sort d'abord le .tar → on le déballe aussi
+            t=("$out"/*.tar); [ -f "${t[0]}" ] && [ ${#t[@]} -eq 1 ] && 7z x -y -o"$out" -- "${t[0]}" >/dev/null && rm -f -- "${t[0]}"
+            # l'archive contient déjà un seul dossier : on le remonte (pas de nom/nom/)
+            e=("$out"/*); if [ ${#e[@]} -eq 1 ] && [ -d "${e[0]}" ]; then
+                mv -- "$out" "$out.tmp$$" && mv -- "$out.tmp$$/${e[0]##*/}" "$out" && rmdir -- "$out.tmp$$"
+            fi
+            note "Archive extraite" "${out##*/}/"
+        else note -u critical "Échec de l'extraction" "${a##*/}"; fi
+    done
+    ;;
+repack)    # .rar / .7z → .zip à côté (l'original est gardé)
+    for a in "$@"; do
+        tmp=$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/thunar-zip.XXXXXX")
+        out=$(free "${a%.*}" .zip)
+        if 7z x -y -o"$tmp" -- "$a" >/dev/null && (cd -- "$tmp" && zip -qr "$out" .); then
+            note "Converti en .zip" "${out##*/}"
+        else note -u critical "Échec de la conversion" "${a##*/}"; fi
+        rm -rf -- "$tmp"
+    done
+    ;;
+esac

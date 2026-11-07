@@ -1,12 +1,12 @@
 [Desktop Entry]
 Type=X-GNOME-Metatheme
-Name=phocus
-Comment=the phocus theme
+Name=gtk
+Comment=Thème GTK3 aux couleurs wallust (fork de Phocus) — couleurs : scss/gtk-3.0/_colors.scss, généré par wallust
 Encoding=UTF-8
 
 [X-GNOME-Metatheme]
-GtkTheme=phocus
-MetacityTheme=phocus
-IconTheme=gnome
-CursorTheme=DMZ-Black
+GtkTheme=gtk
+MetacityTheme=gtk
+IconTheme=Avalon-Icons
+CursorTheme=default
 ButtonLayout=menu:minimize,maximize,close

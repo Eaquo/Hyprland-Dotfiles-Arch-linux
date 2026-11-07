@@ -940,6 +940,16 @@ StatCard {
                             }
                         }
                     }
+                    // Mode Coding : thème reposant pour tout le système + lumière chaude ; clic droit = sombre ⇄ clair
+                    TglBtn {
+                        width: tileGrid.btnW; height: tileGrid.btnH
+                        on: CodingMode.active
+                        icon: CodingMode.variant === "light" ? "󰖨" : "󰖔"
+                        label: "Coding"
+                        sublabel: CodingMode.label + (CodingMode.active ? "" : " · clic droit")
+                        onToggled: CodingMode.toggle()
+                        onRightClicked: CodingMode.switchVariant()
+                    }
                     // Filter tile — opens picker, does not toggle directly
                     TglBtn {
                         width: tileGrid.btnW; height: tileGrid.btnH

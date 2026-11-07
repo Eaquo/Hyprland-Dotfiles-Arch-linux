@@ -270,16 +270,16 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
 | `AppDeck.qml` (64 l. · singleton) | tuiles de l'onglet Apps (pages/apps/StreamDeck.qml), éditées dans Réglages › Apps | AppDock, AppsLauncher, AppsPage, StreamDeck |
-| `Appearance.qml` (344 l. · singleton) | ── Source des couleurs (Réglages › Couleurs, [theme] dans config.toml) ── | AltTab, AnimPage, AppDeck, AppDock, AppLauncher … (+134) |
+| `Appearance.qml` (344 l. · singleton) | ── Source des couleurs (Réglages › Couleurs, [theme] dans config.toml) ── | AltTab, AnimPage, AppDeck, AppDock, AppLauncher … (+135) |
 | `BarModules.qml` (49 l. · singleton) | catalogue des modules de la barre et disposition ([bar.layout] dans config.toml) | Bar, BarPage |
 | `ClockState.qml` (32 l. · singleton) | état des modules horloge (timer / chrono / alarmes) | ClockCard |
-| `Config.qml` (122 l. · singleton) | réglages généraux lus dans config.toml (à la racine du projet) | AltTab, AnimPage, AppDeck, Appearance, Apps … (+72) |
+| `Config.qml` (136 l. · singleton) | réglages généraux lus dans config.toml (à la racine du projet) | AltTab, AnimPage, AppDeck, Appearance, Apps … (+73) |
 | `GameBreak.qml` (131 l. · singleton) | « pause tactile » pendant un jeu | AppDock, GameBreakBar, GameModeTab, GamePage, HealthTab … (+7) |
 | `GameMode.qml` (197 l. · singleton) | bascule automatique quand un jeu tourne | GameModeTab, GamePage, Island, NotificationService, TouchPanel … (+2) |
 | `Popups.qml` (99 l. · singleton) | ── État d'ouverture par popup ───────────────────────────────────────── | AltTab, AppsPage, Audio, AudioPage, BarPage … (+33) |
 | `ShellState.qml` (108 l. · singleton) | État global du shell | AppsPage, Bar, Batteries, DevicesPage, GameBreak … (+18) |
 | `TouchTabs.qml` (50 l. · singleton) | catalogue des onglets du panneau tactile (TouchPanel.qml) et de leur état | AppsPage, TouchPage, TouchPanel |
-| `WallpaperState.qml` (222 l. · singleton) | État + config des effets wallpaper (glitch, screen shader) | Appearance, GridDash, LockScreen, Menu, Overview … (+14) |
+| `WallpaperState.qml` (222 l. · singleton) | État + config des effets wallpaper (glitch, screen shader) | Appearance, CodingMode, GridDash, LockScreen, Menu … (+15) |
 
 ### `core/functions/`
 
@@ -312,7 +312,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `keyhints.sh` (25 l.) | Aide-mémoire des raccourcis, construit automatiquement depuis la config Hyprland — SUPER+H | keyhints.py |
 | `menus.sh` (16 l.) | Tous les menus Quick-Bar (ce dossier) : en choisir un pour le lancer | — |
 | `proxmox.sh` (133 l.) | Mises à jour Proxmox : l'hôte et chaque LXC (apt), le changelog Debian à droite ; entrée = un paquet, un conteneur ou tout | Proxmox.qml |
-| `quickedit.sh` (39 l.) | Éditer une config : d'abord Lua, conf de base ou Quick-Bar, puis le fichier (aperçu à droite) — SUPER+MAJ+E | — |
+| `quickedit.sh` (40 l.) | Éditer une config : d'abord Lua, conf de base ou Quick-Bar, puis le fichier (aperçu à droite) — SUPER+MAJ+E | — |
 | `search.sh` (10 l.) | Recherche web dans le navigateur par défaut — SUPER+MAJ+Z | — |
 | `themes.sh` (19 l.) | Palettes wallust prêtes à l'emploi : aperçu des couleurs, entrée applique à tout le système | — |
 | `updates.sh` (142 l.) | Mises à jour du système : la liste des paquets (dépôts et AUR) avec leur changelog à droite ; entrée = mettre à jour ce paquet ou tout | Updates.qml |
@@ -405,7 +405,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `DashHome.qml` (116 l.) | Dashboard Home tab — layout only | Dashboard |
 | `PlayerCard.qml` (535 l.) | ── Source allowlist ────────────────────────────────────────────────────── | CavaService, DashHome, GridDash, TouchHome |
 | `ProfileCard.qml` (145 l.) | Profile card — circular avatar, username, window manager, uptime | DashHome, GridDash, TouchHome |
-| `QuickSettings.qml` (1139 l.) | Right column — brightness slider + scrollable quick-settings grid | DashHome, GridDash, ShellState, TouchHome |
+| `QuickSettings.qml` (1149 l.) | Right column — brightness slider + scrollable quick-settings grid | DashHome, GridDash, ShellState, TouchHome |
 | `TouchHome.qml` (93 l.) | variante tactile (ultra-large) de la page Home du Dashboard | TouchTabs |
 
 ### `pages/kanban/`
@@ -449,16 +449,16 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `PageHeader.qml` (15 l.) | titre de page + sous-titre (souvent : où c'est rangé dans config.toml) | AnimPage, AppsPage, AudioPage, BarPage, CapturePage … (+19) |
 | `PlannedPage.qml` (27 l.) | page de réglages pas encore construite : ce qu'elle contiendra | SettingsPanel |
 | `RefreshPage.qml` (64 l.) | Réglages › Barre › Rafraîchissement : intervalles de mise à jour ([refresh], en secondes) | SettingsPanel |
-| `SessionPage.qml` (71 l.) | Réglages › Panneaux › Écran de session ([session] style, lu par panels/SessionPanel.qml) | SettingsPanel |
+| `SessionPage.qml` (76 l.) | Réglages › Panneaux › Écran de session ([session] style, lu par panels/SessionPanel.qml) | SettingsPanel |
 | `SetButton.qml` (24 l.) | bouton des pages de réglages (primary = plein, active = sélectionné) | AnimPage, AppsPage, AudioPage, BarPage, CapturePage … (+13) |
 | `SetCard.qml` (55 l.) | section d'une page de réglages : titre en petites capitales + lignes | AnimPage, AppsPage, AudioPage, BarPage, CapturePage … (+18) |
-| `SetDropdown.qml` (76 l.) | liste déroulante : options = [[valeur, libellé], …], current = valeur active, busy = « … » à droite | WallPage |
+| `SetDropdown.qml` (77 l.) | liste déroulante : options = [[valeur, libellé], …], current = valeur active, busy = « … » à droite | WallPage, WallpaperTab |
 | `SetInput.qml` (33 l.) | champ texte ; `committed(text)` quand on valide (Entrée) ou quitte le champ | AppsPage, CapturePage, ColorsPage, DevicesPage, FontsPage … (+4) |
 | `SetOrderList.qml` (66 l.) | liste d'éléments à réordonner (flèches) et activer (interrupteur) | BarPage, DashboardPage, TouchPage |
 | `SetRow.qml` (41 l.) | une ligne de réglage : titre + description à gauche, commande à droite | AnimPage, AppsPage, AudioPage, BarPage, CapturePage … (+16) |
 | `SetSeg.qml` (31 l.) | choix exclusif : options = [[valeur, libellé], …], current = valeur active | AnimPage, AppsPage, BarPage, CapturePage, ColorsPage … (+7) |
 | `SetSlider.qml` (52 l.) | curseur avec valeur affichée ; `moved(v)` à chaque déplacement (valeur arrondie au pas) | AppsPage, BarPage, CapturePage, DashboardPage, FontsPage … (+8) |
-| `SetSwitch.qml` (22 l.) | interrupteur à ressort (même style que le reste de Quick-Bar) | AppsPage, BarPage, CapturePage, ColorsPage, DevicesPage … (+7) |
+| `SetSwitch.qml` (22 l.) | interrupteur à ressort (même style que le reste de Quick-Bar) | AppsPage, BarPage, CapturePage, ColorsPage, DevicesPage … (+8) |
 | `SpotifyPage.qml` (33 l.) | Réglages › Panneaux › Spotify et média ([spotify] width · height) | SettingsPanel |
 | `StatsPage.qml` (37 l.) | Réglages › Système › Stats et seuils : affichage des stats de la barre et | SettingsPanel |
 | `ThemePage.qml` (296 l.) | Réglages › Apparence › Thème : préréglages, accent, bordures animées, arrondis ([theme], [bar]) | SettingsPanel |
@@ -489,7 +489,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `WallpaperTab.qml` (812 l.) | galerie de wallpapers à gauche, panneau des effets à droite | Dashboard, TouchTabs |
+| `WallpaperTab.qml` (832 l.) | galerie de wallpapers à gauche, panneau des effets à droite | Dashboard, TouchTabs |
 
 ### `pages/wallust/`
 
@@ -508,7 +508,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `EqCenter.qml` (230 l.) | centre audio flottant au milieu de l'écran principal (clic droit sur le volume ou le micro de la | Audio, shell |
 | `EqPopup.qml` (419 l.) | ── State ───────────────────────────────────────────────── | shell |
 | `GameBreakBar.qml` (137 l.) | pastille flottante affichée sur le Xeneon pendant une pause jeu | GameBreak, shell |
-| `LockScreen.qml` (278 l.) | verrouillage de session Quick-Bar (ext-session-lock : si Quick-Bar plante, la session | shell |
+| `LockScreen.qml` (292 l.) | verrouillage de session Quick-Bar (ext-session-lock : si Quick-Bar plante, la session | shell |
 | `MediaPlayerPopup.qml` (393 l.) | Hotspot zone du bouton EQ dans la barre → switch vers EQ popup | shell |
 | `Menu.qml` (879 l.) | le cadre des menus Quick-Bar (remplace rofi). Voir menus/README.md | List, shell |
 | `NotifCenter.qml` (389 l.) | l'historique des notifications (SUPER+MAJ+N, clic sur le module de la barre), dans | NotifCard, NotificationService, shell |
@@ -552,7 +552,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
-| `config_set.py` (50 l.) | — | Config.qml |
+| `config_set.py` (58 l.) | — | Config.qml |
 | `swaync_set.py` (38 l.) | — | NotifPage.qml |
 
 ### `scripts/dev/`
@@ -609,6 +609,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 
 | Fichier | Rôle | Utilisé par |
 |---|---|---|
+| `coding-mode.sh` (44 l.) | coding-mode.sh on <thème wallust> <température K / 0> / off — mode Coding (tuile des réglages rapides, | CodingMode.qml, wall-effect.sh |
 | `deps.py` (221 l.) | — | DepsPage.qml |
 | `device-photos.py` (111 l.) | Photos des périphériques pour la page Devices du dashboard. Pour chaque modèle de assets/devices/devices.json | Batteries.qml, DevicesPage.qml |
 | `fonts.py` (25 l.) | — | FontsPage.qml |
@@ -616,7 +617,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 | `keyboard-info.py` (63 l.) | Clavier principal pour la page Devices : `hyprctl devices -j` (disposition active, Verr. Maj, Verr. Num) et | Batteries.qml |
 | `sysstats.py` (261 l.) | Intervalles (s) : argv[1] au repos, argv[2] pendant le survol — [refresh] stats dans config.toml | SysData.qml, SysStats.qml |
 | `vader5-battery.py` (57 l.) | Batterie de la manette Flydigi Vader 5 Pro (dongle 37d7:2401 ou filaire), lue sur son interface HID | Batteries.qml |
-| `wall-effect.sh` (43 l.) | wall-effect.sh <effet> — effet ImageMagick sur le fond d'écran (remplace UserScripts/WallpaperEffects.sh, qui passait | WallpaperState.qml |
+| `wall-effect.sh` (43 l.) | wall-effect.sh <effet> — effet ImageMagick sur le fond d'écran (remplace UserScripts/WallpaperEffects.sh, qui passait | WallpaperState.qml, coding-mode.sh |
 | `wall-mana.py` (153 l.) | prépare l'effet Mana d'un fond d'écran (wallpaper/shaders/mana.frag) : | Wallpaper.qml |
 
 ### `scripts/wallust/`
@@ -631,6 +632,7 @@ les fichiers qui instancient ou appellent le type, ou qui lancent le script.
 |---|---|---|
 | `Batteries.qml` (215 l. · singleton) | appareils sur batterie vus par UPower (souris Logitech via hidpp, casques Bluetooth…), | DashBattery, DevicesPage, GameModeTab, GridDash, NotifCard … (+2) |
 | `CavaService.qml` (56 l. · singleton) | Single cava process shared by CenterContent and PlayerCard | EqDash, GridDash, PlayerCard |
+| `CodingMode.qml` (56 l. · singleton) | mode Coding du soir (tuile des réglages rapides) : un thème wallust fixe et reposant pour tout le | QuickSettings |
 | `DiscordService.qml` (128 l. · singleton) | pont vers le serveur Discord via scripts/discord/discord_bridge.py | DiscordChat |
 | `Health.qml` (116 l. · singleton) | bilan de santé de ce dont Quick-Bar dépend (OpenRGB, EasyEffects, | HealthPage, HealthTab, TouchPanel |
 | `Island.qml` (73 l. · singleton) | île dynamique (panels/DynamicIsland.qml) : une pastille au centre de la barre qui s'agrandit quelques | Batteries, DynamicIsland, Shots, shell |

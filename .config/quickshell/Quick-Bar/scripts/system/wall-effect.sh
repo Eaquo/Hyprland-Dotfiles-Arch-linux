@@ -36,7 +36,7 @@ mkdir -p "${out%/*}"
 # shellcheck disable=SC2086
 magick "$src" -resize '3840x>' $op "$out"
 ln -sf "$out" "$HOME/.config/rofi/.current_wallpaper"
-wallust run "$out" -s >/dev/null 2>&1 || true
+"$(dirname "$0")/coding-mode.sh" theme || wallust run "$out" -s >/dev/null 2>&1 || true   # mode Coding : son thème
 pkill -USR1 -x kitty 2>/dev/null || true
 bash "$HOME/.config/hypr/scripts/Refresh.sh" >/dev/null 2>&1 &
 echo "$out"

@@ -8,6 +8,7 @@ MESSAGE="Quel type de config ?"
 NO_CUSTOM=1
 
 HYPR="$HOME/.config/hypr"
+QUICK="$HOME/.config/quickshell/Quick-Bar/hypr"
 
 items() {
     item "Config Lua"              id=lua  glyph=""
@@ -19,7 +20,7 @@ items() {
 files_of() {
     local f
     case $1 in
-        lua)  for f in "$HYPR"/*.lua "$HYPR/configs lua"/*.lua; do item "$(basename "$f")" id="$f" glyph="󰢱" sub="${f#$HYPR/}"; done ;;
+        lua)  for f in "$HYPR"/*.lua "$HYPR/configs lua"/*.lua "$QUICK"/*.lua; do item "$(basename "$f")" id="$f" glyph="󰢱" sub="${f#$HYPR/}"; done ;;
         conf) for f in "$HYPR"/*.conf "$HYPR/configs"/*.conf; do [ -f "$f" ] && item "$(basename "$f")" id="$f" glyph="󰈙" sub="${f#$HYPR/}"; done ;;
         qb)   item "config.toml" id="$QB_DIR/config.toml" glyph="󰒓" sub="réglages Quick-Bar"
               item "quickbar.lua" id="$QB_DIR/hypr/quickbar.lua" glyph="󰌌" sub="raccourcis générés"

@@ -2,23 +2,122 @@
 @use "../colors";
 @use "../config";
 
-.thunar .view:selected {
-  background-color: color.change(colors.$accent-primary, $alpha: config.$tint-medium);
-  border: 1px solid colors.$red;
-  border-radius: 5px;
-  color: colors.$white-strong;
-}
+// Thunar — vue en grille / liste, barre latérale, fil d'Ariane (barre d'adresse en boutons), barre d'état.
+// Couleurs : rôles de ../colors (wallust) ; le texte passe par legible() dans le template de couleurs.
 
+$accent: colors.$accent-primary;
+
+// ── vue (grille et liste) : sélection arrondie avec contour d'accent, survol doux ──
+.thunar .view:selected,
 .thunar .view cell:selected {
-  background-color: color.change(colors.$accent-primary, $alpha: config.$tint-medium);
-  border-radius: 5px;
-  color: colors.$white-strong;
+  background-color: color.change($accent, $alpha: 0.28);
+  border: 1px solid color.change($accent, $alpha: 0.85);
+  border-radius: 8px;
+  color: colors.$white-strongest;
 }
 
 .thunar .view:hover {
-  background: colors.$pink-custom;
-  border-radius: 6px;
-  color: colors.$red-custom;
+  background: color.change($accent, $alpha: 0.10);
+  border-radius: 8px;
+  color: colors.$white-strongest;
 }
 
+// sélection au lasso
+.thunar .view.rubberband,
+.thunar .rubberband {
+  background-color: color.change($accent, $alpha: 0.18);
+  border: 1px solid $accent;
+  border-radius: 6px;
+}
 
+// ── barre latérale (raccourcis et arborescence) ──
+.thunar .sidebar,
+.thunar .sidebar .view {
+  background-color: color.change(colors.$surface-strongest, $alpha: 0.55);
+}
+.thunar .sidebar .view {
+  padding: 2px 4px;
+}
+.thunar .sidebar .view:hover {
+  background: color.change(colors.$white-strongest, $alpha: 0.06);
+  border-radius: 6px;
+}
+// emplacement actif : fond léger + trait d'accent à gauche
+.thunar .sidebar .view:selected {
+  background-color: color.change($accent, $alpha: 0.20);
+  border: none;
+  border-left: 3px solid $accent;
+  border-radius: 0 8px 8px 0;
+  color: colors.$white-strongest;
+}
+
+// ── fil d'Ariane : chemin en pilules, dossier courant en accent ──
+.thunar .path-bar button {
+  min-height: 0;
+  padding: 3px 10px;
+  margin: 0 1px;
+  border-radius: 999px;
+  border: 1px solid color.change(colors.$white-strongest, $alpha: 0.10);
+  background: color.change(colors.$white-strongest, $alpha: 0.04);
+  color: colors.$white-strong;
+  box-shadow: none;
+}
+.thunar .path-bar button:hover {
+  background: color.change($accent, $alpha: 0.14);
+  border-color: color.change($accent, $alpha: 0.5);
+}
+.thunar .path-bar button:checked {
+  background: color.change($accent, $alpha: 0.30);
+  border-color: $accent;
+  color: colors.$white-strongest;
+}
+
+// ── barre d'état : discrète ──
+.thunar statusbar,
+.thunar .statusbar {
+  min-height: 0;
+  padding: 2px 10px;
+  border: none;
+  border-top: 1px solid color.change(colors.$white-strongest, $alpha: 0.06);
+  background: transparent;
+  color: colors.$white-moderate;
+  font-size: 0.9em;
+}
+.thunar statusbar > frame,
+.thunar statusbar frame > border {
+  border: none;
+}
+
+// ── fond translucide, texte net (essai) : seul le fond laisse voir le flou du fond d'écran ; Hyprland ne doit plus
+// rendre la fenêtre entière transparente (sinon le texte l'est aussi) ──
+$thunar-bg: color.change(colors.$surface-strongest, $alpha: 0.85);
+window.thunar,
+window.thunar.background {
+  background-color: $thunar-bg;
+}
+// barre de titre CSD (où Thunar met sa barre de menus) : dessinée à part du fond de la fenêtre → même teinte
+window.thunar headerbar,
+window.thunar .titlebar {
+  background-color: $thunar-bg;
+  background-image: none;
+  box-shadow: none;
+  border: none;
+}
+// tout le reste transparent → UNE seule teinte uniforme (celle de la fenêtre). Préfixe window.thunar : plus précis
+// que les règles de base (notebook stack:only-child, iconview…) qui repeignaient la zone principale en opaque.
+window.thunar iconview,
+window.thunar .view,
+window.thunar scrolledwindow,
+window.thunar viewport,
+window.thunar notebook,
+window.thunar notebook > stack,
+window.thunar notebook stack:only-child,
+window.thunar toolbar,
+window.thunar menubar,
+window.thunar headerbar menubar,
+window.thunar statusbar,
+window.thunar .sidebar,
+window.thunar .sidebar .view {
+  background-color: transparent;
+}
+.thunar paned > separator { background: color.change(colors.$white-strongest, $alpha: 0.06); }

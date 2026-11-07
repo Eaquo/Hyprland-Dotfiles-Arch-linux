@@ -62,18 +62,20 @@ name   = "Github"
 type   = "url"
 target = "https://github.com/Eaquo"
 [wallpaper]
-dir    = "~/Pictures/wallpapers"wVidéos (gslapper). Par défaut : sous-dossier Video du dossier ci-dessus.
 # Dossier des wallpapers (galerie de l'onglet Wall, bouton Aléatoire, rotation auto).
+dir    = "~/Pictures/wallpapers"
+# Vidéos (gslapper). Par défaut : sous-dossier Video du dossier ci-dessus.
 videos = "~/Pictures/wallpapers/Video"
 
 [theme]
 palette        = "wallust"
-matugen_prefer = "value"
-matugen_mode   = "dark"
+matugen_prefer = "less-saturation"
+matugen_mode   = "light"
 
 [bar]
 height     = 38
 top_margin = 7
+radius = 19
 
 [bar.layout]
 left   = ["launcher", "stats"]
@@ -112,3 +114,6 @@ apps_layout = "hive"
 
 [lock]
 auto_minutes = 10
+
+[coding]
+variant = "dark"
